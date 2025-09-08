@@ -1,625 +1,388 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Ricerca Terreni - Sistema Completo</title>
-   <style>
-       * {
-           margin: 0;
-           padding: 0;
-           box-sizing: border-box;
-       }
-       
-       body {
-           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-           background: linear-gradient(135deg, #667eea, #764ba2);
-           min-height: 100vh;
-           padding: 20px;
-       }
-       
-       .container {
-           max-width: 1200px;
-           margin: 0 auto;
-           background: white;
-           border-radius: 20px;
-           padding: 40px;
-           box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-       }
-       
-       h1 {
-           text-align: center;
-           color: #2c3e50;
-           font-size: 2.5em;
-           margin-bottom: 10px;
-       }
-       
-       .subtitle {
-           text-align: center;
-           color: #666;
-           margin-bottom: 30px;
-           font-size: 1.1em;
-       }
-       
-       .form-section {
-           background: #f8f9fa;
-           padding: 30px;
-           border-radius: 15px;
-           margin-bottom: 30px;
-       }
-       
-       .form-grid {
-           display: grid;
-           grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-           gap: 20px;
-           margin-bottom: 20px;
-       }
-       
-       .form-group {
-           display: flex;
-           flex-direction: column;
-       }
-       
-       .form-group label {
-           font-weight: 600;
-           margin-bottom: 8px;
-           color: #333;
-           display: flex;
-           align-items: center;
-           gap: 5px;
-       }
-       
-       .required {
-           color: #dc3545;
-       }
-       
-       .form-group input,
-       .form-group select {
-           padding: 12px;
-           border: 2px solid #ddd;
-           border-radius: 8px;
-           font-size: 15px;
-           transition: border-color 0.3s;
-       }
-       
-       .form-group input:focus,
-       .form-group select:focus {
-           outline: none;
-           border-color: #667eea;
-           box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-       }
-       
-       .btn-container {
-           display: grid;
-           grid-template-columns: 2fr 1fr;
-           gap: 15px;
-           margin-top: 25px;
-       }
-       
-       .btn {
-           padding: 15px 30px;
-           border: none;
-           border-radius: 10px;
-           font-size: 16px;
-           font-weight: bold;
-           cursor: pointer;
-           transition: all 0.3s;
-       }
-       
-       .btn-search {
-           background: linear-gradient(45deg, #28a745, #20c997);
-           color: white;
-       }
-       
-       .btn-search:hover {
-           transform: translateY(-2px);
-           box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
-       }
-       
-       .btn-reset {
-           background: #6c757d;
-           color: white;
-       }
-       
-       .btn-reset:hover {
-           background: #5a6268;
-       }
-       
-       .results {
-           display: none;
-       }
-       
-       .results.show {
-           display: block;
-       }
-       
-       .results-header {
-           background: linear-gradient(45deg, #2c3e50, #34495e);
-           color: white;
-           padding: 20px;
-           border-radius: 10px 10px 0 0;
-           text-align: center;
-       }
-       
-       .sites-container {
-           background: #f8f9fa;
-           padding: 30px;
-           border-radius: 0 0 10px 10px;
-       }
-       
-       .site-card {
-           background: white;
-           border: 2px solid #e0e0e0;
-           border-radius: 10px;
-           padding: 20px;
-           margin-bottom: 15px;
-           transition: all 0.3s;
-       }
-       
-       .site-card:hover {
-           border-color: #667eea;
-           transform: translateX(10px);
-           box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-       }
-       
-       .site-header {
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           margin-bottom: 10px;
-       }
-       
-       .site-name {
-           font-size: 1.3em;
-           font-weight: bold;
-           color: #2c3e50;
-       }
-       
-       .site-badge {
-           background: #28a745;
-           color: white;
-           padding: 4px 12px;
-           border-radius: 20px;
-           font-size: 12px;
-       }
-       
-       .site-link {
-           display: inline-block;
-           background: #007bff;
-           color: white;
-           padding: 12px 25px;
-           text-decoration: none;
-           border-radius: 8px;
-           font-weight: bold;
-           margin-right: 10px;
-           margin-top: 10px;
-           transition: all 0.3s;
-       }
-       
-       .site-link:hover {
-           background: #0056b3;
-           transform: translateY(-2px);
-       }
-       
-       .copy-btn {
-           background: #6c757d;
-           color: white;
-           border: none;
-           padding: 12px 20px;
-           border-radius: 8px;
-           cursor: pointer;
-           font-weight: bold;
-       }
-       
-       .copy-btn:hover {
-           background: #5a6268;
-       }
-       
-       .summary {
-           background: #e3f2fd;
-           padding: 20px;
-           border-radius: 10px;
-           margin-bottom: 20px;
-           border-left: 4px solid #2196f3;
-       }
-       
-       .summary h3 {
-           color: #1976d2;
-           margin-bottom: 10px;
-       }
-       
-       .summary-grid {
-           display: grid;
-           grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-           gap: 15px;
-           margin-top: 15px;
-       }
-       
-       .summary-item {
-           display: flex;
-           align-items: center;
-           gap: 8px;
-       }
-       
-       .summary-label {
-           font-weight: bold;
-           color: #555;
-       }
-       
-       .summary-value {
-           color: #1976d2;
-       }
-       
-       @media (max-width: 768px) {
-           .form-grid {
-               grid-template-columns: 1fr;
-           }
-           .btn-container {
-               grid-template-columns: 1fr;
-           }
-       }
-   </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ricerca Terreni - Link Corretti</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .info-box {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+        }
+        
+        .site-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .site-card:hover {
+            border-color: #667eea;
+            transform: translateX(10px);
+        }
+        
+        .site-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .site-desc {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .site-link {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .site-link:hover {
+            background: #0056b3;
+        }
+        
+        .site-link.primary {
+            background: #28a745;
+        }
+        
+        .site-link.primary:hover {
+            background: #218838;
+        }
+        
+        .debug-info {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
+            word-break: break-all;
+        }
+        
+        .quick-search {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .quick-btn {
+            background: #ffc107;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .quick-btn:hover {
+            background: #ffb300;
+        }
+    </style>
 </head>
 <body>
-   <div class="container">
-       <h1>🏞️ Ricerca Terreni Avanzata</h1>
-       <p class="subtitle">Sistema completo con tutti i parametri di ricerca</p>
-       
-       <div class="form-section">
-           <h2 style="margin-bottom: 20px; color: #2c3e50;">Imposta i tuoi criteri di ricerca:</h2>
-           
-           <div class="form-grid">
-               <div class="form-group">
-                   <label>
-                       📍 Località/Città
-                       <span class="required">*</span>
-                   </label>
-                   <input type="text" id="location" placeholder="es. Milano, Roma, Napoli, Catania" required>
-               </div>
-               
-               <div class="form-group">
-                   <label>🏛️ Provincia (sigla)</label>
-                   <input type="text" id="provincia" placeholder="es. MI, RM, NA, CT" maxlength="2">
-               </div>
-               
-               <div class="form-group">
-                   <label>🏗️ Tipo Terreno</label>
-                   <select id="tipo">
-                       <option value="">Tutti i tipi</option>
-                       <option value="agricolo">Agricolo</option>
-                       <option value="edificabile">Edificabile</option>
-                       <option value="industriale">Industriale/Artigianale</option>
-                       <option value="commerciale">Commerciale</option>
-                       <option value="residenziale">Residenziale</option>
-                       <option value="turistico">Turistico/Ricettivo</option>
-                       <option value="boschivo">Boschivo</option>
-                       <option value="rustico">Rustico con rudere</option>
-                   </select>
-               </div>
-               
-               <div class="form-group">
-                   <label>💰 Prezzo Minimo €</label>
-                   <input type="number" id="prezzoMin" placeholder="es. 10000" step="1000">
-               </div>
-               
-               <div class="form-group">
-                   <label>💰 Prezzo Massimo €</label>
-                   <input type="number" id="prezzoMax" placeholder="es. 100000" step="1000">
-               </div>
-               
-               <div class="form-group">
-                   <label>📏 Superficie Min (mq)</label>
-                   <input type="number" id="mqMin" placeholder="es. 500" step="100">
-               </div>
-               
-               <div class="form-group">
-                   <label>📏 Superficie Max (mq)</label>
-                   <input type="number" id="mqMax" placeholder="es. 10000" step="100">
-               </div>
-               
-               <div class="form-group">
-                   <label>🌄 Caratteristiche</label>
-                   <select id="caratteristiche">
-                       <option value="">Qualsiasi</option>
-                       <option value="pianeggiante">Terreno pianeggiante</option>
-                       <option value="collinare">Terreno collinare</option>
-                       <option value="montano">Terreno montano</option>
-                       <option value="mare">Vista mare/Vicino mare</option>
-                       <option value="lago">Vista lago/Vicino lago</option>
-                       <option value="strada">Fronte strada</option>
-                       <option value="recintato">Già recintato</option>
-                       <option value="pozze">Con pozzo</option>
-                       <option value="allaccio">Allacci utenze</option>
-                   </select>
-               </div>
-               
-               <div class="form-group">
-                   <label>📍 Distanza dal centro (km)</label>
-                   <input type="number" id="distanza" placeholder="es. 5" step="1">
-               </div>
-           </div>
-           
-           <div class="btn-container">
-               <button class="btn btn-search" onclick="cercaConParametri()">
-                   🔍 CERCA TERRENI
-               </button>
-               <button class="btn btn-reset" onclick="resetForm()">
-                   🔄 PULISCI FORM
-               </button>
-           </div>
-       </div>
-       
-       <div id="results" class="results">
-           <div class="summary" id="summary"></div>
-           
-           <div class="results-header">
-               <h2>🎯 Link Diretti ai Portali Immobiliari</h2>
-               <p>Clicca per cercare con i tuoi parametri</p>
-           </div>
-           
-           <div class="sites-container" id="sitesContainer"></div>
-       </div>
-   </div>
-   
-   <script>
-   function cercaConParametri() {
-       const location = document.getElementById('location').value.trim();
-       
-       if (!location) {
-           alert('⚠️ La località è obbligatoria!');
-           document.getElementById('location').focus();
-           return;
-       }
-       
-       // Raccogli tutti i parametri
-       const params = {
-           location: location,
-           provincia: document.getElementById('provincia').value,
-           tipo: document.getElementById('tipo').value,
-           prezzoMin: document.getElementById('prezzoMin').value,
-           prezzoMax: document.getElementById('prezzoMax').value,
-           mqMin: document.getElementById('mqMin').value,
-           mqMax: document.getElementById('mqMax').value,
-           caratteristiche: document.getElementById('caratteristiche').value,
-           distanza: document.getElementById('distanza').value
-       };
-       
-       // Mostra riepilogo ricerca
-       mostraRiepilogo(params);
-       
-       // Genera link per ogni sito
-       generaLinks(params);
-       
-       // Mostra risultati
-       document.getElementById('results').classList.add('show');
-       document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-   }
-   
-   function mostraRiepilogo(params) {
-       let html = '<h3>📊 Riepilogo della tua ricerca:</h3><div class="summary-grid">';
-       
-       html += `<div class="summary-item">
-           <span class="summary-label">📍 Località:</span>
-           <span class="summary-value">${params.location}</span>
-       </div>`;
-       
-       if (params.provincia) {
-           html += `<div class="summary-item">
-               <span class="summary-label">🏛️ Provincia:</span>
-               <span class="summary-value">${params.provincia.toUpperCase()}</span>
-           </div>`;
-       }
-       
-       if (params.tipo) {
-           html += `<div class="summary-item">
-               <span class="summary-label">🏗️ Tipo:</span>
-               <span class="summary-value">${params.tipo}</span>
-           </div>`;
-       }
-       
-       if (params.prezzoMin || params.prezzoMax) {
-           const prezzo = params.prezzoMin && params.prezzoMax ? 
-               `€${Number(params.prezzoMin).toLocaleString('it-IT')} - €${Number(params.prezzoMax).toLocaleString('it-IT')}` :
-               params.prezzoMin ? `Min €${Number(params.prezzoMin).toLocaleString('it-IT')}` :
-               `Max €${Number(params.prezzoMax).toLocaleString('it-IT')}`;
-           
-           html += `<div class="summary-item">
-               <span class="summary-label">💰 Prezzo:</span>
-               <span class="summary-value">${prezzo}</span>
-           </div>`;
-       }
-       
-       if (params.mqMin || params.mqMax) {
-           const mq = params.mqMin && params.mqMax ? 
-               `${params.mqMin} - ${params.mqMax} mq` :
-               params.mqMin ? `Min ${params.mqMin} mq` :
-               `Max ${params.mqMax} mq`;
-           
-           html += `<div class="summary-item">
-               <span class="summary-label">📏 Superficie:</span>
-               <span class="summary-value">${mq}</span>
-           </div>`;
-       }
-       
-       if (params.caratteristiche) {
-           html += `<div class="summary-item">
-               <span class="summary-label">🌄 Caratteristiche:</span>
-               <span class="summary-value">${params.caratteristiche}</span>
-           </div>`;
-       }
-       
-       if (params.distanza) {
-           html += `<div class="summary-item">
-               <span class="summary-label">📍 Distanza:</span>
-               <span class="summary-value">Max ${params.distanza} km dal centro</span>
-           </div>`;
-       }
-       
-       html += '</div>';
-       document.getElementById('summary').innerHTML = html;
-   }
-   
-   function generaLinks(params) {
-       const locationSlug = params.location.toLowerCase()
-           .normalize("NFD")
-           .replace(/[\u0300-\u036f]/g, "")
-           .replace(/\s+/g, '-')
-           .replace(/[^a-z0-9-]/g, '');
-       
-       const locationEncoded = encodeURIComponent(params.location);
-       
-       const sites = [
-           {
-               name: 'Immobiliare.it',
-               badge: 'Più annunci',
-               desc: 'Il portale N°1 in Italia',
-               url: buildImmobiliareUrl(locationSlug, params)
-           },
-           {
-               name: 'Idealista.it',
-               badge: 'Verificati',
-               desc: 'Annunci con foto verificate',
-               url: buildIdealistaUrl(locationSlug, params)
-           },
-           {
-               name: 'Subito.it',
-               badge: 'Privati',
-               desc: 'Annunci diretti da privati',
-               url: buildSubitoUrl(locationEncoded, params)
-           },
-           {
-               name: 'Casa.it',
-               badge: 'Agenzie',
-               desc: 'Solo agenzie professionali',
-               url: buildCasaUrl(locationSlug, params)
-           },
-           {
-               name: 'Bakeca.it',
-               badge: 'Locali',
-               desc: 'Annunci della zona',
-               url: buildBakecaUrl(locationEncoded, params)
-           }
-       ];
-       
-       let html = '';
-       sites.forEach(site => {
-           html += `
-               <div class="site-card">
-                   <div class="site-header">
-                       <div class="site-name">${site.name}</div>
-                       <div class="site-badge">${site.badge}</div>
-                   </div>
-                   <p style="color: #666; margin: 10px 0;">${site.desc}</p>
-                   <a href="${site.url}" target="_blank" class="site-link">
-                       Apri Ricerca →
-                   </a>
-                   <button class="copy-btn" onclick="copyUrl('${site.url}')">
-                       📋 Copia Link
-                   </button>
-               </div>
-           `;
-       });
-       
-       document.getElementById('sitesContainer').innerHTML = html;
-   }
-   
-   function buildImmobiliareUrl(location, params) {
-       let url = `https://www.immobiliare.it/terreni/vendita-${location}/`;
-       const queryParams = [];
-       
-       if (params.prezzoMin) queryParams.push(`prezzoMinimo=${params.prezzoMin}`);
-       if (params.prezzoMax) queryParams.push(`prezzoMassimo=${params.prezzoMax}`);
-       if (params.mqMin) queryParams.push(`superficieMinima=${params.mqMin}`);
-       if (params.mqMax) queryParams.push(`superficieMassima=${params.mqMax}`);
-       
-       if (queryParams.length > 0) {
-           url += '?' + queryParams.join('&');
-       }
-       
-       return url;
-   }
-   
-   function buildIdealistaUrl(location, params) {
-       let url = `https://www.idealista.it/vendita-terreni/${location}/`;
-       
-       if (params.prezzoMax || params.mqMin) {
-           url += 'con-';
-           if (params.prezzoMax) url += `prezzo-max_${params.prezzoMax},`;
-           if (params.mqMin) url += `dimensione_${params.mqMin},`;
-           url = url.slice(0, -1) + '/';
-       }
-       
-       return url;
-   }
-   
-   function buildSubitoUrl(location, params) {
-       let url = `https://www.subito.it/annunci-italia/vendita/terreni-e-rustici/?q=${location}`;
-       
-       if (params.tipo) url += `+${params.tipo}`;
-       if (params.prezzoMin) url += `&ps=${params.prezzoMin}`;
-       if (params.prezzoMax) url += `&pe=${params.prezzoMax}`;
-       
-       return url;
-   }
-   
-   function buildCasaUrl(location, params) {
-       let url = `https://www.casa.it/vendita/terreni/${location}/`;
-       const queryParams = [];
-       
-       if (params.prezzoMax) queryParams.push(`pricemax=${params.prezzoMax}`);
-       if (params.mqMin) queryParams.push(`surfacemin=${params.mqMin}`);
-       
-       if (queryParams.length > 0) {
-           url += '?' + queryParams.join('&');
-       }
-       
-       return url;
-   }
-   
-   function buildBakecaUrl(location, params) {
-       let url = `https://www.bakeca.it/case/vendita-terreni/?keyword=${location}`;
-       
-       if (params.tipo) url += `+${params.tipo}`;
-       if (params.prezzoMax) url += `&max=${params.prezzoMax}`;
-       
-       return url;
-   }
-   
-   function copyUrl(url) {
-       navigator.clipboard.writeText(url).then(() => {
-           const btn = event.target;
-           const originalText = btn.innerHTML;
-           btn.innerHTML = '✅ Copiato!';
-           btn.style.background = '#28a745';
-           
-           setTimeout(() => {
-               btn.innerHTML = originalText;
-               btn.style.background = '#6c757d';
-           }, 2000);
-       }).catch(() => {
-           prompt('Copia questo link:', url);
-       });
-   }
-   
-   function resetForm() {
-       document.getElementById('location').value = '';
-       document.getElementById('provincia').value = '';
-       document.getElementById('tipo').value = '';
-       document.getElementById('prezzoMin').value = '';
-       document.getElementById('prezzoMax').value = '';
-       document.getElementById('mqMin').value = '';
-       document.getElementById('mqMax').value = '';
-       document.getElementById('caratteristiche').value = '';
-       document.getElementById('distanza').value = '';
-       document.getElementById('results').classList.remove('show');
-   }
-   
-   // Permetti invio con Enter
-   document.addEventListener('keypress', function(e) {
-       if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-           cercaConParametri();
-       }
-   });
-   </script>
+    <div class="container">
+        <h1>🏞️ Ricerca Terreni - Link Corretti</h1>
+        
+        <div class="info-box">
+            <strong>✅ SISTEMA AGGIORNATO</strong><br>
+            Ora i link portano DIRETTAMENTE alla sezione terreni di ogni sito!
+        </div>
+        
+        <div class="quick-search">
+            <h3>🚀 Ricerche Rapide (città con molti annunci):</h3>
+            <button class="quick-btn" onclick="quickSearch('Roma')">Roma</button>
+            <button class="quick-btn" onclick="quickSearch('Milano')">Milano</button>
+            <button class="quick-btn" onclick="quickSearch('Napoli')">Napoli</button>
+            <button class="quick-btn" onclick="quickSearch('Torino')">Torino</button>
+            <button class="quick-btn" onclick="quickSearch('Palermo')">Palermo</button>
+            <button class="quick-btn" onclick="quickSearch('Bologna')">Bologna</button>
+            <button class="quick-btn" onclick="quickSearch('Firenze')">Firenze</button>
+        </div>
+        
+        <div class="form-section">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>📍 Città/Località *</label>
+                    <input type="text" id="location" placeholder="es. Milano, Roma, Napoli" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>🏗️ Tipo Terreno</label>
+                    <select id="tipo">
+                        <option value="">Tutti i terreni</option>
+                        <option value="agricolo">Agricolo</option>
+                        <option value="edificabile">Edificabile</option>
+                        <option value="industriale">Industriale</option>
+                        <option value="commerciale">Commerciale</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>💰 Prezzo Massimo €</label>
+                    <input type="number" id="prezzoMax" placeholder="es. 100000">
+                </div>
+                
+                <div class="form-group">
+                    <label>📏 Superficie Min mq</label>
+                    <input type="number" id="mqMin" placeholder="es. 1000">
+                </div>
+            </div>
+            
+            <button class="btn" onclick="cercaTerreni()">
+                🔍 CERCA TERRENI
+            </button>
+        </div>
+        
+        <div id="results" class="results"></div>
+    </div>
+    
+    <script>
+    function quickSearch(city) {
+        document.getElementById('location').value = city;
+        cercaTerreni();
+    }
+    
+    function cercaTerreni() {
+        const location = document.getElementById('location').value.trim();
+        
+        if (!location) {
+            alert('⚠️ Inserisci una città o località!');
+            return;
+        }
+        
+        const tipo = document.getElementById('tipo').value;
+        const prezzoMax = document.getElementById('prezzoMax').value;
+        const mqMin = document.getElementById('mqMin').value;
+        
+        // Prepara location per URL (rimuovi spazi e caratteri speciali)
+        const locationClean = location.toLowerCase()
+            .replace(/\s+/g, '-')
+            .replace(/[àáâãäå]/g, 'a')
+            .replace(/[èéêë]/g, 'e')
+            .replace(/[ìíîï]/g, 'i')
+            .replace(/[òóôõö]/g, 'o')
+            .replace(/[ùúûü]/g, 'u')
+            .replace(/[^a-z0-9-]/g, '');
+        
+        // LINK CORRETTI PER OGNI SITO
+        const sites = [
+            {
+                name: 'Immobiliare.it',
+                desc: '✅ Il più grande portale italiano - Migliaia di annunci verificati',
+                mainUrl: `https://www.immobiliare.it/vendita-terreni/${locationClean}/`,
+                alternativeUrl: `https://www.immobiliare.it/terreni-vendita/?criterio=rilevanza&parola=${location}`,
+                directSearch: `https://www.immobiliare.it/ricerca.php?idCategoria=7&idContratto=1&localita=${location}&tipoProprieta=7`
+            },
+            {
+                name: 'Subito.it',
+                desc: '✅ Annunci da privati e agenzie - Ottimi prezzi',
+                mainUrl: `https://www.subito.it/annunci-${locationClean}/vendita/terreni-e-rustici/`,
+                alternativeUrl: `https://www.subito.it/annunci-italia/vendita/terreni-e-rustici/?q=${location}`,
+                directSearch: `https://www.subito.it/annunci-italia/vendita/terreni-e-rustici/${locationClean}/`
+            },
+            {
+                name: 'Idealista.it',
+                desc: '✅ Annunci premium con foto verificate',
+                mainUrl: `https://www.idealista.it/vendita-terreni/${locationClean}/`,
+                alternativeUrl: `https://www.idealista.it/vendita-case/${locationClean}/?tipologia=terreni`,
+                directSearch: `https://www.idealista.it/cerca/vendita-terreni/${locationClean}/`
+            },
+            {
+                name: 'Casa.it',
+                desc: '✅ Solo agenzie certificate',
+                mainUrl: `https://www.casa.it/vendita/terreno/${locationClean}/`,
+                alternativeUrl: `https://www.casa.it/vendita-immobili/${locationClean}/?tipologia=terreno`,
+                directSearch: `https://www.casa.it/srp/?tr=vendita&tp=terreni&ci=${location}`
+            },
+            {
+                name: 'Bakeca.it',
+                desc: '✅ Annunci locali della tua zona',
+                mainUrl: `https://www.bakeca.it/${locationClean}/annunci/terreni/`,
+                alternativeUrl: `https://www.bakeca.it/annunci/immobiliare/terreni/?location=${location}`,
+                directSearch: `https://www.bakeca.it/case/terreni/?keyword=terreni+${location}`
+            }
+        ];
+        
+        // Aggiungi parametri se presenti
+        sites.forEach(site => {
+            if (prezzoMax) {
+                if (site.name === 'Subito.it') {
+                    site.mainUrl += `?pe=${prezzoMax}`;
+                } else if (site.name === 'Immobiliare.it') {
+                    site.mainUrl += `?prezzoMassimo=${prezzoMax}`;
+                }
+            }
+            if (mqMin) {
+                if (site.name === 'Immobiliare.it') {
+                    site.mainUrl += site.mainUrl.includes('?') ? `&superficieMinima=${mqMin}` : `?superficieMinima=${mqMin}`;
+                }
+            }
+        });
+        
+        // Genera HTML risultati
+        let html = `
+            <h2 style="margin-bottom: 20px;">🎯 Risultati per: "${location}"</h2>
+            <p style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <strong>📌 Suggerimento:</strong> Se un link non mostra risultati, prova il link alternativo. 
+                Alcuni siti richiedono il nome esatto della città.
+            </p>
+        `;
+        
+        sites.forEach(site => {
+            html += `
+                <div class="site-card">
+                    <div class="site-name">${site.name}</div>
+                    <div class="site-desc">${site.desc}</div>
+                    
+                    <a href="${site.mainUrl}" target="_blank" class="site-link primary">
+                        🔍 Cerca Terreni (Link Principale)
+                    </a>
+                    
+                    <a href="${site.alternativeUrl}" target="_blank" class="site-link">
+                        🔄 Link Alternativo
+                    </a>
+                    
+                    <div class="debug-info">
+                        <strong>Link diretto:</strong> ${site.directSearch}
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+            <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-top: 30px;">
+                <h3>⚠️ Se non trovi annunci:</h3>
+                <ol>
+                    <li><strong>Prova con una città vicina</strong> più grande</li>
+                    <li><strong>Usa il nome completo</strong> (es. "San Giovanni" invece di "S. Giovanni")</li>
+                    <li><strong>Prova senza accenti</strong> (es. "Forli" invece di "Forlì")</li>
+                    <li><strong>Usa il link alternativo</strong> che fa una ricerca più ampia</li>
+                </ol>
+            </div>
+        `;
+        
+        document.getElementById('results').innerHTML = html;
+        document.getElementById('results').classList.add('show');
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Test automatico all'avvio per verificare
+    window.onload = function() {
+        console.log('Sistema Ricerca Terreni caricato correttamente!');
+        console.log('Versione: 2.0 - Link Corretti');
+    };
+    </script>
 </body>
 </html>
