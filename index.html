@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ricerca Terreni</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .link {
+            display: block;
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            margin: 10px 0;
+            text-decoration: none;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .link:hover {
+            background: #0056b3;
+        }
+        #results {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏞️ Ricerca Terreni</h1>
+        <input type="text" id="loc" placeholder="Inserisci località (es. Milano, Roma, Napoli)">
+        <button onclick="cerca()">🔍 CERCA TERRENI</button>
+        <div id="results"></div>
+    </div>
+    
+    <script>
+    function cerca() {
+        const loc = document.getElementById('loc').value;
+        if (!loc) {
+            alert('Inserisci una località!');
+            return;
+        }
+        
+        const locSlug = loc.toLowerCase().replace(/\s+/g, '-');
+        
+        const links = [
+            {
+                name: 'Immobiliare.it',
+                url: 'https://www.immobiliare.it/terreni/vendita-' + locSlug + '/'
+            },
+            {
+                name: 'Idealista',
+                url: 'https://www.idealista.it/vendita-terreni/' + locSlug + '/'
+            },
+            {
+                name: 'Subito.it',
+                url: 'https://www.subito.it/annunci-italia/vendita/terreni-e-rustici/?q=' + loc
+            },
+            {
+                name: 'Casa.it',
+                url: 'https://www.casa.it/vendita/terreni/' + locSlug + '/'
+            }
+        ];
+        
+        let html = '<h3>Clicca per cercare:</h3>';
+        links.forEach(link => {
+            html += '<a href="' + link.url + '" target="_blank" class="link">' + link.name + ' →</a>';
+        });
+        
+        document.getElementById('results').innerHTML = html;
+    }
+    </script>
+</body>
+</html>
