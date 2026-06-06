@@ -64,9 +64,9 @@
   #infoPanel .ip-x{float:right;cursor:pointer;font-size:1.6em;line-height:.7;color:#94a3b8}
   #infoPanel .ip-btns{display:flex;gap:8px;margin-top:12px}
   #infoPanel .ip-btns button{flex:1;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-size:.92em;color:#fff}
-  #analysisTable{width:100%;border-collapse:collapse;font-size:.85em;margin-top:8px;display:block;max-height:240px;overflow:auto}
-  #analysisTable th,#analysisTable td{border-bottom:1px solid #1e293b;padding:6px 6px;text-align:left;white-space:nowrap}
-  #analysisTable th{color:#94a3b8;position:sticky;top:0;background:#1e293b}
+  #analysisTable,#proxTable{width:100%;border-collapse:collapse;font-size:.85em;margin-top:8px;display:block;max-height:260px;overflow:auto}
+  #analysisTable th,#analysisTable td,#proxTable th,#proxTable td{border-bottom:1px solid #1e293b;padding:6px 6px;text-align:left;white-space:nowrap}
+  #analysisTable th,#proxTable th{color:#94a3b8;position:sticky;top:0;background:#1e293b}
   /* ---- Map ---- */
   #map{flex:1;height:100%}
   #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 18px;border-radius:8px;font-size:1em;box-shadow:0 6px 20px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.25s;z-index:1200;max-width:80vw;text-align:center}
@@ -152,6 +152,25 @@
       <input class="full" id="searchInput" placeholder="Scrivi un nome e premi Invio…">
     </div>
 
+    <div class="panel" id="proxPanel" style="display:none">
+      <h2>🎯 Trova stazioni entro una distanza</h2>
+      <div class="hint" style="margin-top:0">Esempio: tutte le <b>SSE FS</b> che hanno una stazione <b>Terna o Enel entro 5 km</b>.</div>
+      <label style="font-size:.85em;color:#cbd5e1;font-weight:600;margin-top:8px;display:block">Stazioni da filtrare</label>
+      <select class="full" id="proxSrc"></select>
+      <label style="font-size:.85em;color:#cbd5e1;font-weight:600;margin-top:8px;display:block">Vicine a</label>
+      <select class="full" id="proxDst"></select>
+      <label style="font-size:.85em;color:#cbd5e1;font-weight:600;margin-top:8px;display:block">Distanza massima (km)</label>
+      <input class="full" id="proxKm" type="number" value="5" min="0" step="0.5">
+      <div class="row">
+        <button class="btn btn-blue btn-sm" id="runProx">🎯 Trova</button>
+        <button class="btn btn-ghost btn-sm" id="clearProx">Pulisci</button>
+      </div>
+      <label class="legend-item" style="margin-top:8px"><input type="checkbox" id="proxOnly"> <span class="lbl">Mostra solo quelle trovate sulla mappa</span></label>
+      <div id="proxSummary" class="hint"></div>
+      <table id="proxTable" style="display:none"></table>
+      <button class="btn btn-ghost btn-sm" id="proxCsv" style="display:none;margin-top:8px">⬇︎ Esporta CSV</button>
+    </div>
+
     <div class="panel" id="analysisPanel" style="display:none">
       <h2>📏 Distanze più vicine</h2>
       <div class="hint" style="margin-top:0">Per ogni punto del livello "Da", trova il più vicino del livello "A".</div>
@@ -206,8 +225,8 @@ const state = {
   map:null, datasets:[], layers:[], registry:new Map(),
   colorMap:{}, paletteIdx:0,
   measure:{a:null, highlightMarker:null},
-  measureGroup:null, analysisGroup:null,
-  lastAnalysis:null, dsSeq:0, ptSeq:0,
+  measureGroup:null, analysisGroup:null, proxGroup:null,
+  lastAnalysis:null, proxMatches:null, proxSrcKey:null, dsSeq:0, ptSeq:0,
   modalDsId:null, geocodeCancel:false
 };
 
@@ -492,6 +511,7 @@ function togglePanels(){
   document.getElementById('datasetsPanel').style.display=has?'':'none';
   document.getElementById('legendPanel').style.display=state.layers.length?'':'none';
   document.getElementById('analysisPanel').style.display=state.layers.length>1?'':'none';
+  document.getElementById('proxPanel').style.display=state.layers.length>1?'':'none';
   document.getElementById('searchPanel').style.display=state.layers.length?'':'none';
 }
 
@@ -541,11 +561,24 @@ function renderLegend(){
   });
 }
 
+function sseLayerKey(){
+  // individua il livello delle SSE FS (per default del filtro vicinanza)
+  const l=state.layers.find(l=>/sse|ferrov|^fs|rfi/.test(norm(l.label)));
+  return l?l.key:(state.layers[0]?state.layers[0].key:'');
+}
 function renderAnalysisSelectors(){
-  const src=document.getElementById('srcLayer'),dst=document.getElementById('dstLayer');
   const opt=l=>`<option value="${l.key}">${esc(l.label)} (${l.points.length})</option>`;
-  src.innerHTML=state.layers.map(opt).join('');
-  dst.innerHTML='<option value="__all__">▶︎ Tutti gli altri livelli</option>'+state.layers.map(opt).join('');
+  const all=state.layers.map(opt).join('');
+  const src=document.getElementById('srcLayer'),dst=document.getElementById('dstLayer');
+  src.innerHTML=all;
+  dst.innerHTML='<option value="__all__">▶︎ Tutti gli altri livelli</option>'+all;
+  // selettori del filtro vicinanza
+  const ps=document.getElementById('proxSrc'),pd=document.getElementById('proxDst');
+  if(ps&&pd){
+    const def=sseLayerKey();
+    ps.innerHTML=state.layers.map(l=>`<option value="${l.key}" ${l.key===def?'selected':''}>${esc(l.label)} (${l.points.length})</option>`).join('');
+    pd.innerHTML='<option value="__all__">▶︎ Terna + Enel (tutte le altre reti)</option>'+all;
+  }
 }
 
 /* =========================================================================
@@ -653,6 +686,78 @@ document.getElementById('exportCsv').onclick=()=>{
 };
 function q(s){s=String(s==null?'':s);return /[";\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
 function download(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+
+/* =========================================================================
+   FILTRO VICINANZA — es. SSE FS entro 5 km da Terna/Enel
+   ========================================================================= */
+document.getElementById('runProx').onclick=runProximity;
+document.getElementById('clearProx').onclick=clearProx;
+document.getElementById('proxOnly').onchange=applyProxOnly;
+function clearProx(){
+  state.proxGroup.clearLayers();state.proxMatches=null;
+  document.getElementById('proxTable').style.display='none';
+  document.getElementById('proxSummary').textContent='';
+  document.getElementById('proxCsv').style.display='none';
+  document.getElementById('proxOnly').checked=false;applyProxOnly();
+}
+function runProximity(){
+  const srcKey=document.getElementById('proxSrc').value;
+  const dstKey=document.getElementById('proxDst').value;
+  const maxKm=parseFloat(String(document.getElementById('proxKm').value).replace(',','.'));
+  const src=state.layers.find(l=>l.key===srcKey);
+  if(!src){toast('Seleziona le stazioni da filtrare.');return;}
+  if(!(maxKm>0)){toast('Inserisci una distanza valida in km.');return;}
+  let targets=dstKey==='__all__'?state.layers.filter(l=>l.key!==srcKey):state.layers.filter(l=>l.key===dstKey);
+  targets=targets.filter(t=>t.points.length);
+  if(!targets.length){toast('Nessuna rete di destinazione disponibile.');return;}
+  state.proxSrcKey=srcKey;
+  state.proxGroup.clearLayers();
+  const matches=[];
+  src.points.forEach(p=>{
+    let best=null,bd=Infinity,bl=null;
+    targets.forEach(t=>{const r=nearestIn(p,t);if(r&&r.dist<bd){bd=r.dist;best=r.point;bl=t;}});
+    if(best&&bd<=maxKm)matches.push({src:p,dst:best,layer:bl,dist:bd});
+  });
+  matches.sort((a,b)=>a.dist-b.dist);
+  state.proxMatches=matches;
+  // evidenzia sulla mappa: anello giallo + linea verso la stazione più vicina
+  matches.forEach(m=>{
+    L.polyline([[m.src.lat,m.src.lon],[m.dst.lat,m.dst.lon]],{color:'#facc15',weight:2.5,opacity:.9}).addTo(state.proxGroup);
+    const ring=L.circleMarker([m.src.lat,m.src.lon],{radius:12,color:'#facc15',weight:4,fill:false});
+    ring.on('click',()=>showInfo(m.src));
+    ring.addTo(state.proxGroup);
+  });
+  // tabella
+  const tbl=document.getElementById('proxTable');
+  tbl.innerHTML='<tr><th>Stazione FS</th><th>Più vicina</th><th>km</th></tr>'+matches.map(m=>`<tr style="cursor:pointer" onclick="zoomTo(${m.src.id})"><td title="${esc(m.src.title)}">${esc(trim(m.src.title))}</td><td title="${esc(m.dst.title)} (${esc(m.layer.label)})"><span class="swatch" style="display:inline-block;width:9px;height:9px;background:${m.layer.color};border-width:1px"></span> ${esc(trim(m.dst.title))}</td><td><b>${m.dist.toFixed(2)}</b></td></tr>`).join('');
+  tbl.style.display=matches.length?'block':'none';
+  document.getElementById('proxCsv').style.display=matches.length?'':'none';
+  document.getElementById('proxSummary').innerHTML=`<b style="color:#7dd3fc;font-size:1.15em">${matches.length}</b> / ${src.points.length} stazioni «${esc(src.label)}» entro <b>${maxKm} km</b> da una rete selezionata.`;
+  applyProxOnly();
+  if(matches.length){
+    const b=L.latLngBounds(matches.map(m=>[m.src.lat,m.src.lon]));state.map.fitBounds(b.pad(0.2));
+    toast(matches.length+' stazioni trovate entro '+maxKm+' km.');
+  }else toast('Nessuna stazione entro '+maxKm+' km.');
+}
+/* mostra solo le stazioni trovate (nasconde il livello sorgente intero) */
+function applyProxOnly(){
+  const only=document.getElementById('proxOnly').checked;
+  const src=state.layers.find(l=>l.key===state.proxSrcKey);
+  if(!src)return;
+  if(only&&state.proxMatches){
+    if(state.map.hasLayer(src.cluster))state.map.removeLayer(src.cluster);src.visible=false;
+  }else{
+    if(!state.map.hasLayer(src.cluster))src.cluster.addTo(state.map);src.visible=true;
+  }
+  renderLegend();
+}
+document.getElementById('proxCsv').onclick=()=>{
+  if(!state.proxMatches)return;
+  const head=['Stazione_FS','Lat_FS','Lon_FS','Rete_piu_vicina','Stazione_piu_vicina','Lat','Lon','Distanza_km'];
+  const lines=[head.join(';')];
+  state.proxMatches.forEach(m=>lines.push([q(m.src.title),m.src.lat,m.src.lon,q(m.layer.label),q(m.dst.title),m.dst.lat,m.dst.lon,m.dist.toFixed(3)].join(';')));
+  download('SSE_FS_vicine.csv','﻿'+lines.join('\r\n'),'text/csv');
+};
 
 /* =========================================================================
    RICERCA
@@ -785,6 +890,7 @@ function init(){
   L.control.scale({imperial:false}).addTo(map);
   state.measureGroup=L.layerGroup().addTo(map);
   state.analysisGroup=L.layerGroup().addTo(map);
+  state.proxGroup=L.layerGroup().addTo(map);
 
   const dz=document.getElementById('dropzone'),fi=document.getElementById('fileInput');
   dz.onclick=()=>fi.click();
