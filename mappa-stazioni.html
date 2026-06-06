@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mappa Stazioni Elettriche — SSE FS / Terna / Enel</title>
+
+<!-- Leaflet (mappa) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<!-- SheetJS (lettura Excel) -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{font-family:'Segoe UI',Tahoma,sans-serif;display:flex;height:100vh;overflow:hidden;color:#1f2937}
+  /* ---- Sidebar ---- */
+  #sidebar{width:360px;min-width:360px;background:#0f172a;color:#e2e8f0;display:flex;flex-direction:column;height:100%}
+  #sidebar header{padding:16px 18px;background:#020617;border-bottom:1px solid #1e293b}
+  #sidebar header h1{font-size:1.05em;line-height:1.3}
+  #sidebar header p{font-size:.78em;color:#94a3b8;margin-top:4px}
+  .scroll{overflow-y:auto;flex:1;padding:14px}
+  .panel{background:#1e293b;border-radius:10px;padding:14px;margin-bottom:12px}
+  .panel h2{font-size:.82em;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+  .dropzone{border:2px dashed #475569;border-radius:10px;padding:22px 12px;text-align:center;cursor:pointer;transition:.2s;font-size:.85em;color:#cbd5e1}
+  .dropzone:hover,.dropzone.drag{border-color:#38bdf8;background:#0b1220}
+  .dropzone b{color:#38bdf8}
+  .btn{border:none;border-radius:8px;padding:9px 12px;font-weight:600;cursor:pointer;font-size:.84em;transition:.15s;width:100%}
+  .btn:hover{filter:brightness(1.1)}
+  .btn-blue{background:#2563eb;color:#fff}
+  .btn-ghost{background:#334155;color:#e2e8f0}
+  .btn-sm{padding:5px 8px;font-size:.78em;width:auto}
+  .row{display:flex;gap:8px;margin-top:8px}
+  .row>*{flex:1}
+  .ds{background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:10px;margin-bottom:8px}
+  .ds .ds-name{font-weight:700;font-size:.86em;word-break:break-all}
+  .ds .ds-meta{font-size:.74em;color:#94a3b8;margin:4px 0 6px}
+  .ds label{font-size:.74em;color:#cbd5e1;display:block;margin-top:6px}
+  .ds select,.ds input{width:100%;background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:5px;font-size:.8em;margin-top:2px}
+  .warn{color:#fbbf24;font-size:.74em;margin-top:6px}
+  .legend-item{display:flex;align-items:center;gap:8px;padding:5px 4px;border-radius:6px;cursor:pointer;font-size:.84em}
+  .legend-item:hover{background:#0b1220}
+  .legend-item input{accent-color:#38bdf8}
+  .swatch{width:14px;height:14px;border-radius:50%;flex:0 0 14px;border:2px solid #fff}
+  .legend-item .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .legend-item .cnt{font-size:.78em;color:#94a3b8}
+  select.full,input.full{width:100%;background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:7px;font-size:.84em;margin-top:6px}
+  .hint{font-size:.74em;color:#94a3b8;line-height:1.4;margin-top:8px}
+  #analysisTable{width:100%;border-collapse:collapse;font-size:.74em;margin-top:8px;display:block;max-height:230px;overflow:auto}
+  #analysisTable th,#analysisTable td{border-bottom:1px solid #1e293b;padding:4px 5px;text-align:left;white-space:nowrap}
+  #analysisTable th{color:#94a3b8;position:sticky;top:0;background:#1e293b}
+  /* ---- Map ---- */
+  #map{flex:1;height:100%}
+  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:8px;font-size:.86em;box-shadow:0 6px 20px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.25s;z-index:1200;max-width:80vw;text-align:center}
+  #toast.show{opacity:1}
+  /* popup */
+  .pp{font-size:13px;min-width:200px;max-width:260px}
+  .pp-title{font-size:.72em;text-transform:uppercase;letter-spacing:.04em;color:#64748b;border-left:4px solid #999;padding-left:6px;font-weight:700}
+  .pp-name{font-weight:700;font-size:1.05em;margin:4px 0 6px}
+  .pp-near{background:#f1f5f9;border-radius:6px;padding:6px 8px;margin-bottom:6px}
+  .pp-near ul{list-style:none;margin-top:4px}
+  .pp-near li{margin:4px 0;line-height:1.3}
+  .pp-near .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
+  .pp-det summary{cursor:pointer;color:#2563eb;font-size:.9em}
+  .pp-det table{width:100%;border-collapse:collapse;margin-top:4px}
+  .pp-det td{border-bottom:1px solid #eee;padding:2px 4px;font-size:.86em;vertical-align:top}
+  .pp-det td:first-child{color:#64748b;font-weight:600;white-space:nowrap}
+  .pp-coord{font-size:.8em;color:#475569;margin-top:6px}
+  .pp-btn{margin-top:8px;width:100%;background:#ef4444;color:#fff;border:none;border-radius:6px;padding:7px;font-weight:600;cursor:pointer}
+  .distlabel{background:#ef4444;color:#fff;font-weight:700;font-size:12px;padding:2px 7px;border-radius:10px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  .pulse{animation:pulse 1s infinite}
+  @keyframes pulse{0%{filter:drop-shadow(0 0 0 #fde047)}50%{filter:drop-shadow(0 0 8px #fde047)}100%{filter:drop-shadow(0 0 0 #fde047)}}
+  /* modal */
+  #modalBg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:1500}
+  #modalBg.show{display:flex}
+  .modal{background:#fff;color:#1f2937;border-radius:12px;width:min(640px,92vw);max-height:86vh;display:flex;flex-direction:column;overflow:hidden}
+  .modal header{padding:14px 18px;background:#0f172a;color:#fff;display:flex;justify-content:space-between;align-items:center}
+  .modal .body{padding:14px 18px;overflow:auto}
+  .modal .foot{padding:12px 18px;border-top:1px solid #e5e7eb;display:flex;gap:10px;justify-content:flex-end}
+  .resrow{display:grid;grid-template-columns:1fr 150px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9}
+  .resrow small{color:#64748b}
+  .resrow input{border:1px solid #cbd5e1;border-radius:6px;padding:6px;font-size:.85em}
+  .x{cursor:pointer;font-size:1.4em;line-height:1}
+  .toggle-sb{position:absolute;top:10px;left:10px;z-index:1000;background:#0f172a;color:#fff;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;display:none}
+  @media(max-width:780px){
+    body{flex-direction:column}
+    #sidebar{width:100%;min-width:0;height:50%}
+    #map{height:50%}
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <header>
+    <h1>⚡ Mappa Stazioni Elettriche</h1>
+    <p>SSE Ferrovie · Terna · Enel — distanze su un'unica mappa</p>
+  </header>
+  <div class="scroll">
+
+    <div class="panel">
+      <h2>📂 Carica i tuoi file</h2>
+      <div class="dropzone" id="dropzone">
+        Trascina qui <b>Elenco SSE</b> e <b>stazioni</b><br>oppure <b>clicca per scegliere</b><br>
+        <span style="font-size:.85em;color:#94a3b8">.xlsx · .xls · .csv</span>
+      </div>
+      <input type="file" id="fileInput" multiple accept=".xlsx,.xls,.csv" style="display:none">
+      <div class="row">
+        <button class="btn btn-ghost btn-sm" id="demoBtn">▶︎ Dati di esempio</button>
+        <button class="btn btn-ghost btn-sm" id="clearBtn">🗑 Pulisci tutto</button>
+      </div>
+      <div class="hint">L'app legge il file <b>nel tuo browser</b>: i dati non vengono caricati su nessun server. Rileva da sola le colonne di latitudine/longitudine. Se nel file c'è una colonna "Gestore/Tipo" (es. Terna/Enel) la usa per colorare i punti.</div>
+    </div>
+
+    <div class="panel" id="datasetsPanel" style="display:none">
+      <h2>🗃 File caricati</h2>
+      <div id="datasets"></div>
+    </div>
+
+    <div class="panel" id="legendPanel" style="display:none">
+      <h2>🎨 Livelli (clicca per zoomare)</h2>
+      <div id="legend"></div>
+      <div class="row">
+        <button class="btn btn-ghost btn-sm" id="allOn">Mostra tutti</button>
+        <button class="btn btn-ghost btn-sm" id="allOff">Nascondi tutti</button>
+      </div>
+    </div>
+
+    <div class="panel" id="searchPanel" style="display:none">
+      <h2>🔎 Cerca stazione</h2>
+      <input class="full" id="searchInput" placeholder="Scrivi un nome e premi Invio…">
+    </div>
+
+    <div class="panel" id="analysisPanel" style="display:none">
+      <h2>📏 Distanze più vicine</h2>
+      <div class="hint" style="margin-top:0">Per ogni punto del livello "Da", trova il più vicino del livello "A".</div>
+      <label style="font-size:.78em;color:#cbd5e1">Da (sorgente)</label>
+      <select class="full" id="srcLayer"></select>
+      <label style="font-size:.78em;color:#cbd5e1;margin-top:6px;display:block">A (destinazione)</label>
+      <select class="full" id="dstLayer"></select>
+      <div class="row">
+        <button class="btn btn-blue btn-sm" id="runAnalysis">Calcola</button>
+        <button class="btn btn-ghost btn-sm" id="clearLines">Pulisci linee</button>
+      </div>
+      <div id="analysisSummary" class="hint"></div>
+      <table id="analysisTable" style="display:none"></table>
+      <button class="btn btn-ghost btn-sm" id="exportCsv" style="display:none;margin-top:8px">⬇︎ Esporta CSV</button>
+    </div>
+
+    <div class="panel">
+      <h2>ℹ️ Come misurare a mano</h2>
+      <div class="hint" style="margin-top:0">Apri un punto sulla mappa → premi <b>"📏 Misura distanza da qui"</b> → apri un secondo punto e premi di nuovo il pulsante. Verrà disegnata la linea con i km.</div>
+      <button class="btn btn-ghost btn-sm" id="clearMeasure" style="margin-top:8px">Pulisci misure manuali</button>
+    </div>
+
+  </div>
+</div>
+
+<button class="toggle-sb" id="toggleSb">☰</button>
+<div id="map"></div>
+<div id="toast"></div>
+
+<!-- Modal risoluzione posizioni -->
+<div id="modalBg">
+  <div class="modal">
+    <header>
+      <span id="modalTitle">Risolvi posizioni mancanti</span>
+      <span class="x" onclick="closeModal()">×</span>
+    </header>
+    <div class="body" id="modalBody"></div>
+    <div class="foot">
+      <button class="btn btn-ghost btn-sm" id="geocodeAllBtn">🌍 Geocodifica automatica</button>
+      <button class="btn btn-blue btn-sm" onclick="applyResolve()">Applica</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   STATO GLOBALE
+   ========================================================================= */
+const PALETTE = ['#e53935','#1e88e5','#43a047','#fb8c00','#8e24aa','#00897b','#6d4c41','#c0ca33','#d81b60','#3949ab','#00acc1','#f4511e'];
+const ITALY = {latMin:35,latMax:48,lonMin:5,lonMax:20};
+const state = {
+  map:null, datasets:[], layers:[], registry:new Map(),
+  colorMap:{}, paletteIdx:0,
+  measure:{a:null, highlightMarker:null},
+  measureGroup:null, analysisGroup:null,
+  lastAnalysis:null, dsSeq:0, ptSeq:0,
+  modalDsId:null, geocodeCancel:false
+};
+
+/* =========================================================================
+   UTILITÀ
+   ========================================================================= */
+const norm = h => String(h==null?'':h).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function toast(msg,ms=3200){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),ms);}
+function inItaly(lat,lon){return lat>=ITALY.latMin&&lat<=ITALY.latMax&&lon>=ITALY.lonMin&&lon<=ITALY.lonMax;}
+function haversine(a,b){const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180,la1=a.lat*Math.PI/180,la2=b.lat*Math.PI/180;const x=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(x)));}
+
+/* Converte un valore (numero, decimale con virgola, o gradi-minuti-secondi) in grado decimale */
+function parseCoord(v){
+  if(v==null||v==='')return null;
+  if(typeof v==='number')return isFinite(v)?v:null;
+  let s=String(v).trim();
+  if(!s)return null;
+  const hemiMatch=s.match(/[NSEWnsew]/);
+  const hemi=hemiMatch?hemiMatch[0].toUpperCase():null;
+  const nums=s.replace(/,/g,'.').match(/-?\d+(?:\.\d+)?/g);
+  if(!nums)return null;
+  let dec;
+  if(nums.length===1){dec=parseFloat(nums[0]);}
+  else{
+    const d=Math.abs(parseFloat(nums[0])),m=nums[1]?parseFloat(nums[1]):0,sec=nums[2]?parseFloat(nums[2]):0;
+    dec=d+m/60+sec/3600;
+    if(parseFloat(nums[0])<0)dec=-dec;
+  }
+  if(hemi==='S'||hemi==='W')dec=-Math.abs(dec);
+  return isFinite(dec)?dec:null;
+}
+/* Estrae una coppia lat,lon da un'unica cella (es. "41.9,12.5" o "POINT(12.5 41.9)") */
+function parsePair(v){
+  if(v==null)return null;
+  let s=String(v).trim();if(!s)return null;
+  const wkt=/point\s*\(\s*(-?\d+(?:[.,]\d+)?)\s+(-?\d+(?:[.,]\d+)?)\s*\)/i.exec(s);
+  if(wkt){const lon=parseFloat(wkt[1].replace(',','.')),lat=parseFloat(wkt[2].replace(',','.'));return validPair(lat,lon);}
+  const nums=s.match(/-?\d+(?:[.,]\d+)?/g);
+  if(!nums||nums.length<2)return null;
+  const a=parseFloat(nums[0].replace(',','.')),b=parseFloat(nums[1].replace(',','.'));
+  return validPair(a,b);
+}
+function validPair(lat,lon){
+  if(lat==null||lon==null||!isFinite(lat)||!isFinite(lon))return null;
+  if(inItaly(lat,lon))return{lat,lon};
+  if(inItaly(lon,lat))return{lat:lon,lon:lat};          // colonne invertite
+  if(Math.abs(lat)<=90&&Math.abs(lon)<=180)return{lat,lon};
+  return null;
+}
+
+/* =========================================================================
+   RILEVAMENTO COLONNE
+   ========================================================================= */
+function latScore(n){if(['lat','latitudine','latitude','latitud'].includes(n))return 100;if(n.includes('latitud'))return 80;if(n.startsWith('lat')&&!n.includes('long'))return 70;if(['y','ycoord','coordy'].includes(n))return 40;if(n.includes('nord')||n.includes('northing'))return 30;return 0;}
+function lonScore(n){if(['lon','lng','long','longitudine','longitude','longitud'].includes(n))return 100;if(n.includes('longitud'))return 80;if(n.startsWith('lon')||n.startsWith('lng'))return 70;if(['x','xcoord','coordx'].includes(n))return 40;if(['e','est'].includes(n)||n.includes('easting'))return 30;return 0;}
+function combScore(n){if(['coordinate','coordinates','coord','coords','posizione','latlon','latlong','lonlat','geo','geom','geometry','wkt','point','gps'].includes(n))return 90;if(n.includes('coordinat'))return 60;return 0;}
+function nameScore(n){if(['nome','name','denominazione','descrizione','sse','stazione','station','impianto','sito','site','toponimo','denom'].includes(n))return 100;if(n.includes('nome')||n.includes('denomin')||n.includes('stazion')||n.includes('impiant')||n.includes('descriz'))return 70;if(['codice','id','label','sigla'].includes(n))return 50;return 0;}
+function opScore(n){if(['gestore','operatore','operator','proprietario','owner','tipo','tipologia','type','categoria','category','ente','rete','societa','azienda','fonte','source','gruppo'].includes(n))return 100;if(n.includes('gestor')||n.includes('operator')||n.includes('propriet')||n.includes('tipolog'))return 70;return 0;}
+function addrScore(n){if(['indirizzo','address','via','comune','citta','localita','provincia','prov','cap'].includes(n))return 100;if(n.includes('indirizz')||n.includes('comune')||n.includes('localit')||n.includes('citta')||n.includes('provinc'))return 60;return 0;}
+
+function bestColumn(headers,scoreFn,exclude=[]){
+  let best=-1,bs=0;
+  headers.forEach((h,i)=>{if(exclude.includes(i))return;const s=scoreFn(norm(h));if(s>bs){bs=s;best=i;}});
+  return best>=0?best:null;
+}
+function detectColumns(headers){
+  const latIdx=bestColumn(headers,latScore);
+  const lonIdx=bestColumn(headers,lonScore,[latIdx]);
+  const combIdx=bestColumn(headers,combScore);
+  const nameIdx=bestColumn(headers,nameScore);
+  const opIdx=bestColumn(headers,opScore,[nameIdx]);
+  const addrIdx=bestColumn(headers,addrScore);
+  return {latIdx,lonIdx,combIdx,nameIdx,opIdx,addrIdx};
+}
+
+/* =========================================================================
+   LETTURA FILE EXCEL/CSV
+   ========================================================================= */
+function handleFiles(fileList){
+  [...fileList].forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true});
+        // scegli il foglio con più righe
+        let best=wb.SheetNames[0],bestRows=-1;
+        wb.SheetNames.forEach(n=>{const r=XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,blankrows:false}).length;if(r>bestRows){bestRows=r;best=n;}});
+        const aoa=XLSX.utils.sheet_to_json(wb.Sheets[best],{header:1,raw:true,blankrows:false,defval:null});
+        if(!aoa.length){toast('⚠️ "'+file.name+'": foglio vuoto');return;}
+        const {headers,rows}=aoaToRows(aoa);
+        if(!headers.length){toast('⚠️ "'+file.name+'": nessuna intestazione');return;}
+        addDataset(file.name,headers,rows);
+      }catch(err){console.error(err);toast('❌ Errore leggendo "'+file.name+'": '+err.message);}
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+/* Trova la riga d'intestazione (salta eventuali titoli iniziali) e costruisce gli oggetti riga */
+function aoaToRows(aoa){
+  let headerRow=0,bestScore=-1;
+  const limit=Math.min(aoa.length,10);
+  for(let i=0;i<limit;i++){
+    const row=aoa[i]||[];
+    const nonEmpty=row.filter(c=>c!=null&&String(c).trim()!=='').length;
+    if(nonEmpty<2)continue;
+    const dc=detectColumns(row.map(c=>String(c==null?'':c)));
+    let kw=0;[dc.latIdx,dc.lonIdx,dc.combIdx,dc.nameIdx,dc.opIdx].forEach(x=>{if(x!=null)kw++;});
+    const score=kw*10+nonEmpty;
+    if(score>bestScore){bestScore=score;headerRow=i;}
+  }
+  let headers=(aoa[headerRow]||[]).map((h,i)=>{const s=String(h==null?'':h).trim();return s||('Colonna '+(i+1));});
+  // de-duplica intestazioni
+  const seen={};headers=headers.map(h=>{if(seen[h]!=null){seen[h]++;return h+' ('+seen[h]+')';}seen[h]=0;return h;});
+  const rows=[];
+  for(let i=headerRow+1;i<aoa.length;i++){
+    const r=aoa[i]||[];
+    if(r.every(c=>c==null||String(c).trim()===''))continue;
+    const obj={};headers.forEach((h,j)=>obj[h]=r[j]!==undefined?r[j]:null);
+    rows.push(obj);
+  }
+  return {headers,rows};
+}
+
+/* =========================================================================
+   GESTIONE DATASET
+   ========================================================================= */
+function addDataset(name,headers,rows){
+  const cols=detectColumns(headers);
+  const ds={
+    id:++state.dsSeq, name, headers, rows, cols,
+    splitCol:(cols.opIdx!=null?headers[cols.opIdx]:''),  // suddivide per gestore se presente
+    nameCol:(cols.nameIdx!=null?headers[cols.nameIdx]:''),
+    addrCol:(cols.addrIdx!=null?headers[cols.addrIdx]:(cols.nameIdx!=null?headers[cols.nameIdx]:'')),
+    overrides:new Map()
+  };
+  state.datasets.push(ds);
+  renderDatasets();
+  rebuildLayers(true);
+  const hasCoords=cols.latIdx!=null||cols.combIdx!=null;
+  toast('✅ "'+name+'": '+rows.length+' righe'+(hasCoords?'':' — ⚠️ colonne coordinate non trovate'));
+}
+
+function computePoints(ds){
+  const located=[],unlocated=[];
+  ds.rows.forEach((row,idx)=>{
+    let coord=null;
+    if(ds.overrides.has(idx))coord=ds.overrides.get(idx);
+    else if(ds.cols.latIdx!=null&&ds.cols.lonIdx!=null)
+      coord=validPair(parseCoord(row[ds.headers[ds.cols.latIdx]]),parseCoord(row[ds.headers[ds.cols.lonIdx]]));
+    else if(ds.cols.combIdx!=null)
+      coord=parsePair(row[ds.headers[ds.cols.combIdx]]);
+    if(coord)located.push({rowIndex:idx,row,lat:coord.lat,lon:coord.lon});
+    else unlocated.push({rowIndex:idx,row});
+  });
+  return {located,unlocated};
+}
+
+function colorFor(key,labelText){
+  if(state.colorMap[key])return state.colorMap[key];
+  const t=norm(labelText);
+  let c=null;
+  if(/terna|rtn|altatension/.test(t))c='#1e88e5';
+  else if(/enel|edistribuzione|distribuzione/.test(t))c='#43a047';
+  else if(/ferrov|rfi|^fs|sse|trenitalia|rete ferro/.test(labelText.toLowerCase()))c='#e53935';
+  if(!c){c=PALETTE[state.paletteIdx%PALETTE.length];state.paletteIdx++;}
+  state.colorMap[key]=c;return c;
+}
+
+function clusterGroup(color){
+  return L.markerClusterGroup({
+    maxClusterRadius:48,
+    iconCreateFunction:cluster=>{
+      const n=cluster.getChildCount();const size=n<10?32:n<100?40:48;
+      return L.divIcon({html:`<div style="background:${color};width:${size}px;height:${size}px;line-height:${size}px;border-radius:50%;color:#fff;text-align:center;font-weight:700;border:2px solid #fff;box-shadow:0 0 5px rgba(0,0,0,.5)">${n}</div>`,className:'',iconSize:[size,size]});
+    }
+  });
+}
+
+function rebuildLayers(fit=false){
+  // rimuovi vecchi livelli dalla mappa
+  state.layers.forEach(l=>{if(state.map.hasLayer(l.cluster))state.map.removeLayer(l.cluster);});
+  state.registry.clear();
+  state.layers=[];
+  state.ptSeq=0;
+  const prevVis={};
+
+  state.datasets.forEach(ds=>{
+    const {located}=computePoints(ds);
+    ds._unlocatedCount=ds.rows.length-located.length;
+    const groups={};
+    located.forEach(p=>{
+      let splitVal='';
+      if(ds.splitCol)splitVal=String(p.row[ds.splitCol]==null?'(vuoto)':p.row[ds.splitCol]).trim()||'(vuoto)';
+      const key=ds.id+'::'+splitVal;
+      if(!groups[key]){
+        const base=ds.name.replace(/\.[^.]+$/,'');
+        const label=splitVal?(base+' — '+splitVal):base;
+        groups[key]={key,label,points:[]};
+      }
+      groups[key].points.push(p);
+    });
+    Object.values(groups).forEach(g=>{
+      const color=colorFor(g.key,g.label);
+      const cluster=clusterGroup(color);
+      const layer={key:g.key,label:g.label,color,cluster,points:[],dsId:ds.id,visible:true};
+      g.points.forEach(p=>{
+        const id=++state.ptSeq;
+        const title=ds.nameCol&&p.row[ds.nameCol]!=null&&String(p.row[ds.nameCol]).trim()!==''?String(p.row[ds.nameCol]):'(senza nome) #'+id;
+        const pt={id,lat:p.lat,lon:p.lon,row:p.row,title,layerKey:layer.key,layerLabel:layer.label,color};
+        const m=L.circleMarker([p.lat,p.lon],{radius:6,color:'#fff',weight:1.4,fillColor:color,fillOpacity:.92});
+        m.bindPopup(()=>popupHtml(pt),{maxWidth:300});
+        pt.marker=m;
+        cluster.addLayer(m);
+        layer.points.push(pt);
+        state.registry.set(id,pt);
+      });
+      state.layers.push(layer);
+    });
+  });
+
+  // applica visibilità e aggiungi alla mappa
+  state.layers.forEach(l=>{l.cluster.addTo(state.map);});
+  renderLegend();
+  renderAnalysisSelectors();
+  renderDatasets();
+  togglePanels();
+  if(fit)fitAll();
+}
+
+function fitAll(){
+  const pts=[];state.layers.forEach(l=>l.points.forEach(p=>pts.push([p.lat,p.lon])));
+  if(pts.length)state.map.fitBounds(L.latLngBounds(pts).pad(0.15));
+}
+function layerBounds(l){const pts=l.points.map(p=>[p.lat,p.lon]);return pts.length?L.latLngBounds(pts):null;}
+
+/* =========================================================================
+   RENDER SIDEBAR
+   ========================================================================= */
+function togglePanels(){
+  const has=state.datasets.length>0;
+  document.getElementById('datasetsPanel').style.display=has?'':'none';
+  document.getElementById('legendPanel').style.display=state.layers.length?'':'none';
+  document.getElementById('analysisPanel').style.display=state.layers.length>1?'':'none';
+  document.getElementById('searchPanel').style.display=state.layers.length?'':'none';
+}
+
+function renderDatasets(){
+  const c=document.getElementById('datasets');c.innerHTML='';
+  state.datasets.forEach(ds=>{
+    const div=document.createElement('div');div.className='ds';
+    const opts=h=>'<option value="">— nessuna —</option>'+ds.headers.map(x=>`<option value="${esc(x)}" ${x===h?'selected':''}>${esc(x)}</option>`).join('');
+    const coordTxt=ds.cols.latIdx!=null?`lat: <b>${esc(ds.headers[ds.cols.latIdx])}</b>, lon: <b>${esc(ds.headers[ds.cols.lonIdx])}</b>`
+      :ds.cols.combIdx!=null?`coord: <b>${esc(ds.headers[ds.cols.combIdx])}</b>`:'<span style="color:#fbbf24">nessuna coordinata rilevata</span>';
+    div.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:start;gap:6px">
+        <div class="ds-name">📄 ${esc(ds.name)}</div>
+        <span class="x" title="Rimuovi" onclick="removeDataset(${ds.id})">×</span>
+      </div>
+      <div class="ds-meta">${ds.rows.length} righe · ${coordTxt}</div>
+      <label>Colora per colonna (Gestore/Tipo)</label>
+      <select onchange="setSplit(${ds.id},this.value)">${opts(ds.splitCol)}</select>
+      <label>Colonna nome</label>
+      <select onchange="setNameCol(${ds.id},this.value)">${opts(ds.nameCol)}</select>
+      ${ds._unlocatedCount?`<div class="warn">⚠️ ${ds._unlocatedCount} righe senza coordinate valide
+        <button class="btn btn-ghost btn-sm" style="margin-top:5px" onclick="openResolve(${ds.id})">Risolvi posizioni</button></div>`:''}
+    `;
+    c.appendChild(div);
+  });
+}
+function setSplit(id,val){const ds=state.datasets.find(d=>d.id===id);ds.splitCol=val;rebuildLayers();}
+function setNameCol(id,val){const ds=state.datasets.find(d=>d.id===id);ds.nameCol=val;rebuildLayers();}
+function removeDataset(id){state.datasets=state.datasets.filter(d=>d.id!==id);rebuildLayers();if(!state.datasets.length){state.colorMap={};state.paletteIdx=0;}}
+
+function renderLegend(){
+  const c=document.getElementById('legend');c.innerHTML='';
+  state.layers.forEach(l=>{
+    const item=document.createElement('div');item.className='legend-item';
+    item.innerHTML=`<input type="checkbox" ${l.visible?'checked':''}>
+      <span class="swatch" style="background:${l.color}"></span>
+      <span class="lbl" title="${esc(l.label)}">${esc(l.label)}</span>
+      <span class="cnt">${l.points.length}</span>`;
+    const cb=item.querySelector('input');
+    cb.onchange=()=>{l.visible=cb.checked;if(cb.checked)l.cluster.addTo(state.map);else state.map.removeLayer(l.cluster);};
+    item.querySelector('.lbl').onclick=()=>{const b=layerBounds(l);if(b)state.map.fitBounds(b.pad(0.2));};
+    item.querySelector('.swatch').onclick=()=>{const b=layerBounds(l);if(b)state.map.fitBounds(b.pad(0.2));};
+    c.appendChild(item);
+  });
+}
+
+function renderAnalysisSelectors(){
+  const src=document.getElementById('srcLayer'),dst=document.getElementById('dstLayer');
+  const opt=l=>`<option value="${l.key}">${esc(l.label)} (${l.points.length})</option>`;
+  src.innerHTML=state.layers.map(opt).join('');
+  dst.innerHTML='<option value="__all__">▶︎ Tutti gli altri livelli</option>'+state.layers.map(opt).join('');
+}
+
+/* =========================================================================
+   POPUP & MISURA
+   ========================================================================= */
+function nearestIn(p,layer){let best=null,bd=Infinity;layer.points.forEach(q=>{if(q.id===p.id)return;const d=haversine(p,q);if(d<bd){bd=d;best=q;}});return best?{point:best,dist:bd}:null;}
+
+function popupHtml(p){
+  let h=`<div class="pp"><div class="pp-title" style="border-color:${p.color}">${esc(p.layerLabel)}</div>`;
+  h+=`<div class="pp-name">${esc(p.title)}</div>`;
+  const others=state.layers.filter(l=>l.key!==p.layerKey&&l.points.length);
+  if(others.length){
+    h+='<div class="pp-near"><b>📏 Stazioni più vicine</b><ul>';
+    others.forEach(l=>{const r=nearestIn(p,l);if(r)h+=`<li><span class="dot" style="background:${l.color}"></span>${esc(l.label)}: <b>${r.dist.toFixed(2)} km</b><br><small>${esc(r.point.title)}</small></li>`;});
+    h+='</ul></div>';
+  }
+  h+='<details class="pp-det"><summary>Tutti i dati della riga</summary><table>';
+  for(const[k,v]of Object.entries(p.row)){if(v!=null&&String(v).trim()!=='')h+=`<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`;}
+  h+='</table></details>';
+  h+=`<div class="pp-coord">📍 ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)} · <a href="https://www.google.com/maps?q=${p.lat},${p.lon}" target="_blank">Google Maps</a></div>`;
+  h+=`<button class="pp-btn" onclick="measureFrom(${p.id})">📏 Misura distanza da qui</button></div>`;
+  return h;
+}
+
+function measureFrom(id){
+  const p=state.registry.get(id);if(!p)return;
+  if(!state.measure.a){
+    state.measure.a=p;highlight(p);
+    toast('Partenza: '+p.title+'. Apri un altro punto e premi di nuovo "Misura".');
+  }else if(state.measure.a.id===id){
+    state.measure.a=null;clearHighlight();toast('Selezione annullata.');
+  }else{
+    const a=state.measure.a,b=p,d=haversine(a,b);
+    L.polyline([[a.lat,a.lon],[b.lat,b.lon]],{color:'#ef4444',weight:3,dashArray:'7,6'}).addTo(state.measureGroup);
+    const mid=[(a.lat+b.lat)/2,(a.lon+b.lon)/2];
+    L.marker(mid,{icon:L.divIcon({className:'',html:`<div class="distlabel">${d.toFixed(2)} km</div>`,iconSize:null})}).addTo(state.measureGroup);
+    toast('Distanza '+a.title+' → '+b.title+': '+d.toFixed(2)+' km');
+    state.measure.a=null;clearHighlight();state.map.closePopup();
+  }
+}
+function highlight(p){clearHighlight();const m=L.circleMarker([p.lat,p.lon],{radius:13,color:'#fde047',weight:4,fill:false});m.addTo(state.measureGroup);state.measure.highlightMarker=m;}
+function clearHighlight(){if(state.measure.highlightMarker){state.map.removeLayer(state.measure.highlightMarker);state.measure.highlightMarker=null;}}
+document.getElementById('clearMeasure').onclick=()=>{state.measureGroup.clearLayers();state.measure.a=null;clearHighlight();};
+
+/* =========================================================================
+   ANALISI DISTANZE PIÙ VICINE
+   ========================================================================= */
+document.getElementById('runAnalysis').onclick=runAnalysis;
+document.getElementById('clearLines').onclick=()=>{state.analysisGroup.clearLayers();document.getElementById('analysisTable').style.display='none';document.getElementById('analysisSummary').textContent='';document.getElementById('exportCsv').style.display='none';};
+function runAnalysis(){
+  const srcKey=document.getElementById('srcLayer').value;
+  const dstKey=document.getElementById('dstLayer').value;
+  const src=state.layers.find(l=>l.key===srcKey);if(!src)return;
+  let targets=dstKey==='__all__'?state.layers.filter(l=>l.key!==srcKey):state.layers.filter(l=>l.key===dstKey);
+  targets=targets.filter(t=>t.points.length);
+  if(!targets.length){toast('Nessun livello di destinazione disponibile.');return;}
+  state.analysisGroup.clearLayers();
+  const rows=[];let sum=0,cnt=0,mx=0,mn=Infinity;
+  src.points.forEach(p=>{
+    targets.forEach(t=>{
+      const r=nearestIn(p,t);if(!r)return;
+      rows.push({src:p,dst:r.point,layer:t,dist:r.dist});
+      sum+=r.dist;cnt++;mx=Math.max(mx,r.dist);mn=Math.min(mn,r.dist);
+      L.polyline([[p.lat,p.lon],[r.point.lat,r.point.lon]],{color:t.color,weight:1.5,opacity:.55}).addTo(state.analysisGroup);
+    });
+  });
+  rows.sort((a,b)=>a.dist-b.dist);
+  state.lastAnalysis=rows;
+  const tbl=document.getElementById('analysisTable');
+  tbl.innerHTML='<tr><th>Da</th><th>A</th><th>km</th></tr>'+rows.map(r=>`<tr><td title="${esc(r.src.title)}">${esc(trim(r.src.title))}</td><td title="${esc(r.dst.title)} (${esc(r.layer.label)})"><span class="swatch" style="display:inline-block;width:9px;height:9px;background:${r.layer.color};border-width:1px"></span> ${esc(trim(r.dst.title))}</td><td>${r.dist.toFixed(2)}</td></tr>`).join('');
+  tbl.style.display='block';
+  document.getElementById('exportCsv').style.display='';
+  document.getElementById('analysisSummary').innerHTML=cnt?`<b>${cnt}</b> collegamenti · media <b>${(sum/cnt).toFixed(2)} km</b> · min ${mn.toFixed(2)} · max ${mx.toFixed(2)}`:'Nessun risultato.';
+}
+function trim(s){s=String(s);return s.length>22?s.slice(0,21)+'…':s;}
+document.getElementById('exportCsv').onclick=()=>{
+  if(!state.lastAnalysis)return;
+  const head=['Sorgente','Lat_sorgente','Lon_sorgente','Livello_destinazione','Destinazione','Lat_dest','Lon_dest','Distanza_km'];
+  const lines=[head.join(';')];
+  state.lastAnalysis.forEach(r=>lines.push([q(r.src.title),r.src.lat,r.src.lon,q(r.layer.label),q(r.dst.title),r.dst.lat,r.dst.lon,r.dist.toFixed(3)].join(';')));
+  download('distanze_stazioni.csv','﻿'+lines.join('\r\n'),'text/csv');
+};
+function q(s){s=String(s==null?'':s);return /[";\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function download(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+
+/* =========================================================================
+   RICERCA
+   ========================================================================= */
+document.getElementById('searchInput').addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  const qy=e.target.value.trim().toLowerCase();if(!qy)return;
+  for(const l of state.layers)for(const p of l.points){
+    if(p.title.toLowerCase().includes(qy)){
+      if(!l.visible){l.visible=true;l.cluster.addTo(state.map);renderLegend();}
+      state.map.setView([p.lat,p.lon],14);p.marker.openPopup();
+      toast('Trovato: '+p.title+' ('+l.label+')');return;
+    }
+  }
+  toast('Nessuna stazione trovata per "'+qy+'"');
+});
+
+/* =========================================================================
+   MODAL — RISOLVI POSIZIONI (manuale + geocodifica)
+   ========================================================================= */
+function openResolve(dsId){
+  const ds=state.datasets.find(d=>d.id===dsId);if(!ds)return;
+  state.modalDsId=dsId;state.geocodeCancel=false;
+  const {unlocated}=computePoints(ds);
+  const body=document.getElementById('modalBody');
+  document.getElementById('modalTitle').textContent='Risolvi posizioni — '+ds.name;
+  let html=`<p style="font-size:.85em;color:#475569;margin-bottom:10px">${unlocated.length} righe senza coordinate. Inserisci <b>lat, lon</b> a mano, oppure usa la geocodifica automatica (usa la colonna indirizzo/nome, richiede internet, ~1 riga al secondo).</p>`;
+  html+=`<label style="font-size:.8em">Colonna usata per la geocodifica:</label>
+    <select id="geoCol" style="width:100%;padding:6px;margin:4px 0 12px;border:1px solid #cbd5e1;border-radius:6px">
+    ${ds.headers.map(h=>`<option value="${esc(h)}" ${h===ds.addrCol?'selected':''}>${esc(h)}</option>`).join('')}</select>`;
+  if(!unlocated.length)html+='<p>✅ Tutte le righe hanno già una posizione.</p>';
+  unlocated.forEach(u=>{
+    const guess=ds.nameCol&&u.row[ds.nameCol]?u.row[ds.nameCol]:(ds.addrCol&&u.row[ds.addrCol]?u.row[ds.addrCol]:'riga '+(u.rowIndex+1));
+    html+=`<div class="resrow"><div><b>${esc(trim2(guess))}</b><br><small>riga ${u.rowIndex+1}</small></div>
+      <input id="res-${dsId}-${u.rowIndex}" placeholder="lat, lon"></div>`;
+  });
+  body.innerHTML=html;
+  document.getElementById('modalBg').classList.add('show');
+}
+function trim2(s){s=String(s);return s.length>46?s.slice(0,45)+'…':s;}
+function closeModal(){document.getElementById('modalBg').classList.remove('show');state.geocodeCancel=true;}
+function applyResolve(){
+  const ds=state.datasets.find(d=>d.id===state.modalDsId);if(!ds)return;
+  document.querySelectorAll('[id^="res-'+ds.id+'-"]').forEach(inp=>{
+    const idx=parseInt(inp.id.split('-').pop(),10);
+    const v=inp.value.trim();
+    if(v){const pair=parsePair(v);if(pair)ds.overrides.set(idx,pair);}
+  });
+  closeModal();rebuildLayers(true);toast('Posizioni aggiornate.');
+}
+document.getElementById('geocodeAllBtn').onclick=geocodeAll;
+async function geocodeAll(){
+  const ds=state.datasets.find(d=>d.id===state.modalDsId);if(!ds)return;
+  state.geocodeCancel=false;
+  const col=document.getElementById('geoCol').value;
+  const cache=JSON.parse(localStorage.getItem('geoCache')||'{}');
+  const inputs=[...document.querySelectorAll('[id^="res-'+ds.id+'-"]')];
+  const btn=document.getElementById('geocodeAllBtn');btn.disabled=true;
+  let done=0;
+  for(const inp of inputs){
+    if(state.geocodeCancel)break;
+    if(inp.value.trim()){done++;continue;}
+    const idx=parseInt(inp.id.split('-').pop(),10);
+    let qstr=String(ds.rows[idx][col]==null?'':ds.rows[idx][col]).trim();
+    if(!qstr){inp.placeholder='(vuoto)';continue;}
+    qstr+=', Italia';
+    btn.textContent='🌍 '+(++done)+'/'+inputs.length+'…';
+    try{
+      let r;
+      if(cache[qstr]){r=cache[qstr];}
+      else{
+        const resp=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(qstr),{headers:{'Accept':'application/json'}});
+        const j=await resp.json();
+        r=j&&j[0]?{lat:parseFloat(j[0].lat),lon:parseFloat(j[0].lon)}:null;
+        cache[qstr]=r;localStorage.setItem('geoCache',JSON.stringify(cache));
+        await new Promise(s=>setTimeout(s,1100)); // rispetta il limite di Nominatim
+      }
+      if(r)inp.value=r.lat.toFixed(6)+', '+r.lon.toFixed(6);
+      else inp.placeholder='non trovato';
+    }catch(err){inp.placeholder='errore rete';}
+  }
+  btn.disabled=false;btn.textContent='🌍 Geocodifica automatica';
+  toast('Geocodifica terminata. Controlla i valori e premi "Applica".');
+}
+
+/* =========================================================================
+   DATI DI ESEMPIO
+   ========================================================================= */
+function loadDemo(){
+  addDataset('SSE-esempio.xlsx',['Nome','Latitudine','Longitudine'],[
+    {Nome:'SSE Roma Smistamento',Latitudine:41.9181,Longitudine:12.5572},
+    {Nome:'SSE Roma Tuscolana',Latitudine:41.8732,Longitudine:12.5165},
+    {Nome:'SSE Firenze Rifredi',Latitudine:43.8041,Longitudine:11.2352},
+    {Nome:'SSE Bologna Centrale',Latitudine:44.5054,Longitudine:11.3430},
+  ]);
+  addDataset('stazioni-esempio.xlsx',['Denominazione','Gestore','Lat','Lon'],[
+    {Denominazione:'Roma Nord',Gestore:'Terna',Lat:41.9920,Lon:12.5100},
+    {Denominazione:'Roma Est',Gestore:'Enel',Lat:41.9010,Lon:12.6020},
+    {Denominazione:'Firenze Casellina',Gestore:'Terna',Lat:43.7402,Lon:11.1805},
+    {Denominazione:'Firenze Centro',Gestore:'Enel',Lat:43.7700,Lon:11.2500},
+    {Denominazione:'Bologna Ovest',Gestore:'Terna',Lat:44.4900,Lon:11.2800},
+    {Denominazione:'Bologna Sud',Gestore:'Enel',Lat:44.4700,Lon:11.3600},
+  ]);
+  toast('Caricati dati di esempio. Sostituiscili con i tuoi file Excel.');
+}
+
+/* =========================================================================
+   INIT MAPPA & EVENTI UI
+   ========================================================================= */
+function init(){
+  const map=L.map('map',{zoomControl:true}).setView([42.5,12.5],6);
+  state.map=map;
+  const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'});
+  L.control.layers({'Mappa stradale':osm,'Satellite':sat},null,{position:'topright'}).addTo(map);
+  L.control.scale({imperial:false}).addTo(map);
+  state.measureGroup=L.layerGroup().addTo(map);
+  state.analysisGroup=L.layerGroup().addTo(map);
+
+  const dz=document.getElementById('dropzone'),fi=document.getElementById('fileInput');
+  dz.onclick=()=>fi.click();
+  fi.onchange=()=>{handleFiles(fi.files);fi.value='';};
+  ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+  dz.addEventListener('drop',e=>{if(e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);});
+  // drop su tutta la finestra
+  window.addEventListener('dragover',e=>e.preventDefault());
+  window.addEventListener('drop',e=>{e.preventDefault();if(e.target.closest('#dropzone'))return;if(e.dataTransfer&&e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);});
+
+  document.getElementById('demoBtn').onclick=loadDemo;
+  document.getElementById('clearBtn').onclick=()=>{state.datasets=[];state.colorMap={};state.paletteIdx=0;state.measureGroup.clearLayers();state.analysisGroup.clearLayers();rebuildLayers();};
+  document.getElementById('allOn').onclick=()=>{state.layers.forEach(l=>{l.visible=true;l.cluster.addTo(state.map);});renderLegend();};
+  document.getElementById('allOff').onclick=()=>{state.layers.forEach(l=>{l.visible=false;state.map.removeLayer(l.cluster);});renderLegend();};
+  document.getElementById('toggleSb').onclick=()=>{const s=document.getElementById('sidebar');s.style.display=s.style.display==='none'?'flex':'none';setTimeout(()=>map.invalidateSize(),50);};
+}
+// espone le funzioni usate dagli onclick inline
+window.measureFrom=measureFrom;window.removeDataset=removeDataset;window.setSplit=setSplit;
+window.setNameCol=setNameCol;window.openResolve=openResolve;window.applyResolve=applyResolve;window.closeModal=closeModal;
+
+init();
+</script>
+</body>
+</html>
