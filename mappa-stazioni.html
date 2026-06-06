@@ -257,7 +257,7 @@ function latScore(n){if(['lat','latitudine','latitude','latitud'].includes(n))re
 function lonScore(n){if(['lon','lng','long','longitudine','longitude','longitud'].includes(n))return 100;if(n.includes('longitud'))return 80;if(n.startsWith('lon')||n.startsWith('lng'))return 70;if(['x','xcoord','coordx'].includes(n))return 40;if(['e','est'].includes(n)||n.includes('easting'))return 30;return 0;}
 function combScore(n){if(['coordinate','coordinates','coord','coords','posizione','latlon','latlong','lonlat','geo','geom','geometry','wkt','point','gps'].includes(n))return 90;if(n.includes('coordinat'))return 60;return 0;}
 function nameScore(n){if(['nome','name','denominazione','descrizione','sse','stazione','station','impianto','sito','site','toponimo','denom','gridnode','node','nodo'].includes(n))return 100;if(n.includes('nome')||n.includes('denomin')||n.includes('stazion')||n.includes('impiant')||n.includes('descriz')||n.includes('node')||n.includes('nodo'))return 70;if(['codice','id','label','sigla'].includes(n))return 50;return 0;}
-function opScore(n){if(['gestore','operatore','operator','proprietario','owner','gridowner','tipo','tipologia','type','categoria','category','ente','rete','societa','azienda','fonte','source','gruppo'].includes(n))return 100;if(n.includes('gestor')||n.includes('operator')||n.includes('propriet')||n.includes('tipolog')||n.includes('owner'))return 70;return 0;}
+function opScore(n){if(['gestore','operatore','operator','proprietario','owner','gridowner','ente','societa','azienda','gruppo'].includes(n))return 100;if(n.includes('gestor')||n.includes('operator')||n.includes('propriet')||n.includes('owner'))return 95;if(['tipo','tipologia','type','categoria','category','rete','fonte','source','classe'].includes(n))return 90;if(n.includes('tipolog')||n.includes('categor'))return 85;return 0;}
 function addrScore(n){if(['indirizzo','address','via','comune','citta','localita','provincia','prov','cap'].includes(n))return 100;if(n.includes('indirizz')||n.includes('comune')||n.includes('localit')||n.includes('citta')||n.includes('provinc'))return 60;return 0;}
 function provScore(n){if(['provincia','prov','province','pv','sigla'].includes(n))return 100;if(n.includes('provinc'))return 70;return 0;}
 function regScore(n){if(['regione','region'].includes(n))return 100;if(n.includes('region'))return 70;return 0;}
@@ -370,9 +370,15 @@ function colorFor(key,labelText){
   if(state.colorMap[key])return state.colorMap[key];
   const t=norm(labelText);
   let c=null;
-  if(/terna|rtn|altatension/.test(t))c='#1e88e5';
+  // 1) colori semantici per stato di saturazione (ordine: arancio/giallo prima di rosso, perché "quasi saturo" contiene "saturo")
+  if(/arancio|arancione|orange|quasisaturo/.test(t))c='#f97316';
+  else if(/giallo|yellow|parzsatur|parzialsatur|parzsat/.test(t))c='#eab308';
+  else if(/rosso|^red|saturo|satura|pieno|esaurit/.test(t))c='#dc2626';
+  else if(/verde|green|disponibil|libero|nonsatur/.test(t))c='#16a34a';
+  // 2) colori per gestore / rete
+  else if(/terna|rtn|altatension/.test(t))c='#1e88e5';
   else if(/enel|edistribuzione|distribuzione/.test(t))c='#43a047';
-  else if(/ferrov|rfi|^fs|sse|trenitalia|rete ferro/.test(labelText.toLowerCase()))c='#e53935';
+  else if(/ferrov|rfi|fsse|sse|trenitalia|reteferro/.test(t))c='#e53935';
   if(!c){c=PALETTE[state.paletteIdx%PALETTE.length];state.paletteIdx++;}
   state.colorMap[key]=c;return c;
 }
@@ -510,7 +516,12 @@ function renderAnalysisSelectors(){
    ========================================================================= */
 function nearestIn(p,layer){let best=null,bd=Infinity;layer.points.forEach(q=>{if(q.id===p.id)return;const d=haversine(p,q);if(d<bd){bd=d;best=q;}});return best?{point:best,dist:bd}:null;}
 
-function satColor(v){const n=norm(v);if(/verde|green|libero|disponibil|^ok$|nonsatur/.test(n))return'#16a34a';if(/giallo|yellow|medio|parzial|limit|attenzion/.test(n))return'#f59e0b';if(/rosso|red|saturo|satura|saturazione|pieno|criticit|critic|^no$|esaurit/.test(n))return'#dc2626';return'#64748b';}
+function satColor(v){const n=norm(v);
+  if(/arancio|arancione|orange|quasisaturo/.test(n))return'#f97316';
+  if(/giallo|yellow|medio|parzial|parz|limit|attenzion/.test(n))return'#eab308';
+  if(/rosso|red|saturo|satura|pieno|criticit|critic|esaurit/.test(n))return'#dc2626';
+  if(/verde|green|libero|disponibil|^ok$|nonsatur/.test(n))return'#16a34a';
+  return'#64748b';}
 function popupHtml(p){
   let h=`<div class="pp"><div class="pp-title" style="border-color:${p.color}">${esc(p.layerLabel)}</div>`;
   h+=`<div class="pp-name">${esc(p.title)}</div>`;
