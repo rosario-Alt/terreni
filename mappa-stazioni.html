@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mappa Stazioni Elettriche — SSE FS / Terna / Enel</title>
+
+<!-- Leaflet (mappa) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<!-- SheetJS (lettura Excel) -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{font-family:'Segoe UI',Tahoma,sans-serif;display:flex;height:100vh;overflow:hidden;color:#1f2937;font-size:16px}
+  /* ---- Sidebar ---- */
+  #sidebar{width:400px;min-width:400px;background:#0f172a;color:#e2e8f0;display:flex;flex-direction:column;height:100%}
+  #sidebar header{padding:18px 20px;background:#020617;border-bottom:1px solid #1e293b}
+  #sidebar header h1{font-size:1.3em;line-height:1.25}
+  #sidebar header p{font-size:.92em;color:#94a3b8;margin-top:5px}
+  .scroll{overflow-y:auto;flex:1;padding:16px}
+  .panel{background:#1e293b;border-radius:12px;padding:16px;margin-bottom:14px}
+  .panel h2{font-size:1em;font-weight:700;color:#7dd3fc;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+  .dropzone{border:2px dashed #475569;border-radius:10px;padding:24px 12px;text-align:center;cursor:pointer;transition:.2s;font-size:1em;color:#e2e8f0}
+  .dropzone:hover,.dropzone.drag{border-color:#38bdf8;background:#0b1220}
+  .dropzone b{color:#7dd3fc}
+  .btn{border:none;border-radius:8px;padding:11px 14px;font-weight:700;cursor:pointer;font-size:.95em;transition:.15s;width:100%}
+  .btn:hover{filter:brightness(1.1)}
+  .btn-blue{background:#2563eb;color:#fff}
+  .btn-ghost{background:#334155;color:#e2e8f0}
+  .btn-sm{padding:8px 10px;font-size:.9em;width:auto}
+  .row{display:flex;gap:8px;margin-top:8px}
+  .row>*{flex:1}
+  .ds{background:#0b1220;border:1px solid #1e293b;border-radius:10px;padding:12px;margin-bottom:10px}
+  .ds .ds-name{font-weight:700;font-size:1em;word-break:break-all}
+  .ds .ds-meta{font-size:.85em;color:#94a3b8;margin:5px 0 7px}
+  .ds label{font-size:.85em;color:#cbd5e1;display:block;margin-top:8px;font-weight:600}
+  .ds select,.ds input{width:100%;background:#0f172a;border:1px solid #475569;color:#e2e8f0;border-radius:6px;padding:8px;font-size:.92em;margin-top:3px}
+  .warn{color:#fbbf24;font-size:.86em;margin-top:8px;line-height:1.4}
+  .legend-item{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:8px;cursor:pointer;font-size:1em}
+  .legend-item:hover{background:#0b1220}
+  .legend-item input{accent-color:#38bdf8;width:18px;height:18px}
+  .swatch{width:20px;height:20px;border-radius:50%;flex:0 0 20px;border:2px solid #fff}
+  .legend-item .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .legend-item .cnt{font-size:.9em;color:#cbd5e1;font-weight:700}
+  select.full,input.full{width:100%;background:#0f172a;border:1px solid #475569;color:#e2e8f0;border-radius:6px;padding:10px;font-size:.95em;margin-top:6px}
+  .hint{font-size:.86em;color:#cbd5e1;line-height:1.5;margin-top:10px}
+  /* ---- Riquadro informazioni (clic su un punto) ---- */
+  #infoPanel{display:none;background:#fff;color:#0f172a;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  #infoPanel.show{display:block}
+  #infoPanel .ip-op{font-size:.8em;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#fff;display:inline-block;padding:3px 10px;border-radius:20px}
+  #infoPanel .ip-name{font-size:1.4em;font-weight:800;margin:8px 0 4px;line-height:1.2}
+  #infoPanel .ip-sat{display:inline-block;font-weight:800;font-size:.95em;color:#fff;padding:5px 12px;border-radius:20px;margin:4px 0}
+  #infoPanel .ip-meta{font-size:.95em;color:#475569;margin:6px 0}
+  #infoPanel .ip-near{background:#f1f5f9;border-radius:10px;padding:10px 12px;margin-top:10px}
+  #infoPanel .ip-near ul{list-style:none;margin-top:6px}
+  #infoPanel .ip-near li{margin:6px 0;line-height:1.35;font-size:.95em}
+  #infoPanel .ip-near .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  #infoPanel .ip-x{float:right;cursor:pointer;font-size:1.6em;line-height:.7;color:#94a3b8}
+  #infoPanel .ip-btns{display:flex;gap:8px;margin-top:12px}
+  #infoPanel .ip-btns button{flex:1;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-size:.92em;color:#fff}
+  #analysisTable,#proxTable{width:100%;border-collapse:collapse;font-size:.85em;margin-top:8px;display:block;max-height:260px;overflow:auto}
+  #analysisTable th,#analysisTable td,#proxTable th,#proxTable td{border-bottom:1px solid #1e293b;padding:6px 6px;text-align:left;white-space:nowrap}
+  #analysisTable th,#proxTable th{color:#94a3b8;position:sticky;top:0;background:#1e293b}
+  /* ---- Map ---- */
+  #map{flex:1;height:100%}
+  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 18px;border-radius:8px;font-size:1em;box-shadow:0 6px 20px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.25s;z-index:1200;max-width:80vw;text-align:center}
+  #toast.show{opacity:1}
+  /* popup */
+  .pp{font-size:14px;min-width:210px;max-width:280px}
+  .pp-title{font-size:.78em;text-transform:uppercase;letter-spacing:.04em;color:#64748b;border-left:4px solid #999;padding-left:6px;font-weight:700}
+  .pp-name{font-weight:800;font-size:1.2em;margin:5px 0 6px}
+  .pp-near{background:#f1f5f9;border-radius:6px;padding:7px 9px;margin-bottom:6px}
+  .pp-near ul{list-style:none;margin-top:4px}
+  .pp-near li{margin:5px 0;line-height:1.35}
+  .pp-near .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+  .pp-det summary{cursor:pointer;color:#2563eb;font-size:.95em}
+  .pp-det table{width:100%;border-collapse:collapse;margin-top:4px}
+  .pp-det td{border-bottom:1px solid #eee;padding:3px 5px;font-size:.92em;vertical-align:top}
+  .pp-det td:first-child{color:#64748b;font-weight:600;white-space:nowrap}
+  .pp-coord{font-size:.88em;color:#475569;margin-top:6px}
+  .pp-btn{margin-top:8px;width:100%;background:#ef4444;color:#fff;border:none;border-radius:6px;padding:9px;font-weight:700;cursor:pointer;font-size:.95em}
+  .distlabel{background:#ef4444;color:#fff;font-weight:700;font-size:13px;padding:3px 8px;border-radius:10px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  .pulse{animation:pulse 1s infinite}
+  @keyframes pulse{0%{filter:drop-shadow(0 0 0 #fde047)}50%{filter:drop-shadow(0 0 8px #fde047)}100%{filter:drop-shadow(0 0 0 #fde047)}}
+  /* modal */
+  #modalBg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:1500}
+  #modalBg.show{display:flex}
+  .modal{background:#fff;color:#1f2937;border-radius:12px;width:min(640px,92vw);max-height:86vh;display:flex;flex-direction:column;overflow:hidden}
+  .modal header{padding:14px 18px;background:#0f172a;color:#fff;display:flex;justify-content:space-between;align-items:center}
+  .modal .body{padding:14px 18px;overflow:auto}
+  .modal .foot{padding:12px 18px;border-top:1px solid #e5e7eb;display:flex;gap:10px;justify-content:flex-end}
+  .resrow{display:grid;grid-template-columns:1fr 150px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9}
+  .resrow small{color:#64748b}
+  .resrow input{border:1px solid #cbd5e1;border-radius:6px;padding:6px;font-size:.85em}
+  .x{cursor:pointer;font-size:1.4em;line-height:1}
+  .toggle-sb{position:absolute;top:10px;left:10px;z-index:1000;background:#0f172a;color:#fff;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;display:none}
+  @media(max-width:780px){
+    body{flex-direction:column}
+    #sidebar{width:100%;min-width:0;height:48%}
+    #map{height:52%}
+    .toggle-sb{display:block}
+  }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <header>
+    <h1>⚡ Mappa Stazioni Elettriche</h1>
+    <p>SSE Ferrovie · Terna · Enel — distanze su un'unica mappa</p>
+  </header>
+  <div class="scroll">
+
+    <div id="infoPanel"></div>
+
+    <div class="panel">
+      <h2>📂 Carica i tuoi file</h2>
+      <div class="dropzone" id="dropzone">
+        Trascina qui <b>Elenco SSE</b> e <b>stazioni</b><br>oppure <b>clicca per scegliere</b><br>
+        <span style="font-size:.85em;color:#94a3b8">.xlsx · .xls · .csv</span>
+      </div>
+      <input type="file" id="fileInput" multiple accept=".xlsx,.xls,.csv" style="display:none">
+      <div class="row">
+        <button class="btn btn-ghost btn-sm" id="demoBtn">▶︎ Dati di esempio</button>
+        <button class="btn btn-ghost btn-sm" id="clearBtn">🗑 Pulisci tutto</button>
+      </div>
+      <div class="hint"><b>Come si usa:</b> 1) trascina i file qui sopra · 2) i cerchi colorati con un numero sono <b>gruppi</b>: clicca o ingrandisci (rotella del mouse) per aprirli · 3) clicca un <b>singolo punto</b> per vedere qui a fianco nome, gestore, <b>saturazione</b> e distanze.<br><br>L'app legge i file <b>nel tuo browser</b>: i dati non vengono inviati a nessun server.</div>
+    </div>
+
+    <div class="panel" id="datasetsPanel" style="display:none">
+      <h2>🗃 File caricati</h2>
+      <div id="datasets"></div>
+    </div>
+
+    <div class="panel" id="legendPanel" style="display:none">
+      <h2>🎨 Livelli (clicca per zoomare)</h2>
+      <div id="legend"></div>
+      <div class="row">
+        <button class="btn btn-ghost btn-sm" id="allOn">Mostra tutti</button>
+        <button class="btn btn-ghost btn-sm" id="allOff">Nascondi tutti</button>
+      </div>
+    </div>
+
+    <div class="panel" id="searchPanel" style="display:none">
+      <h2>🔎 Cerca stazione</h2>
+      <input class="full" id="searchInput" placeholder="Scrivi un nome e premi Invio…">
+    </div>
+
+    <div class="panel" id="proxPanel" style="display:none">
+      <h2>🎯 Trova stazioni entro una distanza</h2>
+      <div class="hint" style="margin-top:0">Esempio: tutte le <b>SSE FS</b> che hanno una stazione <b>Terna o Enel entro 5 km</b>.</div>
+      <label style="font-size:.85em;color:#cbd5e1;font-weight:600;margin-top:8px;display:block">Stazioni da filtrare</label>
+      <select class="full" id="proxSrc"></select>
+      <label style="font-size:.85em;color:#cbd5e1;font-weight:600;margin-top:8px;display:block">Vicine a</label>
+      <select class="full" id="proxDst"></select>
+      <label style="font-size:.85em;color:#cbd5e1;font-weight:600;margin-top:8px;display:block">Distanza massima (km)</label>
+      <input class="full" id="proxKm" type="number" value="5" min="0" step="0.5">
+      <div class="row">
+        <button class="btn btn-blue btn-sm" id="runProx">🎯 Trova</button>
+        <button class="btn btn-ghost btn-sm" id="clearProx">Pulisci</button>
+      </div>
+      <label class="legend-item" style="margin-top:8px"><input type="checkbox" id="proxOnly"> <span class="lbl">Mostra solo quelle trovate sulla mappa</span></label>
+      <div id="proxSummary" class="hint"></div>
+      <table id="proxTable" style="display:none"></table>
+      <button class="btn btn-ghost btn-sm" id="proxCsv" style="display:none;margin-top:8px">⬇︎ Esporta CSV</button>
+    </div>
+
+    <div class="panel" id="analysisPanel" style="display:none">
+      <h2>📏 Distanze più vicine</h2>
+      <div class="hint" style="margin-top:0">Per ogni punto del livello "Da", trova il più vicino del livello "A".</div>
+      <label style="font-size:.78em;color:#cbd5e1">Da (sorgente)</label>
+      <select class="full" id="srcLayer"></select>
+      <label style="font-size:.78em;color:#cbd5e1;margin-top:6px;display:block">A (destinazione)</label>
+      <select class="full" id="dstLayer"></select>
+      <div class="row">
+        <button class="btn btn-blue btn-sm" id="runAnalysis">Calcola</button>
+        <button class="btn btn-ghost btn-sm" id="clearLines">Pulisci linee</button>
+      </div>
+      <div id="analysisSummary" class="hint"></div>
+      <table id="analysisTable" style="display:none"></table>
+      <button class="btn btn-ghost btn-sm" id="exportCsv" style="display:none;margin-top:8px">⬇︎ Esporta CSV</button>
+    </div>
+
+    <div class="panel">
+      <h2>ℹ️ Come misurare a mano</h2>
+      <div class="hint" style="margin-top:0">Apri un punto sulla mappa → premi <b>"📏 Misura distanza da qui"</b> → apri un secondo punto e premi di nuovo il pulsante. Verrà disegnata la linea con i km.</div>
+      <button class="btn btn-ghost btn-sm" id="clearMeasure" style="margin-top:8px">Pulisci misure manuali</button>
+    </div>
+
+  </div>
+</div>
+
+<button class="toggle-sb" id="toggleSb">☰</button>
+<div id="map"></div>
+<div id="toast"></div>
+
+<!-- Modal risoluzione posizioni -->
+<div id="modalBg">
+  <div class="modal">
+    <header>
+      <span id="modalTitle">Risolvi posizioni mancanti</span>
+      <span class="x" onclick="closeModal()">×</span>
+    </header>
+    <div class="body" id="modalBody"></div>
+    <div class="foot">
+      <button class="btn btn-ghost btn-sm" id="geocodeAllBtn">🌍 Geocodifica automatica</button>
+      <button class="btn btn-blue btn-sm" onclick="applyResolve()">Applica</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   STATO GLOBALE
+   ========================================================================= */
+const PALETTE = ['#e53935','#1e88e5','#43a047','#fb8c00','#8e24aa','#00897b','#6d4c41','#c0ca33','#d81b60','#3949ab','#00acc1','#f4511e'];
+const ITALY = {latMin:35,latMax:48,lonMin:5,lonMax:20};
+const state = {
+  map:null, datasets:[], layers:[], registry:new Map(),
+  colorMap:{}, paletteIdx:0,
+  measure:{a:null, highlightMarker:null},
+  measureGroup:null, analysisGroup:null, proxGroup:null,
+  lastAnalysis:null, proxMatches:null, proxSrcKey:null, dsSeq:0, ptSeq:0,
+  modalDsId:null, geocodeCancel:false
+};
+
+/* =========================================================================
+   UTILITÀ
+   ========================================================================= */
+const norm = h => String(h==null?'':h).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function toast(msg,ms=3200){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),ms);}
+function inItaly(lat,lon){return lat>=ITALY.latMin&&lat<=ITALY.latMax&&lon>=ITALY.lonMin&&lon<=ITALY.lonMax;}
+function haversine(a,b){const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLon=(b.lon-a.lon)*Math.PI/180,la1=a.lat*Math.PI/180,la2=b.lat*Math.PI/180;const x=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(x)));}
+
+/* Converte un valore (numero, decimale con virgola, o gradi-minuti-secondi) in grado decimale */
+function parseCoord(v){
+  if(v==null||v==='')return null;
+  if(typeof v==='number')return isFinite(v)?v:null;
+  let s=String(v).trim();
+  if(!s)return null;
+  const hemiMatch=s.match(/[NSEWnsew]/);
+  const hemi=hemiMatch?hemiMatch[0].toUpperCase():null;
+  const nums=s.replace(/,/g,'.').match(/-?\d+(?:\.\d+)?/g);
+  if(!nums)return null;
+  let dec;
+  if(nums.length===1){dec=parseFloat(nums[0]);}
+  else{
+    const d=Math.abs(parseFloat(nums[0])),m=nums[1]?parseFloat(nums[1]):0,sec=nums[2]?parseFloat(nums[2]):0;
+    dec=d+m/60+sec/3600;
+    if(parseFloat(nums[0])<0)dec=-dec;
+  }
+  if(hemi==='S'||hemi==='W')dec=-Math.abs(dec);
+  return isFinite(dec)?dec:null;
+}
+/* Estrae una coppia lat,lon da un'unica cella (es. "41.9,12.5" o "POINT(12.5 41.9)") */
+function parsePair(v){
+  if(v==null)return null;
+  let s=String(v).trim();if(!s)return null;
+  const wkt=/point\s*\(\s*(-?\d+(?:[.,]\d+)?)\s+(-?\d+(?:[.,]\d+)?)\s*\)/i.exec(s);
+  if(wkt){const lon=parseFloat(wkt[1].replace(',','.')),lat=parseFloat(wkt[2].replace(',','.'));return validPair(lat,lon);}
+  const nums=s.match(/-?\d+(?:[.,]\d+)?/g);
+  if(!nums||nums.length<2)return null;
+  const a=parseFloat(nums[0].replace(',','.')),b=parseFloat(nums[1].replace(',','.'));
+  return validPair(a,b);
+}
+function validPair(lat,lon){
+  if(lat==null||lon==null||!isFinite(lat)||!isFinite(lon))return null;
+  if(inItaly(lat,lon))return{lat,lon};
+  if(inItaly(lon,lat))return{lat:lon,lon:lat};          // colonne invertite
+  if(Math.abs(lat)<=90&&Math.abs(lon)<=180)return{lat,lon};
+  return null;
+}
+/* Ripulisce il nome di un nodo (CP/SE/ST/NUOVA…) per migliorare la geocodifica del comune */
+function cleanPlace(name){
+  let s=String(name==null?'':name).split('/')[0];        // "SEDRIANO/MESERO" -> "SEDRIANO"
+  const stop=new Set(['cp','se','sse','st','ts','nuova','nuovo','nuove','ampliamento','impianto','nodo','node','grid','est','ovest','nord','sud','kv']);
+  return s.split(/[\s.,]+/)
+          .filter(w=>w&&!stop.has(w.toLowerCase())&&!/^\d+$/.test(w))   // togli sigle e numeri (150, 132…)
+          .join(' ').trim();
+}
+
+/* =========================================================================
+   RILEVAMENTO COLONNE
+   ========================================================================= */
+function latScore(n){if(['lat','latitudine','latitude','latitud'].includes(n))return 100;if(n.includes('latitud'))return 80;if(n.startsWith('lat')&&!n.includes('long'))return 70;if(['y','ycoord','coordy'].includes(n))return 40;if(n.includes('nord')||n.includes('northing'))return 30;return 0;}
+function lonScore(n){if(['lon','lng','long','longitudine','longitude','longitud'].includes(n))return 100;if(n.includes('longitud'))return 80;if(n.startsWith('lon')||n.startsWith('lng'))return 70;if(['x','xcoord','coordx'].includes(n))return 40;if(['e','est'].includes(n)||n.includes('easting'))return 30;return 0;}
+function combScore(n){if(['coordinate','coordinates','coord','coords','posizione','latlon','latlong','lonlat','geo','geom','geometry','wkt','point','gps'].includes(n))return 90;if(n.includes('coordinat'))return 60;return 0;}
+function nameScore(n){if(['nome','name','denominazione','descrizione','sse','stazione','station','impianto','sito','site','toponimo','denom','gridnode','node','nodo'].includes(n))return 100;if(n.includes('nome')||n.includes('denomin')||n.includes('stazion')||n.includes('impiant')||n.includes('descriz')||n.includes('node')||n.includes('nodo'))return 70;if(['codice','id','label','sigla'].includes(n))return 50;return 0;}
+function opScore(n){if(['gestore','operatore','operator','proprietario','owner','gridowner','ente','societa','azienda','gruppo'].includes(n))return 100;if(n.includes('gestor')||n.includes('operator')||n.includes('propriet')||n.includes('owner'))return 95;if(['tipo','tipologia','type','categoria','category','rete','fonte','source','classe'].includes(n))return 90;if(n.includes('tipolog')||n.includes('categor'))return 85;return 0;}
+function addrScore(n){if(['indirizzo','address','via','comune','citta','localita','provincia','prov','cap'].includes(n))return 100;if(n.includes('indirizz')||n.includes('comune')||n.includes('localit')||n.includes('citta')||n.includes('provinc'))return 60;return 0;}
+function provScore(n){if(['provincia','prov','province','pv','sigla'].includes(n))return 100;if(n.includes('provinc'))return 70;return 0;}
+function regScore(n){if(['regione','region'].includes(n))return 100;if(n.includes('region'))return 70;return 0;}
+function satScore(n){if(['saturazione','statosaturazione','statotr','saturazionetr','tr','saturation'].includes(n))return 100;if(n.includes('saturaz')||n.includes('saturat'))return 80;return 0;}
+
+function bestColumn(headers,scoreFn,exclude=[]){
+  let best=-1,bs=0;
+  headers.forEach((h,i)=>{if(exclude.includes(i))return;const s=scoreFn(norm(h));if(s>bs){bs=s;best=i;}});
+  return best>=0?best:null;
+}
+function detectColumns(headers){
+  const latIdx=bestColumn(headers,latScore);
+  const lonIdx=bestColumn(headers,lonScore,[latIdx]);
+  const combIdx=bestColumn(headers,combScore);
+  const nameIdx=bestColumn(headers,nameScore);
+  const opIdx=bestColumn(headers,opScore,[nameIdx]);
+  const provIdx=bestColumn(headers,provScore,[nameIdx]);
+  const regIdx=bestColumn(headers,regScore,[nameIdx]);
+  const addrIdx=bestColumn(headers,addrScore,[nameIdx,provIdx,regIdx]);
+  const satIdx=bestColumn(headers,satScore,[nameIdx]);
+  return {latIdx,lonIdx,combIdx,nameIdx,opIdx,provIdx,regIdx,addrIdx,satIdx};
+}
+
+/* =========================================================================
+   LETTURA FILE EXCEL/CSV
+   ========================================================================= */
+function handleFiles(fileList){
+  [...fileList].forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array',cellDates:true});
+        // scegli il foglio con più righe
+        let best=wb.SheetNames[0],bestRows=-1;
+        wb.SheetNames.forEach(n=>{const r=XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,blankrows:false}).length;if(r>bestRows){bestRows=r;best=n;}});
+        const aoa=XLSX.utils.sheet_to_json(wb.Sheets[best],{header:1,raw:true,blankrows:false,defval:null});
+        if(!aoa.length){toast('⚠️ "'+file.name+'": foglio vuoto');return;}
+        const {headers,rows}=aoaToRows(aoa);
+        if(!headers.length){toast('⚠️ "'+file.name+'": nessuna intestazione');return;}
+        addDataset(file.name,headers,rows);
+      }catch(err){console.error(err);toast('❌ Errore leggendo "'+file.name+'": '+err.message);}
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+/* Trova la riga d'intestazione (salta eventuali titoli iniziali) e costruisce gli oggetti riga */
+function aoaToRows(aoa){
+  let headerRow=0,bestScore=-1;
+  const limit=Math.min(aoa.length,10);
+  for(let i=0;i<limit;i++){
+    const row=aoa[i]||[];
+    const nonEmpty=row.filter(c=>c!=null&&String(c).trim()!=='').length;
+    if(nonEmpty<2)continue;
+    const dc=detectColumns(row.map(c=>String(c==null?'':c)));
+    let kw=0;[dc.latIdx,dc.lonIdx,dc.combIdx,dc.nameIdx,dc.opIdx].forEach(x=>{if(x!=null)kw++;});
+    const score=kw*10+nonEmpty;
+    if(score>bestScore){bestScore=score;headerRow=i;}
+  }
+  let headers=(aoa[headerRow]||[]).map((h,i)=>{const s=String(h==null?'':h).trim();return s||('Colonna '+(i+1));});
+  // de-duplica intestazioni
+  const seen={};headers=headers.map(h=>{if(seen[h]!=null){seen[h]++;return h+' ('+seen[h]+')';}seen[h]=0;return h;});
+  const rows=[];
+  for(let i=headerRow+1;i<aoa.length;i++){
+    const r=aoa[i]||[];
+    if(r.every(c=>c==null||String(c).trim()===''))continue;
+    const obj={};headers.forEach((h,j)=>obj[h]=r[j]!==undefined?r[j]:null);
+    rows.push(obj);
+  }
+  return {headers,rows};
+}
+
+/* =========================================================================
+   GESTIONE DATASET
+   ========================================================================= */
+function addDataset(name,headers,rows){
+  const cols=detectColumns(headers);
+  const opCol=(cols.opIdx!=null?headers[cols.opIdx]:'');
+  const satCol=(cols.satIdx!=null?headers[cols.satIdx]:'');
+  const ds={
+    id:++state.dsSeq, name, headers, rows, cols,
+    // default: se ci sono sia gestore sia saturazione → modalità Auto (Terna per gestore, Enel per saturazione)
+    splitCol:(opCol&&satCol)?'__auto_sat__':opCol,
+    opCol, satCol,
+    nameCol:(cols.nameIdx!=null?headers[cols.nameIdx]:''),
+    addrCol:(cols.addrIdx!=null?headers[cols.addrIdx]:(cols.nameIdx!=null?headers[cols.nameIdx]:'')),
+    provCol:(cols.provIdx!=null?headers[cols.provIdx]:''),
+    regCol:(cols.regIdx!=null?headers[cols.regIdx]:''),
+    overrides:new Map()
+  };
+  state.datasets.push(ds);
+  renderDatasets();
+  rebuildLayers(true);
+  const hasCoords=cols.latIdx!=null||cols.combIdx!=null;
+  toast('✅ "'+name+'": '+rows.length+' righe'+(hasCoords?'':' — ⚠️ colonne coordinate non trovate'));
+}
+
+function computePoints(ds){
+  const located=[],unlocated=[];
+  ds.rows.forEach((row,idx)=>{
+    let coord=null;
+    if(ds.overrides.has(idx))coord=ds.overrides.get(idx);
+    else if(ds.cols.latIdx!=null&&ds.cols.lonIdx!=null)
+      coord=validPair(parseCoord(row[ds.headers[ds.cols.latIdx]]),parseCoord(row[ds.headers[ds.cols.lonIdx]]));
+    else if(ds.cols.combIdx!=null)
+      coord=parsePair(row[ds.headers[ds.cols.combIdx]]);
+    if(coord)located.push({rowIndex:idx,row,lat:coord.lat,lon:coord.lon});
+    else unlocated.push({rowIndex:idx,row});
+  });
+  return {located,unlocated};
+}
+
+function colorFor(key,labelText){
+  if(state.colorMap[key])return state.colorMap[key];
+  const t=norm(labelText);
+  let c=null;
+  // 1) colori semantici per stato di saturazione (ordine: arancio/giallo prima di rosso, perché "quasi saturo" contiene "saturo")
+  if(/arancio|arancione|orange|quasisaturo/.test(t))c='#f97316';
+  else if(/giallo|yellow|parzsatur|parzialsatur|parzsat/.test(t))c='#eab308';
+  else if(/rosso|^red|saturo|satura|pieno|esaurit/.test(t))c='#dc2626';
+  else if(/verde|green|disponibil|libero|nonsatur/.test(t))c='#16a34a';
+  // 2) colori per gestore / rete
+  else if(/terna|rtn|altatension/.test(t))c='#1e88e5';
+  else if(/enel|edistribuzione|distribuzione/.test(t))c='#43a047';
+  else if(/ferrov|rfi|fsse|sse|trenitalia|reteferro/.test(t))c='#e53935';
+  if(!c){c=PALETTE[state.paletteIdx%PALETTE.length];state.paletteIdx++;}
+  state.colorMap[key]=c;return c;
+}
+
+function clusterGroup(color){
+  return L.markerClusterGroup({
+    maxClusterRadius:55,
+    disableClusteringAtZoom:11,   // da zoom 11 in poi mostra i singoli punti (così cliccando vedi le info, non "scoppia")
+    spiderfyOnMaxZoom:true,
+    iconCreateFunction:cluster=>{
+      const n=cluster.getChildCount();const size=n<10?38:n<100?46:54;
+      return L.divIcon({html:`<div style="background:${color};width:${size}px;height:${size}px;line-height:${size}px;border-radius:50%;color:#fff;text-align:center;font-weight:700;font-size:15px;border:3px solid #fff;box-shadow:0 0 6px rgba(0,0,0,.55)">${n}</div>`,className:'',iconSize:[size,size]});
+    }
+  });
+}
+
+function rebuildLayers(fit=false){
+  // rimuovi vecchi livelli dalla mappa
+  closeInfo();
+  state.layers.forEach(l=>{if(state.map.hasLayer(l.cluster))state.map.removeLayer(l.cluster);});
+  state.registry.clear();
+  state.layers=[];
+  state.ptSeq=0;
+  const prevVis={};
+
+  state.datasets.forEach(ds=>{
+    const {located}=computePoints(ds);
+    ds._unlocatedCount=ds.rows.length-located.length;
+    const groups={};
+    located.forEach(p=>{
+      let splitVal='',forced=null;
+      if(ds.splitCol==='__auto_sat__'){
+        // Terna → un solo gruppo blu; Enel → gruppi colorati per saturazione
+        if(/terna/.test(norm(p.row[ds.opCol]))){splitVal='Terna';forced='#1e88e5';}
+        else{
+          const sv=p.row[ds.satCol];
+          const txt=(sv==null||String(sv).trim()==='')?'N/D':String(sv).trim();
+          splitVal='Enel · '+txt; forced=satColor(txt);
+        }
+      }else if(ds.splitCol){
+        splitVal=String(p.row[ds.splitCol]==null?'(vuoto)':p.row[ds.splitCol]).trim()||'(vuoto)';
+      }
+      const key=ds.id+'::'+splitVal;
+      if(!groups[key]){
+        const base=ds.name.replace(/\.[^.]+$/,'');
+        const label=splitVal?(base+' — '+splitVal):base;
+        groups[key]={key,label,points:[],forced};
+      }
+      groups[key].points.push(p);
+    });
+    Object.values(groups).forEach(g=>{
+      const color=g.forced||colorFor(g.key,g.label);
+      const cluster=clusterGroup(color);
+      const layer={key:g.key,label:g.label,color,cluster,points:[],dsId:ds.id,visible:true};
+      g.points.forEach(p=>{
+        const id=++state.ptSeq;
+        const title=ds.nameCol&&p.row[ds.nameCol]!=null&&String(p.row[ds.nameCol]).trim()!==''?String(p.row[ds.nameCol]):'(senza nome) #'+id;
+        const pt={id,dsId:ds.id,lat:p.lat,lon:p.lon,row:p.row,title,layerKey:layer.key,layerLabel:layer.label,color};
+        const m=L.circleMarker([p.lat,p.lon],{radius:8,color:'#fff',weight:2,fillColor:color,fillOpacity:.95});
+        // clic sul punto → mostra le info nel riquadro fisso (sempre leggibile, non sparisce)
+        m.on('click',()=>showInfo(pt));
+        pt.marker=m;
+        cluster.addLayer(m);
+        layer.points.push(pt);
+        state.registry.set(id,pt);
+      });
+      state.layers.push(layer);
+    });
+  });
+
+  // applica visibilità e aggiungi alla mappa
+  state.layers.forEach(l=>{l.cluster.addTo(state.map);});
+  renderLegend();
+  renderAnalysisSelectors();
+  renderDatasets();
+  togglePanels();
+  if(fit)fitAll();
+}
+
+function fitAll(){
+  const pts=[];state.layers.forEach(l=>l.points.forEach(p=>pts.push([p.lat,p.lon])));
+  if(pts.length)state.map.fitBounds(L.latLngBounds(pts).pad(0.15));
+}
+function layerBounds(l){const pts=l.points.map(p=>[p.lat,p.lon]);return pts.length?L.latLngBounds(pts):null;}
+
+/* =========================================================================
+   RENDER SIDEBAR
+   ========================================================================= */
+function togglePanels(){
+  const has=state.datasets.length>0;
+  document.getElementById('datasetsPanel').style.display=has?'':'none';
+  document.getElementById('legendPanel').style.display=state.layers.length?'':'none';
+  document.getElementById('analysisPanel').style.display=state.layers.length>1?'':'none';
+  document.getElementById('proxPanel').style.display=state.layers.length>1?'':'none';
+  document.getElementById('searchPanel').style.display=state.layers.length?'':'none';
+}
+
+function renderDatasets(){
+  const c=document.getElementById('datasets');c.innerHTML='';
+  state.datasets.forEach(ds=>{
+    const div=document.createElement('div');div.className='ds';
+    const opts=h=>'<option value="">— nessuna —</option>'+ds.headers.map(x=>`<option value="${esc(x)}" ${x===h?'selected':''}>${esc(x)}</option>`).join('');
+    const splitOpts=h=>(ds.opCol&&ds.satCol?`<option value="__auto_sat__" ${h==='__auto_sat__'?'selected':''}>🔌 Auto: Terna blu + Enel per saturazione</option>`:'')
+      +`<option value="" ${h===''?'selected':''}>— colore unico —</option>`
+      +ds.headers.map(x=>`<option value="${esc(x)}" ${x===h?'selected':''}>${esc(x)}</option>`).join('');
+    const coordTxt=ds.cols.latIdx!=null?`lat: <b>${esc(ds.headers[ds.cols.latIdx])}</b>, lon: <b>${esc(ds.headers[ds.cols.lonIdx])}</b>`
+      :ds.cols.combIdx!=null?`coord: <b>${esc(ds.headers[ds.cols.combIdx])}</b>`:'<span style="color:#fbbf24">nessuna coordinata rilevata</span>';
+    div.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:start;gap:6px">
+        <div class="ds-name">📄 ${esc(ds.name)}</div>
+        <span class="x" title="Rimuovi" onclick="removeDataset(${ds.id})">×</span>
+      </div>
+      <div class="ds-meta">${ds.rows.length} righe · ${coordTxt}</div>
+      <label>Colora per colonna</label>
+      <select onchange="setSplit(${ds.id},this.value)">${splitOpts(ds.splitCol)}</select>
+      <label>Colonna nome</label>
+      <select onchange="setNameCol(${ds.id},this.value)">${opts(ds.nameCol)}</select>
+      ${ds._unlocatedCount?`<div class="warn">⚠️ ${ds._unlocatedCount} righe senza coordinate valide
+        <button class="btn btn-ghost btn-sm" style="margin-top:5px" onclick="openResolve(${ds.id})">Risolvi posizioni</button></div>`:''}
+    `;
+    c.appendChild(div);
+  });
+}
+function setSplit(id,val){const ds=state.datasets.find(d=>d.id===id);ds.splitCol=val;rebuildLayers();}
+function setNameCol(id,val){const ds=state.datasets.find(d=>d.id===id);ds.nameCol=val;rebuildLayers();}
+function removeDataset(id){state.datasets=state.datasets.filter(d=>d.id!==id);rebuildLayers();if(!state.datasets.length){state.colorMap={};state.paletteIdx=0;}}
+
+function renderLegend(){
+  const c=document.getElementById('legend');c.innerHTML='';
+  state.layers.forEach(l=>{
+    const item=document.createElement('div');item.className='legend-item';
+    item.innerHTML=`<input type="checkbox" ${l.visible?'checked':''}>
+      <span class="swatch" style="background:${l.color}"></span>
+      <span class="lbl" title="${esc(l.label)}">${esc(l.label)}</span>
+      <span class="cnt">${l.points.length}</span>`;
+    const cb=item.querySelector('input');
+    cb.onchange=()=>{l.visible=cb.checked;if(cb.checked)l.cluster.addTo(state.map);else state.map.removeLayer(l.cluster);};
+    item.querySelector('.lbl').onclick=()=>{const b=layerBounds(l);if(b)state.map.fitBounds(b.pad(0.2));};
+    item.querySelector('.swatch').onclick=()=>{const b=layerBounds(l);if(b)state.map.fitBounds(b.pad(0.2));};
+    c.appendChild(item);
+  });
+}
+
+function sseLayerKey(){
+  // individua il livello delle SSE FS (per default del filtro vicinanza)
+  const l=state.layers.find(l=>/sse|ferrov|^fs|rfi/.test(norm(l.label)));
+  return l?l.key:(state.layers[0]?state.layers[0].key:'');
+}
+function renderAnalysisSelectors(){
+  const opt=l=>`<option value="${l.key}">${esc(l.label)} (${l.points.length})</option>`;
+  const all=state.layers.map(opt).join('');
+  const src=document.getElementById('srcLayer'),dst=document.getElementById('dstLayer');
+  src.innerHTML=all;
+  dst.innerHTML='<option value="__all__">▶︎ Tutti gli altri livelli</option>'+all;
+  // selettori del filtro vicinanza
+  const ps=document.getElementById('proxSrc'),pd=document.getElementById('proxDst');
+  if(ps&&pd){
+    const def=sseLayerKey();
+    ps.innerHTML=state.layers.map(l=>`<option value="${l.key}" ${l.key===def?'selected':''}>${esc(l.label)} (${l.points.length})</option>`).join('');
+    pd.innerHTML='<option value="__all__">▶︎ Terna + Enel (tutte le altre reti)</option>'+all;
+  }
+}
+
+/* =========================================================================
+   POPUP & MISURA
+   ========================================================================= */
+function nearestIn(p,layer){let best=null,bd=Infinity;layer.points.forEach(q=>{if(q.id===p.id)return;const d=haversine(p,q);if(d<bd){bd=d;best=q;}});return best?{point:best,dist:bd}:null;}
+
+function satColor(v){const n=norm(v);
+  if(/arancio|arancione|orange|quasisaturo/.test(n))return'#f97316';
+  if(/giallo|yellow|medio|parzial|parz|limit|attenzion/.test(n))return'#eab308';
+  if(/rosso|red|saturo|satura|pieno|criticit|critic|esaurit/.test(n))return'#dc2626';
+  if(/verde|green|libero|disponibil|^ok$|nonsatur/.test(n))return'#16a34a';
+  return'#64748b';}
+/* Mostra le informazioni della stazione cliccata nel riquadro fisso (sempre leggibile) */
+function showInfo(p){
+  try{
+    const panel=document.getElementById('infoPanel');
+    const ds=state.datasets.find(d=>d.id===p.dsId);
+    let h=`<span class="ip-x" onclick="closeInfo()">×</span>`;
+    h+=`<span class="ip-op" style="background:${p.color}">${esc(p.layerLabel)}</span>`;
+    h+=`<div class="ip-name">${esc(p.title)}</div>`;
+    // stato di saturazione dei TR (se presente)
+    if(ds&&ds.satCol){const sv=p.row[ds.satCol];if(sv!=null&&String(sv).trim()!=='')h+=`<div><span class="ip-sat" style="background:${satColor(sv)}">🔌 Saturazione TR: ${esc(sv)}</span></div>`;}
+    // gestore e zona
+    const meta=[];
+    if(ds&&ds.opCol&&p.row[ds.opCol]!=null&&String(p.row[ds.opCol]).trim()!=='')meta.push('Gestore: <b>'+esc(p.row[ds.opCol])+'</b>');
+    const luogo=[];
+    if(ds&&ds.provCol&&p.row[ds.provCol])luogo.push(esc(p.row[ds.provCol]));
+    if(ds&&ds.regCol&&p.row[ds.regCol])luogo.push(esc(p.row[ds.regCol]));
+    if(luogo.length)meta.push('Zona: <b>'+luogo.join(' · ')+'</b>');
+    if(meta.length)h+=`<div class="ip-meta">${meta.join('<br>')}</div>`;
+    // distanze dalle altre reti
+    const others=state.layers.filter(l=>l.key!==p.layerKey&&l.points.length);
+    if(others.length){
+      h+='<div class="ip-near"><b>📏 Stazioni più vicine</b><ul>';
+      others.forEach(l=>{const r=nearestIn(p,l);if(r)h+=`<li><span class="dot" style="background:${l.color}"></span>${esc(l.label)}: <b>${r.dist.toFixed(2)} km</b><br><small style="color:#64748b">${esc(r.point.title)}</small></li>`;});
+      h+='</ul></div>';
+    }
+    h+=`<div class="ip-meta" style="margin-top:8px">📍 ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)} · <a href="https://www.google.com/maps?q=${p.lat},${p.lon}" target="_blank">Google Maps</a></div>`;
+    h+=`<div class="ip-btns"><button style="background:#ef4444" onclick="measureFrom(${p.id})">📏 Misura da qui</button><button style="background:#2563eb" onclick="zoomTo(${p.id})">🔍 Zoom</button></div>`;
+    panel.innerHTML=h;panel.classList.add('show');
+    panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(err){console.error(err);toast('Errore: '+err.message);}
+}
+function closeInfo(){const panel=document.getElementById('infoPanel');if(panel){panel.classList.remove('show');panel.innerHTML='';}}
+function zoomTo(id){const p=state.registry.get(id);if(p)state.map.setView([p.lat,p.lon],15);}
+
+function measureFrom(id){
+  const p=state.registry.get(id);if(!p)return;
+  if(!state.measure.a){
+    state.measure.a=p;highlight(p);
+    toast('Partenza: '+p.title+'. Apri un altro punto e premi di nuovo "Misura".');
+  }else if(state.measure.a.id===id){
+    state.measure.a=null;clearHighlight();toast('Selezione annullata.');
+  }else{
+    const a=state.measure.a,b=p,d=haversine(a,b);
+    L.polyline([[a.lat,a.lon],[b.lat,b.lon]],{color:'#ef4444',weight:3,dashArray:'7,6'}).addTo(state.measureGroup);
+    const mid=[(a.lat+b.lat)/2,(a.lon+b.lon)/2];
+    L.marker(mid,{icon:L.divIcon({className:'',html:`<div class="distlabel">${d.toFixed(2)} km</div>`,iconSize:null})}).addTo(state.measureGroup);
+    toast('Distanza '+a.title+' → '+b.title+': '+d.toFixed(2)+' km');
+    state.measure.a=null;clearHighlight();state.map.closePopup();
+  }
+}
+function highlight(p){clearHighlight();const m=L.circleMarker([p.lat,p.lon],{radius:13,color:'#fde047',weight:4,fill:false});m.addTo(state.measureGroup);state.measure.highlightMarker=m;}
+function clearHighlight(){if(state.measure.highlightMarker){state.map.removeLayer(state.measure.highlightMarker);state.measure.highlightMarker=null;}}
+document.getElementById('clearMeasure').onclick=()=>{state.measureGroup.clearLayers();state.measure.a=null;clearHighlight();};
+
+/* =========================================================================
+   ANALISI DISTANZE PIÙ VICINE
+   ========================================================================= */
+document.getElementById('runAnalysis').onclick=runAnalysis;
+document.getElementById('clearLines').onclick=()=>{state.analysisGroup.clearLayers();document.getElementById('analysisTable').style.display='none';document.getElementById('analysisSummary').textContent='';document.getElementById('exportCsv').style.display='none';};
+function runAnalysis(){
+  const srcKey=document.getElementById('srcLayer').value;
+  const dstKey=document.getElementById('dstLayer').value;
+  const src=state.layers.find(l=>l.key===srcKey);if(!src)return;
+  let targets=dstKey==='__all__'?state.layers.filter(l=>l.key!==srcKey):state.layers.filter(l=>l.key===dstKey);
+  targets=targets.filter(t=>t.points.length);
+  if(!targets.length){toast('Nessun livello di destinazione disponibile.');return;}
+  state.analysisGroup.clearLayers();
+  const rows=[];let sum=0,cnt=0,mx=0,mn=Infinity;
+  src.points.forEach(p=>{
+    targets.forEach(t=>{
+      const r=nearestIn(p,t);if(!r)return;
+      rows.push({src:p,dst:r.point,layer:t,dist:r.dist});
+      sum+=r.dist;cnt++;mx=Math.max(mx,r.dist);mn=Math.min(mn,r.dist);
+      L.polyline([[p.lat,p.lon],[r.point.lat,r.point.lon]],{color:t.color,weight:1.5,opacity:.55}).addTo(state.analysisGroup);
+    });
+  });
+  rows.sort((a,b)=>a.dist-b.dist);
+  state.lastAnalysis=rows;
+  const tbl=document.getElementById('analysisTable');
+  tbl.innerHTML='<tr><th>Da</th><th>A</th><th>km</th></tr>'+rows.map(r=>`<tr><td title="${esc(r.src.title)}">${esc(trim(r.src.title))}</td><td title="${esc(r.dst.title)} (${esc(r.layer.label)})"><span class="swatch" style="display:inline-block;width:9px;height:9px;background:${r.layer.color};border-width:1px"></span> ${esc(trim(r.dst.title))}</td><td>${r.dist.toFixed(2)}</td></tr>`).join('');
+  tbl.style.display='block';
+  document.getElementById('exportCsv').style.display='';
+  document.getElementById('analysisSummary').innerHTML=cnt?`<b>${cnt}</b> collegamenti · media <b>${(sum/cnt).toFixed(2)} km</b> · min ${mn.toFixed(2)} · max ${mx.toFixed(2)}`:'Nessun risultato.';
+}
+function trim(s){s=String(s);return s.length>22?s.slice(0,21)+'…':s;}
+document.getElementById('exportCsv').onclick=()=>{
+  if(!state.lastAnalysis)return;
+  const head=['Sorgente','Lat_sorgente','Lon_sorgente','Livello_destinazione','Destinazione','Lat_dest','Lon_dest','Distanza_km'];
+  const lines=[head.join(';')];
+  state.lastAnalysis.forEach(r=>lines.push([q(r.src.title),r.src.lat,r.src.lon,q(r.layer.label),q(r.dst.title),r.dst.lat,r.dst.lon,r.dist.toFixed(3)].join(';')));
+  download('distanze_stazioni.csv','﻿'+lines.join('\r\n'),'text/csv');
+};
+function q(s){s=String(s==null?'':s);return /[";\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function download(name,content,type){const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+
+/* =========================================================================
+   FILTRO VICINANZA — es. SSE FS entro 5 km da Terna/Enel
+   ========================================================================= */
+document.getElementById('runProx').onclick=runProximity;
+document.getElementById('clearProx').onclick=clearProx;
+document.getElementById('proxOnly').onchange=applyProxOnly;
+function clearProx(){
+  state.proxGroup.clearLayers();state.proxMatches=null;
+  document.getElementById('proxTable').style.display='none';
+  document.getElementById('proxSummary').textContent='';
+  document.getElementById('proxCsv').style.display='none';
+  document.getElementById('proxOnly').checked=false;applyProxOnly();
+}
+function runProximity(){
+  const srcKey=document.getElementById('proxSrc').value;
+  const dstKey=document.getElementById('proxDst').value;
+  const maxKm=parseFloat(String(document.getElementById('proxKm').value).replace(',','.'));
+  const src=state.layers.find(l=>l.key===srcKey);
+  if(!src){toast('Seleziona le stazioni da filtrare.');return;}
+  if(!(maxKm>0)){toast('Inserisci una distanza valida in km.');return;}
+  let targets=dstKey==='__all__'?state.layers.filter(l=>l.key!==srcKey):state.layers.filter(l=>l.key===dstKey);
+  targets=targets.filter(t=>t.points.length);
+  if(!targets.length){toast('Nessuna rete di destinazione disponibile.');return;}
+  state.proxSrcKey=srcKey;
+  state.proxGroup.clearLayers();
+  const matches=[];
+  src.points.forEach(p=>{
+    let best=null,bd=Infinity,bl=null;
+    targets.forEach(t=>{const r=nearestIn(p,t);if(r&&r.dist<bd){bd=r.dist;best=r.point;bl=t;}});
+    if(best&&bd<=maxKm)matches.push({src:p,dst:best,layer:bl,dist:bd});
+  });
+  matches.sort((a,b)=>a.dist-b.dist);
+  state.proxMatches=matches;
+  // evidenzia sulla mappa: anello giallo + linea verso la stazione più vicina
+  matches.forEach(m=>{
+    L.polyline([[m.src.lat,m.src.lon],[m.dst.lat,m.dst.lon]],{color:'#facc15',weight:2.5,opacity:.9}).addTo(state.proxGroup);
+    const ring=L.circleMarker([m.src.lat,m.src.lon],{radius:12,color:'#facc15',weight:4,fill:false});
+    ring.on('click',()=>showInfo(m.src));
+    ring.addTo(state.proxGroup);
+  });
+  // tabella
+  const tbl=document.getElementById('proxTable');
+  tbl.innerHTML='<tr><th>Stazione FS</th><th>Più vicina</th><th>km</th></tr>'+matches.map(m=>`<tr style="cursor:pointer" onclick="zoomTo(${m.src.id})"><td title="${esc(m.src.title)}">${esc(trim(m.src.title))}</td><td title="${esc(m.dst.title)} (${esc(m.layer.label)})"><span class="swatch" style="display:inline-block;width:9px;height:9px;background:${m.layer.color};border-width:1px"></span> ${esc(trim(m.dst.title))}</td><td><b>${m.dist.toFixed(2)}</b></td></tr>`).join('');
+  tbl.style.display=matches.length?'block':'none';
+  document.getElementById('proxCsv').style.display=matches.length?'':'none';
+  document.getElementById('proxSummary').innerHTML=`<b style="color:#7dd3fc;font-size:1.15em">${matches.length}</b> / ${src.points.length} stazioni «${esc(src.label)}» entro <b>${maxKm} km</b> da una rete selezionata.`;
+  applyProxOnly();
+  if(matches.length){
+    const b=L.latLngBounds(matches.map(m=>[m.src.lat,m.src.lon]));state.map.fitBounds(b.pad(0.2));
+    toast(matches.length+' stazioni trovate entro '+maxKm+' km.');
+  }else toast('Nessuna stazione entro '+maxKm+' km.');
+}
+/* mostra solo le stazioni trovate (nasconde il livello sorgente intero) */
+function applyProxOnly(){
+  const only=document.getElementById('proxOnly').checked;
+  const src=state.layers.find(l=>l.key===state.proxSrcKey);
+  if(!src)return;
+  if(only&&state.proxMatches){
+    if(state.map.hasLayer(src.cluster))state.map.removeLayer(src.cluster);src.visible=false;
+  }else{
+    if(!state.map.hasLayer(src.cluster))src.cluster.addTo(state.map);src.visible=true;
+  }
+  renderLegend();
+}
+document.getElementById('proxCsv').onclick=()=>{
+  if(!state.proxMatches)return;
+  const head=['Stazione_FS','Lat_FS','Lon_FS','Rete_piu_vicina','Stazione_piu_vicina','Lat','Lon','Distanza_km'];
+  const lines=[head.join(';')];
+  state.proxMatches.forEach(m=>lines.push([q(m.src.title),m.src.lat,m.src.lon,q(m.layer.label),q(m.dst.title),m.dst.lat,m.dst.lon,m.dist.toFixed(3)].join(';')));
+  download('SSE_FS_vicine.csv','﻿'+lines.join('\r\n'),'text/csv');
+};
+
+/* =========================================================================
+   RICERCA
+   ========================================================================= */
+document.getElementById('searchInput').addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  const qy=e.target.value.trim().toLowerCase();if(!qy)return;
+  for(const l of state.layers)for(const p of l.points){
+    if(p.title.toLowerCase().includes(qy)){
+      if(!l.visible){l.visible=true;l.cluster.addTo(state.map);renderLegend();}
+      state.map.setView([p.lat,p.lon],14);showInfo(p);
+      toast('Trovato: '+p.title+' ('+l.label+')');return;
+    }
+  }
+  toast('Nessuna stazione trovata per "'+qy+'"');
+});
+
+/* =========================================================================
+   MODAL — RISOLVI POSIZIONI (manuale + geocodifica)
+   ========================================================================= */
+function openResolve(dsId){
+  const ds=state.datasets.find(d=>d.id===dsId);if(!ds)return;
+  state.modalDsId=dsId;state.geocodeCancel=false;
+  const {unlocated}=computePoints(ds);
+  const body=document.getElementById('modalBody');
+  document.getElementById('modalTitle').textContent='Risolvi posizioni — '+ds.name;
+  const hasPR=ds.provCol||ds.regCol;
+  let html=`<p style="font-size:.85em;color:#475569;margin-bottom:10px">${unlocated.length} righe senza coordinate. Inserisci <b>lat, lon</b> a mano, oppure usa la geocodifica automatica (richiede internet, ~1 riga al secondo).${hasPR?` La ricerca usa il nome del nodo + <b>${esc([ds.provCol,ds.regCol].filter(Boolean).join(' + '))}</b> per trovare il comune.`:''} <br><b>Nota:</b> per Terna/Enel la posizione ottenuta è quella del <b>comune</b> (approssimativa), utile per stimare le distanze.</p>`;
+  html+=`<label style="font-size:.8em">Colonna nome usata per la geocodifica:</label>
+    <select id="geoCol" style="width:100%;padding:6px;margin:4px 0 12px;border:1px solid #cbd5e1;border-radius:6px">
+    ${ds.headers.map(h=>`<option value="${esc(h)}" ${h===ds.addrCol?'selected':''}>${esc(h)}</option>`).join('')}</select>`;
+  if(!unlocated.length)html+='<p>✅ Tutte le righe hanno già una posizione.</p>';
+  unlocated.forEach(u=>{
+    const guess=ds.nameCol&&u.row[ds.nameCol]?u.row[ds.nameCol]:(ds.addrCol&&u.row[ds.addrCol]?u.row[ds.addrCol]:'riga '+(u.rowIndex+1));
+    html+=`<div class="resrow"><div><b>${esc(trim2(guess))}</b><br><small>riga ${u.rowIndex+1}</small></div>
+      <input id="res-${dsId}-${u.rowIndex}" placeholder="lat, lon"></div>`;
+  });
+  body.innerHTML=html;
+  document.getElementById('modalBg').classList.add('show');
+}
+function trim2(s){s=String(s);return s.length>46?s.slice(0,45)+'…':s;}
+function closeModal(){document.getElementById('modalBg').classList.remove('show');state.geocodeCancel=true;}
+function applyResolve(){
+  const ds=state.datasets.find(d=>d.id===state.modalDsId);if(!ds)return;
+  document.querySelectorAll('[id^="res-'+ds.id+'-"]').forEach(inp=>{
+    const idx=parseInt(inp.id.split('-').pop(),10);
+    const v=inp.value.trim();
+    if(v){const pair=parsePair(v);if(pair)ds.overrides.set(idx,pair);}
+  });
+  closeModal();rebuildLayers(true);toast('Posizioni aggiornate.');
+}
+document.getElementById('geocodeAllBtn').onclick=geocodeAll;
+async function geocodeAll(){
+  const ds=state.datasets.find(d=>d.id===state.modalDsId);if(!ds)return;
+  state.geocodeCancel=false;
+  const col=document.getElementById('geoCol').value;
+  const cache=JSON.parse(localStorage.getItem('geoCache')||'{}');
+  const inputs=[...document.querySelectorAll('[id^="res-'+ds.id+'-"]')];
+  const btn=document.getElementById('geocodeAllBtn');btn.disabled=true;
+  let done=0;
+  for(const inp of inputs){
+    if(state.geocodeCancel)break;
+    if(inp.value.trim()){done++;continue;}
+    const idx=parseInt(inp.id.split('-').pop(),10);
+    const row=ds.rows[idx];
+    const raw=String(row[col]==null?'':row[col]).trim();
+    if(!raw){inp.placeholder='(vuoto)';continue;}
+    const place=cleanPlace(raw)||raw;
+    const prov=ds.provCol?String(row[ds.provCol]==null?'':row[ds.provCol]).trim():'';
+    const reg=ds.regCol?String(row[ds.regCol]==null?'':row[ds.regCol]).trim():'';
+    // tentativi dal più specifico al più generico (così cade sul comune se il nome esatto non esiste)
+    const queries=[];
+    const add=q=>{q=q.replace(/\s*,\s*,/g,',').replace(/,\s*$/,'').trim();if(q&&!queries.includes(q))queries.push(q);};
+    add([place,prov,reg,'Italia'].filter(Boolean).join(', '));
+    add([place,reg,'Italia'].filter(Boolean).join(', '));
+    add([place,'Italia'].join(', '));
+    btn.textContent='🌍 '+(++done)+'/'+inputs.length+'…';
+    let r=null;
+    for(const qstr of queries){
+      if(state.geocodeCancel)break;
+      try{
+        if(cache[qstr]!==undefined){r=cache[qstr];}
+        else{
+          const resp=await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=it&q='+encodeURIComponent(qstr),{headers:{'Accept':'application/json'}});
+          const j=await resp.json();
+          r=j&&j[0]?{lat:parseFloat(j[0].lat),lon:parseFloat(j[0].lon)}:null;
+          cache[qstr]=r;localStorage.setItem('geoCache',JSON.stringify(cache));
+          await new Promise(s=>setTimeout(s,1100)); // rispetta il limite di Nominatim
+        }
+      }catch(err){inp.placeholder='errore rete';r=null;}
+      if(r)break;
+    }
+    if(r)inp.value=r.lat.toFixed(6)+', '+r.lon.toFixed(6);
+    else if(inp.placeholder!=='errore rete')inp.placeholder='non trovato';
+  }
+  btn.disabled=false;btn.textContent='🌍 Geocodifica automatica';
+  toast('Geocodifica terminata. Controlla i valori e premi "Applica".');
+}
+
+/* =========================================================================
+   DATI DI ESEMPIO
+   ========================================================================= */
+function loadDemo(){
+  addDataset('SSE-esempio.xlsx',['Nome','Latitudine','Longitudine'],[
+    {Nome:'SSE Roma Smistamento',Latitudine:41.9181,Longitudine:12.5572},
+    {Nome:'SSE Roma Tuscolana',Latitudine:41.8732,Longitudine:12.5165},
+    {Nome:'SSE Firenze Rifredi',Latitudine:43.8041,Longitudine:11.2352},
+    {Nome:'SSE Bologna Centrale',Latitudine:44.5054,Longitudine:11.3430},
+  ]);
+  addDataset('stazioni-esempio.xlsx',['Denominazione','Gestore','Lat','Lon','Saturazione TR'],[
+    {Denominazione:'Roma Nord',Gestore:'Terna',Lat:41.9920,Lon:12.5100,'Saturazione TR':''},
+    {Denominazione:'Roma Est',Gestore:'Enel',Lat:41.9010,Lon:12.6020,'Saturazione TR':'Verde - disponibile'},
+    {Denominazione:'Firenze Casellina',Gestore:'Terna',Lat:43.7402,Lon:11.1805,'Saturazione TR':''},
+    {Denominazione:'Firenze Centro',Gestore:'Enel',Lat:43.7700,Lon:11.2500,'Saturazione TR':'Rosso - saturo'},
+    {Denominazione:'Bologna Ovest',Gestore:'Terna',Lat:44.4900,Lon:11.2800,'Saturazione TR':''},
+    {Denominazione:'Bologna Sud',Gestore:'Enel',Lat:44.4700,Lon:11.3600,'Saturazione TR':'Giallo - parziale'},
+  ]);
+  toast('Caricati dati di esempio. Sostituiscili con i tuoi file Excel.');
+}
+
+/* =========================================================================
+   INIT MAPPA & EVENTI UI
+   ========================================================================= */
+function init(){
+  const map=L.map('map',{zoomControl:true}).setView([42.5,12.5],6);
+  state.map=map;
+  const osm=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+  const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Tiles © Esri'});
+  L.control.layers({'Mappa stradale':osm,'Satellite':sat},null,{position:'topright'}).addTo(map);
+  L.control.scale({imperial:false}).addTo(map);
+  state.measureGroup=L.layerGroup().addTo(map);
+  state.analysisGroup=L.layerGroup().addTo(map);
+  state.proxGroup=L.layerGroup().addTo(map);
+
+  const dz=document.getElementById('dropzone'),fi=document.getElementById('fileInput');
+  dz.onclick=()=>fi.click();
+  fi.onchange=()=>{handleFiles(fi.files);fi.value='';};
+  ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+  dz.addEventListener('drop',e=>{if(e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);});
+  // drop su tutta la finestra
+  window.addEventListener('dragover',e=>e.preventDefault());
+  window.addEventListener('drop',e=>{e.preventDefault();if(e.target.closest('#dropzone'))return;if(e.dataTransfer&&e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);});
+
+  document.getElementById('demoBtn').onclick=loadDemo;
+  document.getElementById('clearBtn').onclick=()=>{state.datasets=[];state.colorMap={};state.paletteIdx=0;state.measureGroup.clearLayers();state.analysisGroup.clearLayers();rebuildLayers();};
+  document.getElementById('allOn').onclick=()=>{state.layers.forEach(l=>{l.visible=true;l.cluster.addTo(state.map);});renderLegend();};
+  document.getElementById('allOff').onclick=()=>{state.layers.forEach(l=>{l.visible=false;state.map.removeLayer(l.cluster);});renderLegend();};
+  document.getElementById('toggleSb').onclick=()=>{const s=document.getElementById('sidebar');s.style.display=s.style.display==='none'?'flex':'none';setTimeout(()=>map.invalidateSize(),50);};
+}
+// espone le funzioni usate dagli onclick inline
+window.measureFrom=measureFrom;window.removeDataset=removeDataset;window.setSplit=setSplit;
+window.setNameCol=setNameCol;window.openResolve=openResolve;window.applyResolve=applyResolve;window.closeModal=closeModal;
+window.showInfo=showInfo;window.closeInfo=closeInfo;window.zoomTo=zoomTo;
+
+init();
+</script>
+</body>
+</html>
