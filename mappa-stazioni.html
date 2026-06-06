@@ -17,61 +17,75 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%}
-  body{font-family:'Segoe UI',Tahoma,sans-serif;display:flex;height:100vh;overflow:hidden;color:#1f2937}
+  body{font-family:'Segoe UI',Tahoma,sans-serif;display:flex;height:100vh;overflow:hidden;color:#1f2937;font-size:16px}
   /* ---- Sidebar ---- */
-  #sidebar{width:360px;min-width:360px;background:#0f172a;color:#e2e8f0;display:flex;flex-direction:column;height:100%}
-  #sidebar header{padding:16px 18px;background:#020617;border-bottom:1px solid #1e293b}
-  #sidebar header h1{font-size:1.05em;line-height:1.3}
-  #sidebar header p{font-size:.78em;color:#94a3b8;margin-top:4px}
-  .scroll{overflow-y:auto;flex:1;padding:14px}
-  .panel{background:#1e293b;border-radius:10px;padding:14px;margin-bottom:12px}
-  .panel h2{font-size:.82em;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-  .dropzone{border:2px dashed #475569;border-radius:10px;padding:22px 12px;text-align:center;cursor:pointer;transition:.2s;font-size:.85em;color:#cbd5e1}
+  #sidebar{width:400px;min-width:400px;background:#0f172a;color:#e2e8f0;display:flex;flex-direction:column;height:100%}
+  #sidebar header{padding:18px 20px;background:#020617;border-bottom:1px solid #1e293b}
+  #sidebar header h1{font-size:1.3em;line-height:1.25}
+  #sidebar header p{font-size:.92em;color:#94a3b8;margin-top:5px}
+  .scroll{overflow-y:auto;flex:1;padding:16px}
+  .panel{background:#1e293b;border-radius:12px;padding:16px;margin-bottom:14px}
+  .panel h2{font-size:1em;font-weight:700;color:#7dd3fc;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+  .dropzone{border:2px dashed #475569;border-radius:10px;padding:24px 12px;text-align:center;cursor:pointer;transition:.2s;font-size:1em;color:#e2e8f0}
   .dropzone:hover,.dropzone.drag{border-color:#38bdf8;background:#0b1220}
-  .dropzone b{color:#38bdf8}
-  .btn{border:none;border-radius:8px;padding:9px 12px;font-weight:600;cursor:pointer;font-size:.84em;transition:.15s;width:100%}
+  .dropzone b{color:#7dd3fc}
+  .btn{border:none;border-radius:8px;padding:11px 14px;font-weight:700;cursor:pointer;font-size:.95em;transition:.15s;width:100%}
   .btn:hover{filter:brightness(1.1)}
   .btn-blue{background:#2563eb;color:#fff}
   .btn-ghost{background:#334155;color:#e2e8f0}
-  .btn-sm{padding:5px 8px;font-size:.78em;width:auto}
+  .btn-sm{padding:8px 10px;font-size:.9em;width:auto}
   .row{display:flex;gap:8px;margin-top:8px}
   .row>*{flex:1}
-  .ds{background:#0b1220;border:1px solid #1e293b;border-radius:8px;padding:10px;margin-bottom:8px}
-  .ds .ds-name{font-weight:700;font-size:.86em;word-break:break-all}
-  .ds .ds-meta{font-size:.74em;color:#94a3b8;margin:4px 0 6px}
-  .ds label{font-size:.74em;color:#cbd5e1;display:block;margin-top:6px}
-  .ds select,.ds input{width:100%;background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:5px;font-size:.8em;margin-top:2px}
-  .warn{color:#fbbf24;font-size:.74em;margin-top:6px}
-  .legend-item{display:flex;align-items:center;gap:8px;padding:5px 4px;border-radius:6px;cursor:pointer;font-size:.84em}
+  .ds{background:#0b1220;border:1px solid #1e293b;border-radius:10px;padding:12px;margin-bottom:10px}
+  .ds .ds-name{font-weight:700;font-size:1em;word-break:break-all}
+  .ds .ds-meta{font-size:.85em;color:#94a3b8;margin:5px 0 7px}
+  .ds label{font-size:.85em;color:#cbd5e1;display:block;margin-top:8px;font-weight:600}
+  .ds select,.ds input{width:100%;background:#0f172a;border:1px solid #475569;color:#e2e8f0;border-radius:6px;padding:8px;font-size:.92em;margin-top:3px}
+  .warn{color:#fbbf24;font-size:.86em;margin-top:8px;line-height:1.4}
+  .legend-item{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:8px;cursor:pointer;font-size:1em}
   .legend-item:hover{background:#0b1220}
-  .legend-item input{accent-color:#38bdf8}
-  .swatch{width:14px;height:14px;border-radius:50%;flex:0 0 14px;border:2px solid #fff}
+  .legend-item input{accent-color:#38bdf8;width:18px;height:18px}
+  .swatch{width:20px;height:20px;border-radius:50%;flex:0 0 20px;border:2px solid #fff}
   .legend-item .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .legend-item .cnt{font-size:.78em;color:#94a3b8}
-  select.full,input.full{width:100%;background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:7px;font-size:.84em;margin-top:6px}
-  .hint{font-size:.74em;color:#94a3b8;line-height:1.4;margin-top:8px}
-  #analysisTable{width:100%;border-collapse:collapse;font-size:.74em;margin-top:8px;display:block;max-height:230px;overflow:auto}
-  #analysisTable th,#analysisTable td{border-bottom:1px solid #1e293b;padding:4px 5px;text-align:left;white-space:nowrap}
+  .legend-item .cnt{font-size:.9em;color:#cbd5e1;font-weight:700}
+  select.full,input.full{width:100%;background:#0f172a;border:1px solid #475569;color:#e2e8f0;border-radius:6px;padding:10px;font-size:.95em;margin-top:6px}
+  .hint{font-size:.86em;color:#cbd5e1;line-height:1.5;margin-top:10px}
+  /* ---- Riquadro informazioni (clic su un punto) ---- */
+  #infoPanel{display:none;background:#fff;color:#0f172a;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  #infoPanel.show{display:block}
+  #infoPanel .ip-op{font-size:.8em;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:#fff;display:inline-block;padding:3px 10px;border-radius:20px}
+  #infoPanel .ip-name{font-size:1.4em;font-weight:800;margin:8px 0 4px;line-height:1.2}
+  #infoPanel .ip-sat{display:inline-block;font-weight:800;font-size:.95em;color:#fff;padding:5px 12px;border-radius:20px;margin:4px 0}
+  #infoPanel .ip-meta{font-size:.95em;color:#475569;margin:6px 0}
+  #infoPanel .ip-near{background:#f1f5f9;border-radius:10px;padding:10px 12px;margin-top:10px}
+  #infoPanel .ip-near ul{list-style:none;margin-top:6px}
+  #infoPanel .ip-near li{margin:6px 0;line-height:1.35;font-size:.95em}
+  #infoPanel .ip-near .dot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px;vertical-align:middle}
+  #infoPanel .ip-x{float:right;cursor:pointer;font-size:1.6em;line-height:.7;color:#94a3b8}
+  #infoPanel .ip-btns{display:flex;gap:8px;margin-top:12px}
+  #infoPanel .ip-btns button{flex:1;border:none;border-radius:8px;padding:10px;font-weight:700;cursor:pointer;font-size:.92em;color:#fff}
+  #analysisTable{width:100%;border-collapse:collapse;font-size:.85em;margin-top:8px;display:block;max-height:240px;overflow:auto}
+  #analysisTable th,#analysisTable td{border-bottom:1px solid #1e293b;padding:6px 6px;text-align:left;white-space:nowrap}
   #analysisTable th{color:#94a3b8;position:sticky;top:0;background:#1e293b}
   /* ---- Map ---- */
   #map{flex:1;height:100%}
-  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:8px;font-size:.86em;box-shadow:0 6px 20px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.25s;z-index:1200;max-width:80vw;text-align:center}
+  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:12px 18px;border-radius:8px;font-size:1em;box-shadow:0 6px 20px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:.25s;z-index:1200;max-width:80vw;text-align:center}
   #toast.show{opacity:1}
   /* popup */
-  .pp{font-size:13px;min-width:200px;max-width:260px}
-  .pp-title{font-size:.72em;text-transform:uppercase;letter-spacing:.04em;color:#64748b;border-left:4px solid #999;padding-left:6px;font-weight:700}
-  .pp-name{font-weight:700;font-size:1.05em;margin:4px 0 6px}
-  .pp-near{background:#f1f5f9;border-radius:6px;padding:6px 8px;margin-bottom:6px}
+  .pp{font-size:14px;min-width:210px;max-width:280px}
+  .pp-title{font-size:.78em;text-transform:uppercase;letter-spacing:.04em;color:#64748b;border-left:4px solid #999;padding-left:6px;font-weight:700}
+  .pp-name{font-weight:800;font-size:1.2em;margin:5px 0 6px}
+  .pp-near{background:#f1f5f9;border-radius:6px;padding:7px 9px;margin-bottom:6px}
   .pp-near ul{list-style:none;margin-top:4px}
-  .pp-near li{margin:4px 0;line-height:1.3}
-  .pp-near .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}
-  .pp-det summary{cursor:pointer;color:#2563eb;font-size:.9em}
+  .pp-near li{margin:5px 0;line-height:1.35}
+  .pp-near .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+  .pp-det summary{cursor:pointer;color:#2563eb;font-size:.95em}
   .pp-det table{width:100%;border-collapse:collapse;margin-top:4px}
-  .pp-det td{border-bottom:1px solid #eee;padding:2px 4px;font-size:.86em;vertical-align:top}
+  .pp-det td{border-bottom:1px solid #eee;padding:3px 5px;font-size:.92em;vertical-align:top}
   .pp-det td:first-child{color:#64748b;font-weight:600;white-space:nowrap}
-  .pp-coord{font-size:.8em;color:#475569;margin-top:6px}
-  .pp-btn{margin-top:8px;width:100%;background:#ef4444;color:#fff;border:none;border-radius:6px;padding:7px;font-weight:600;cursor:pointer}
-  .distlabel{background:#ef4444;color:#fff;font-weight:700;font-size:12px;padding:2px 7px;border-radius:10px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  .pp-coord{font-size:.88em;color:#475569;margin-top:6px}
+  .pp-btn{margin-top:8px;width:100%;background:#ef4444;color:#fff;border:none;border-radius:6px;padding:9px;font-weight:700;cursor:pointer;font-size:.95em}
+  .distlabel{background:#ef4444;color:#fff;font-weight:700;font-size:13px;padding:3px 8px;border-radius:10px;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.4)}
   .pulse{animation:pulse 1s infinite}
   @keyframes pulse{0%{filter:drop-shadow(0 0 0 #fde047)}50%{filter:drop-shadow(0 0 8px #fde047)}100%{filter:drop-shadow(0 0 0 #fde047)}}
   /* modal */
@@ -88,8 +102,9 @@
   .toggle-sb{position:absolute;top:10px;left:10px;z-index:1000;background:#0f172a;color:#fff;border:none;border-radius:8px;padding:8px 10px;cursor:pointer;display:none}
   @media(max-width:780px){
     body{flex-direction:column}
-    #sidebar{width:100%;min-width:0;height:50%}
-    #map{height:50%}
+    #sidebar{width:100%;min-width:0;height:48%}
+    #map{height:52%}
+    .toggle-sb{display:block}
   }
 </style>
 </head>
@@ -102,6 +117,8 @@
   </header>
   <div class="scroll">
 
+    <div id="infoPanel"></div>
+
     <div class="panel">
       <h2>📂 Carica i tuoi file</h2>
       <div class="dropzone" id="dropzone">
@@ -113,7 +130,7 @@
         <button class="btn btn-ghost btn-sm" id="demoBtn">▶︎ Dati di esempio</button>
         <button class="btn btn-ghost btn-sm" id="clearBtn">🗑 Pulisci tutto</button>
       </div>
-      <div class="hint">L'app legge il file <b>nel tuo browser</b>: i dati non vengono caricati su nessun server. Rileva da sola le colonne di latitudine/longitudine. Se nel file c'è una colonna "Gestore/Tipo" (es. Terna/Enel) la usa per colorare i punti.</div>
+      <div class="hint"><b>Come si usa:</b> 1) trascina i file qui sopra · 2) i cerchi colorati con un numero sono <b>gruppi</b>: clicca o ingrandisci (rotella del mouse) per aprirli · 3) clicca un <b>singolo punto</b> per vedere qui a fianco nome, gestore, <b>saturazione</b> e distanze.<br><br>L'app legge i file <b>nel tuo browser</b>: i dati non vengono inviati a nessun server.</div>
     </div>
 
     <div class="panel" id="datasetsPanel" style="display:none">
@@ -388,16 +405,19 @@ function colorFor(key,labelText){
 
 function clusterGroup(color){
   return L.markerClusterGroup({
-    maxClusterRadius:48,
+    maxClusterRadius:55,
+    disableClusteringAtZoom:11,   // da zoom 11 in poi mostra i singoli punti (così cliccando vedi le info, non "scoppia")
+    spiderfyOnMaxZoom:true,
     iconCreateFunction:cluster=>{
-      const n=cluster.getChildCount();const size=n<10?32:n<100?40:48;
-      return L.divIcon({html:`<div style="background:${color};width:${size}px;height:${size}px;line-height:${size}px;border-radius:50%;color:#fff;text-align:center;font-weight:700;border:2px solid #fff;box-shadow:0 0 5px rgba(0,0,0,.5)">${n}</div>`,className:'',iconSize:[size,size]});
+      const n=cluster.getChildCount();const size=n<10?38:n<100?46:54;
+      return L.divIcon({html:`<div style="background:${color};width:${size}px;height:${size}px;line-height:${size}px;border-radius:50%;color:#fff;text-align:center;font-weight:700;font-size:15px;border:3px solid #fff;box-shadow:0 0 6px rgba(0,0,0,.55)">${n}</div>`,className:'',iconSize:[size,size]});
     }
   });
 }
 
 function rebuildLayers(fit=false){
   // rimuovi vecchi livelli dalla mappa
+  closeInfo();
   state.layers.forEach(l=>{if(state.map.hasLayer(l.cluster))state.map.removeLayer(l.cluster);});
   state.registry.clear();
   state.layers=[];
@@ -437,8 +457,9 @@ function rebuildLayers(fit=false){
         const id=++state.ptSeq;
         const title=ds.nameCol&&p.row[ds.nameCol]!=null&&String(p.row[ds.nameCol]).trim()!==''?String(p.row[ds.nameCol]):'(senza nome) #'+id;
         const pt={id,dsId:ds.id,lat:p.lat,lon:p.lon,row:p.row,title,layerKey:layer.key,layerLabel:layer.label,color};
-        const m=L.circleMarker([p.lat,p.lon],{radius:6,color:'#fff',weight:1.4,fillColor:color,fillOpacity:.92});
-        m.bindPopup(()=>popupHtml(pt),{maxWidth:300});
+        const m=L.circleMarker([p.lat,p.lon],{radius:8,color:'#fff',weight:2,fillColor:color,fillOpacity:.95});
+        // clic sul punto → mostra le info nel riquadro fisso (sempre leggibile, non sparisce)
+        m.on('click',()=>showInfo(pt));
         pt.marker=m;
         cluster.addLayer(m);
         layer.points.push(pt);
@@ -538,25 +559,39 @@ function satColor(v){const n=norm(v);
   if(/rosso|red|saturo|satura|pieno|criticit|critic|esaurit/.test(n))return'#dc2626';
   if(/verde|green|libero|disponibil|^ok$|nonsatur/.test(n))return'#16a34a';
   return'#64748b';}
-function popupHtml(p){
-  let h=`<div class="pp"><div class="pp-title" style="border-color:${p.color}">${esc(p.layerLabel)}</div>`;
-  h+=`<div class="pp-name">${esc(p.title)}</div>`;
-  // badge stato di saturazione dei TR (se la colonna esiste nel file)
-  const ds=state.datasets.find(d=>d.id===p.dsId);
-  if(ds&&ds.satCol){const sv=p.row[ds.satCol];if(sv!=null&&String(sv).trim()!=='')h+=`<div style="margin-bottom:6px"><span style="display:inline-block;background:${satColor(sv)};color:#fff;font-weight:700;font-size:.8em;padding:3px 9px;border-radius:12px">🔌 Saturazione TR: ${esc(sv)}</span></div>`;}
-  const others=state.layers.filter(l=>l.key!==p.layerKey&&l.points.length);
-  if(others.length){
-    h+='<div class="pp-near"><b>📏 Stazioni più vicine</b><ul>';
-    others.forEach(l=>{const r=nearestIn(p,l);if(r)h+=`<li><span class="dot" style="background:${l.color}"></span>${esc(l.label)}: <b>${r.dist.toFixed(2)} km</b><br><small>${esc(r.point.title)}</small></li>`;});
-    h+='</ul></div>';
-  }
-  h+='<details class="pp-det"><summary>Tutti i dati della riga</summary><table>';
-  for(const[k,v]of Object.entries(p.row)){if(v!=null&&String(v).trim()!=='')h+=`<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`;}
-  h+='</table></details>';
-  h+=`<div class="pp-coord">📍 ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)} · <a href="https://www.google.com/maps?q=${p.lat},${p.lon}" target="_blank">Google Maps</a></div>`;
-  h+=`<button class="pp-btn" onclick="measureFrom(${p.id})">📏 Misura distanza da qui</button></div>`;
-  return h;
+/* Mostra le informazioni della stazione cliccata nel riquadro fisso (sempre leggibile) */
+function showInfo(p){
+  try{
+    const panel=document.getElementById('infoPanel');
+    const ds=state.datasets.find(d=>d.id===p.dsId);
+    let h=`<span class="ip-x" onclick="closeInfo()">×</span>`;
+    h+=`<span class="ip-op" style="background:${p.color}">${esc(p.layerLabel)}</span>`;
+    h+=`<div class="ip-name">${esc(p.title)}</div>`;
+    // stato di saturazione dei TR (se presente)
+    if(ds&&ds.satCol){const sv=p.row[ds.satCol];if(sv!=null&&String(sv).trim()!=='')h+=`<div><span class="ip-sat" style="background:${satColor(sv)}">🔌 Saturazione TR: ${esc(sv)}</span></div>`;}
+    // gestore e zona
+    const meta=[];
+    if(ds&&ds.opCol&&p.row[ds.opCol]!=null&&String(p.row[ds.opCol]).trim()!=='')meta.push('Gestore: <b>'+esc(p.row[ds.opCol])+'</b>');
+    const luogo=[];
+    if(ds&&ds.provCol&&p.row[ds.provCol])luogo.push(esc(p.row[ds.provCol]));
+    if(ds&&ds.regCol&&p.row[ds.regCol])luogo.push(esc(p.row[ds.regCol]));
+    if(luogo.length)meta.push('Zona: <b>'+luogo.join(' · ')+'</b>');
+    if(meta.length)h+=`<div class="ip-meta">${meta.join('<br>')}</div>`;
+    // distanze dalle altre reti
+    const others=state.layers.filter(l=>l.key!==p.layerKey&&l.points.length);
+    if(others.length){
+      h+='<div class="ip-near"><b>📏 Stazioni più vicine</b><ul>';
+      others.forEach(l=>{const r=nearestIn(p,l);if(r)h+=`<li><span class="dot" style="background:${l.color}"></span>${esc(l.label)}: <b>${r.dist.toFixed(2)} km</b><br><small style="color:#64748b">${esc(r.point.title)}</small></li>`;});
+      h+='</ul></div>';
+    }
+    h+=`<div class="ip-meta" style="margin-top:8px">📍 ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)} · <a href="https://www.google.com/maps?q=${p.lat},${p.lon}" target="_blank">Google Maps</a></div>`;
+    h+=`<div class="ip-btns"><button style="background:#ef4444" onclick="measureFrom(${p.id})">📏 Misura da qui</button><button style="background:#2563eb" onclick="zoomTo(${p.id})">🔍 Zoom</button></div>`;
+    panel.innerHTML=h;panel.classList.add('show');
+    panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+  }catch(err){console.error(err);toast('Errore: '+err.message);}
 }
+function closeInfo(){const panel=document.getElementById('infoPanel');if(panel){panel.classList.remove('show');panel.innerHTML='';}}
+function zoomTo(id){const p=state.registry.get(id);if(p)state.map.setView([p.lat,p.lon],15);}
 
 function measureFrom(id){
   const p=state.registry.get(id);if(!p)return;
@@ -628,7 +663,7 @@ document.getElementById('searchInput').addEventListener('keydown',e=>{
   for(const l of state.layers)for(const p of l.points){
     if(p.title.toLowerCase().includes(qy)){
       if(!l.visible){l.visible=true;l.cluster.addTo(state.map);renderLegend();}
-      state.map.setView([p.lat,p.lon],14);p.marker.openPopup();
+      state.map.setView([p.lat,p.lon],14);showInfo(p);
       toast('Trovato: '+p.title+' ('+l.label+')');return;
     }
   }
@@ -770,6 +805,7 @@ function init(){
 // espone le funzioni usate dagli onclick inline
 window.measureFrom=measureFrom;window.removeDataset=removeDataset;window.setSplit=setSplit;
 window.setNameCol=setNameCol;window.openResolve=openResolve;window.applyResolve=applyResolve;window.closeModal=closeModal;
+window.showInfo=showInfo;window.closeInfo=closeInfo;window.zoomTo=zoomTo;
 
 init();
 </script>
