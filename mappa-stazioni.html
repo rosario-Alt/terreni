@@ -334,14 +334,17 @@ function aoaToRows(aoa){
    ========================================================================= */
 function addDataset(name,headers,rows){
   const cols=detectColumns(headers);
+  const opCol=(cols.opIdx!=null?headers[cols.opIdx]:'');
+  const satCol=(cols.satIdx!=null?headers[cols.satIdx]:'');
   const ds={
     id:++state.dsSeq, name, headers, rows, cols,
-    splitCol:(cols.opIdx!=null?headers[cols.opIdx]:''),  // suddivide per gestore se presente
+    // default: se ci sono sia gestore sia saturazione → modalità Auto (Terna per gestore, Enel per saturazione)
+    splitCol:(opCol&&satCol)?'__auto_sat__':opCol,
+    opCol, satCol,
     nameCol:(cols.nameIdx!=null?headers[cols.nameIdx]:''),
     addrCol:(cols.addrIdx!=null?headers[cols.addrIdx]:(cols.nameIdx!=null?headers[cols.nameIdx]:'')),
     provCol:(cols.provIdx!=null?headers[cols.provIdx]:''),
     regCol:(cols.regIdx!=null?headers[cols.regIdx]:''),
-    satCol:(cols.satIdx!=null?headers[cols.satIdx]:''),
     overrides:new Map()
   };
   state.datasets.push(ds);
@@ -406,18 +409,28 @@ function rebuildLayers(fit=false){
     ds._unlocatedCount=ds.rows.length-located.length;
     const groups={};
     located.forEach(p=>{
-      let splitVal='';
-      if(ds.splitCol)splitVal=String(p.row[ds.splitCol]==null?'(vuoto)':p.row[ds.splitCol]).trim()||'(vuoto)';
+      let splitVal='',forced=null;
+      if(ds.splitCol==='__auto_sat__'){
+        // Terna → un solo gruppo blu; Enel → gruppi colorati per saturazione
+        if(/terna/.test(norm(p.row[ds.opCol]))){splitVal='Terna';forced='#1e88e5';}
+        else{
+          const sv=p.row[ds.satCol];
+          const txt=(sv==null||String(sv).trim()==='')?'N/D':String(sv).trim();
+          splitVal='Enel · '+txt; forced=satColor(txt);
+        }
+      }else if(ds.splitCol){
+        splitVal=String(p.row[ds.splitCol]==null?'(vuoto)':p.row[ds.splitCol]).trim()||'(vuoto)';
+      }
       const key=ds.id+'::'+splitVal;
       if(!groups[key]){
         const base=ds.name.replace(/\.[^.]+$/,'');
         const label=splitVal?(base+' — '+splitVal):base;
-        groups[key]={key,label,points:[]};
+        groups[key]={key,label,points:[],forced};
       }
       groups[key].points.push(p);
     });
     Object.values(groups).forEach(g=>{
-      const color=colorFor(g.key,g.label);
+      const color=g.forced||colorFor(g.key,g.label);
       const cluster=clusterGroup(color);
       const layer={key:g.key,label:g.label,color,cluster,points:[],dsId:ds.id,visible:true};
       g.points.forEach(p=>{
@@ -466,6 +479,9 @@ function renderDatasets(){
   state.datasets.forEach(ds=>{
     const div=document.createElement('div');div.className='ds';
     const opts=h=>'<option value="">— nessuna —</option>'+ds.headers.map(x=>`<option value="${esc(x)}" ${x===h?'selected':''}>${esc(x)}</option>`).join('');
+    const splitOpts=h=>(ds.opCol&&ds.satCol?`<option value="__auto_sat__" ${h==='__auto_sat__'?'selected':''}>🔌 Auto: Terna blu + Enel per saturazione</option>`:'')
+      +`<option value="" ${h===''?'selected':''}>— colore unico —</option>`
+      +ds.headers.map(x=>`<option value="${esc(x)}" ${x===h?'selected':''}>${esc(x)}</option>`).join('');
     const coordTxt=ds.cols.latIdx!=null?`lat: <b>${esc(ds.headers[ds.cols.latIdx])}</b>, lon: <b>${esc(ds.headers[ds.cols.lonIdx])}</b>`
       :ds.cols.combIdx!=null?`coord: <b>${esc(ds.headers[ds.cols.combIdx])}</b>`:'<span style="color:#fbbf24">nessuna coordinata rilevata</span>';
     div.innerHTML=`
@@ -474,8 +490,8 @@ function renderDatasets(){
         <span class="x" title="Rimuovi" onclick="removeDataset(${ds.id})">×</span>
       </div>
       <div class="ds-meta">${ds.rows.length} righe · ${coordTxt}</div>
-      <label>Colora per colonna (Gestore/Tipo)</label>
-      <select onchange="setSplit(${ds.id},this.value)">${opts(ds.splitCol)}</select>
+      <label>Colora per colonna</label>
+      <select onchange="setSplit(${ds.id},this.value)">${splitOpts(ds.splitCol)}</select>
       <label>Colonna nome</label>
       <select onchange="setNameCol(${ds.id},this.value)">${opts(ds.nameCol)}</select>
       ${ds._unlocatedCount?`<div class="warn">⚠️ ${ds._unlocatedCount} righe senza coordinate valide

@@ -24,8 +24,9 @@ Puoi caricare più file insieme. Esempi testati:
 - **Mappa unica** con marker colorati per fonte (SSE FS = rosso, Terna = blu, Enel = verde).
   Se in un file c'è una colonna "Gestore/Tipo" (es. Terna/Enel) viene usata per dividere e colorare i punti.
 - **Stato di saturazione dei TR**: ogni nodo mostra un badge colorato (🟢 Verde / 🟡 Giallo /
-  🟠 Arancio / 🔴 Rosso) nel popup. Scegliendo "Colora per colonna → Saturazione" tutta la
-  mappa viene colorata per saturazione, con colori semantici (verde=disponibile … rosso=saturo).
+  🟠 Arancio / 🔴 Rosso) nel popup. Quando un file ha sia il gestore sia la saturazione, l'app
+  usa di default la modalità **Auto**: 🔵 Terna in blu, 🟢🟡🟠🔴 Enel colorati per saturazione.
+  Dal menu "Colora per colonna" puoi passare a Gestore, Categoria o Saturazione semplici.
 - **Distanze automatiche**: cliccando un punto vedi subito la stazione più vicina di ogni altra rete, con i km.
 - **Misura manuale** punto-punto sulla mappa.
 - **Analisi "più vicini"**: per ogni stazione di un livello trova la più vicina di un altro
