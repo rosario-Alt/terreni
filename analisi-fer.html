@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Analisi FER — Idoneità terreni (pendenza + fascia habitat)</title>
+<title>Analisi FER — Idoneità e dimensionamento (tracker / fissi)</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   html,body{margin:0;height:100%;font-family:system-ui,Segoe UI,Arial,sans-serif}
   #map{position:absolute;inset:0;background:#1a1a2e}
-  .panel{position:absolute;top:10px;right:10px;z-index:1000;width:330px;max-height:calc(100% - 20px);
+  .panel{position:absolute;top:10px;right:10px;z-index:1000;width:344px;max-height:calc(100% - 20px);
     overflow-y:auto;background:#151530f2;color:#e8e8f5;border:1px solid #3a3a6a;border-radius:10px;
     padding:12px 14px;font-size:13px;box-shadow:0 4px 18px #0008}
   .panel h1{font-size:15px;margin:0 0 8px;color:#ffd966}
@@ -19,6 +19,10 @@
   .row label{flex:1}
   input[type=range]{flex:1.4}
   .val{min-width:74px;text-align:right;font-weight:700;color:#ffd966}
+  .num{width:58px;background:#0e0e22;color:#ffd966;border:1px solid #3a3a6a;border-radius:5px;
+    padding:2px 4px;font-size:12px;text-align:right}
+  .grid2{display:grid;grid-template-columns:1fr auto auto;gap:4px 8px;align-items:center;font-size:12px}
+  .grid2 .hdr{color:#9fb4ff;font-size:11px;text-align:right}
   .chk{display:flex;align-items:center;gap:6px;margin:3px 0;cursor:pointer}
   .sw{width:18px;height:12px;border-radius:3px;display:inline-block;border:1px solid #0006}
   button,.filebtn{background:#2d2d5e;color:#e8e8f5;border:1px solid #5a5a9a;border-radius:6px;
@@ -28,64 +32,94 @@
   .status{font-size:11px;color:#9aa;margin:4px 0}
   .status.ok{color:#7de08a}.status.warn{color:#ffb84d}
   .leg{display:flex;align-items:center;gap:7px;margin:3px 0;font-size:12px}
-  .res{background:#0e0e22;border:1px solid #3a3a6a;border-radius:8px;padding:8px;margin-top:6px}
+  .res{background:#0e0e22;border:1px solid #3a3a6a;border-radius:8px;padding:8px;margin-top:6px;line-height:1.5}
   .res b{color:#7de08a}
-  .res .bad{color:#ff7a7a}
-  .note{font-size:11px;color:#aab;line-height:1.45;margin-top:8px;border-top:1px dashed #3a3a6a;padding-top:6px}
+  .res .trk{color:#4ade80}.res .fix{color:#facc15}.res .bad{color:#ff7a7a}
   table.pt{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
   table.pt th,table.pt td{padding:2px 4px;text-align:right;border-bottom:1px solid #2a2a50}
   table.pt th{color:#9fb4ff}
   table.pt td:first-child,table.pt th:first-child{text-align:left}
   tr.cl-ok td:first-child{color:#7de08a} tr.cl-part td:first-child{color:#ffb84d} tr.cl-no td:first-child{color:#ff7a7a}
-  .pixelated{image-rendering:pixelated}
+  .note{font-size:11px;color:#aab;line-height:1.45;margin-top:8px;border-top:1px dashed #3a3a6a;padding-top:6px}
   .leaflet-container .leaflet-image-layer{image-rendering:pixelated}
 </style>
 </head>
 <body>
 <div id="map"></div>
 <div class="panel">
-  <h1>⚡ Analisi FER — Idoneità terreni</h1>
+  <h1>⚡ Analisi FER — Idoneità &amp; dimensionamento</h1>
 
-  <h2>Parametri</h2>
-  <div class="row"><label>Soglia pendenza (steep)</label>
-    <input type="range" id="steep" min="2" max="35" step="0.5" value="20">
-    <span class="val" id="steepVal"></span></div>
-  <div class="row"><label>Fascia rispetto habitat</label>
+  <h2>Soglie di pendenza</h2>
+  <div class="row"><label>Tracker (monoassiale)</label>
+    <input type="range" id="sTrk" min="2" max="20" step="0.5" value="12">
+    <span class="val" id="sTrkVal"></span></div>
+  <div class="row"><label>Strutture fisse</label>
+    <input type="range" id="sFix" min="5" max="35" step="0.5" value="20">
+    <span class="val" id="sFixVal"></span></div>
+
+  <h2>Dimensionamento</h2>
+  <div class="grid2">
+    <span></span><span class="hdr">MWp/ha</span><span class="hdr">kWh/kWp</span>
+    <span style="color:#4ade80">Tracker</span>
+    <input class="num" id="dTrk" type="number" step="0.05" value="0.55">
+    <input class="num" id="yTrk" type="number" step="10" value="1600">
+    <span style="color:#facc15">Fissi</span>
+    <input class="num" id="dFix" type="number" step="0.05" value="0.80">
+    <input class="num" id="yFix" type="number" step="10" value="1300">
+  </div>
+
+  <h2>Vincolo 1 — HABITAT</h2>
+  <div class="row">
+    <label class="filebtn">📂 Carica<input type="file" id="habFile" accept=".kml,.geojson,.json" style="display:none"></label>
+    <button id="habDraw">✏️ Disegna</button>
+    <button id="habClear">🗑️</button>
+  </div>
+  <div class="status" id="habStatus">Habitat non caricato: vincolo non applicato.</div>
+
+  <h2>Vincolo 2 — Fascia stabilimento</h2>
+  <div class="row"><label>Ampiezza fascia</label>
     <input type="range" id="fascia" min="0" max="1000" step="10" value="350">
     <span class="val" id="fasciaVal"></span></div>
+  <div class="row">
+    <label class="filebtn">📂 Carica<input type="file" id="stabFile" accept=".kml,.geojson,.json" style="display:none"></label>
+    <button id="stabDraw">📍 Segna sulla mappa</button>
+    <button id="stabClear">🗑️</button>
+  </div>
+  <div class="status" id="stabStatus">Stabilimento non impostato: fascia non applicata.</div>
 
   <h2>Layer</h2>
   <label class="chk"><input type="checkbox" id="lyOrto" checked><span class="sw" style="background:#567"></span>Ortofoto satellite</label>
   <label class="chk"><input type="checkbox" id="lyPend"><span class="sw" style="background:linear-gradient(90deg,#2ea043,#dcc828,#eb8c1e,#d22828)"></span>Pendenza (classi fisse)</label>
-  <label class="chk"><input type="checkbox" id="lyIdon" checked><span class="sw" style="background:linear-gradient(90deg,#2ea04366,#d2282866)"></span>Idoneità (pendenza <b>E</b> fascia)</label>
-  <label class="chk"><input type="checkbox" id="lyFascia" checked><span class="sw" style="background:#8b5cf6"></span>Fascia di rispetto</label>
+  <label class="chk"><input type="checkbox" id="lyIdon" checked><span class="sw" style="background:linear-gradient(90deg,#4ade8066,#facc1566,#d2282866)"></span>Idoneità: <span style="color:#4ade80">tracker</span> / <span style="color:#facc15">fissi</span> / <span style="color:#ff7a7a">no</span></label>
+  <label class="chk"><input type="checkbox" id="lyFascia" checked><span class="sw" style="background:#8b5cf6"></span>Fascia stabilimento</label>
+  <label class="chk"><input type="checkbox" id="lyStab" checked><span class="sw" style="background:#fb923c"></span>Stabilimento</label>
   <label class="chk"><input type="checkbox" id="lyHab" checked><span class="sw" style="background:#22d3ee"></span>HABITAT</label>
   <label class="chk"><input type="checkbox" id="lyParc" checked><span class="sw" style="border:2px solid #ff00c8;background:none"></span>Particelle (perimetri)</label>
-
-  <h2>Habitat</h2>
-  <div class="row">
-    <label class="filebtn">📂 Carica KML/GeoJSON<input type="file" id="habFile" accept=".kml,.geojson,.json" style="display:none"></label>
-    <button id="habDraw">✏️ Disegna</button>
-    <button id="habClear">🗑️</button>
-  </div>
-  <div class="status" id="habStatus">Nessun habitat caricato.</div>
 
   <h2>Risultati</h2>
   <div class="res" id="riepilogo"></div>
   <table class="pt" id="ptab"></table>
 
-  <h2>Legenda perimetri</h2>
-  <div class="leg"><span class="sw" style="border:3px solid #22c55e;background:none"></span>Idonea (≥ 90% superficie idonea)</div>
+  <h2>Legenda</h2>
+  <div class="leg"><span class="sw" style="background:#4ade80"></span>Area tracker (pend. ≤ soglia tracker)</div>
+  <div class="leg"><span class="sw" style="background:#facc15"></span>Area fissi (tra le due soglie)</div>
+  <div class="leg"><span class="sw" style="background:#d22828"></span>Non idonea (ripida, habitat o fascia)</div>
+  <div class="leg"><span class="sw" style="border:3px solid #22c55e;background:none"></span>Particella idonea (≥ 90%)</div>
   <div class="leg"><span class="sw" style="border:3px dashed #f59e0b;background:none"></span>Parzialmente idonea (50–90%)</div>
   <div class="leg"><span class="sw" style="border:3px dashed #ef4444;background:none"></span>Non idonea (&lt; 50%)</div>
 
   <div class="note">
-    <b>Unità:</b> la soglia di pendenza è in <b>percento</b> (20% ≈ 11,3°). Un valore "2" inteso come 2%
-    escluderebbe quasi tutta l'area: in questa zona quasi nessun terreno è sotto il 2%.<br>
-    <b>Logica:</b> una cella è <i>idonea</i> solo se pendenza ≤ soglia <b>E</b> è fuori dall'habitat
-    <b>E</b> oltre la fascia di rispetto. I due vincoli si combinano, non si sovrappongono in contrasto.<br>
+    <b>Vincoli:</b> i due vincoli sono indipendenti e si combinano in <b>AND</b> con le pendenze:
+    una cella è idonea solo se sotto soglia <b>E</b> fuori dall'habitat <b>E</b> fuori dalla fascia
+    attorno allo stabilimento. Attiva/disattiva ciascun layer dalla sezione Layer.<br>
+    <b>Tecnologie:</b> i tracker monoassiali richiedono il terreno più piatto (tip. ≤ 10–12%);
+    le strutture fisse tollerano pendenze maggiori (tip. ≤ 20–25% su versanti ben esposti):
+    per questo la banda piatta è assegnata ai tracker e quella intermedia ai fissi.<br>
+    <b>Unità:</b> soglie in <b>percento</b> (20% ≈ 11,3°). Un valore "2" inteso come 2%
+    escluderebbe quasi tutta l'area.<br>
     <b>Dati:</b> particelle dal KML catastale; pendenze da DEM EU-DEM (~25 m, ricampionato ~7 m):
-    indicativo, per il progetto usare DTM regionale 5 m.
+    indicativo, per il progetto usare DTM regionale 5 m. Densità e producibilità sono parametri
+    di primo dimensionamento.
   </div>
 </div>
 
@@ -105,18 +139,17 @@ const bounds=[[S.lat0,S.lon0],[S.lat1,S.lon1]];
 const map=L.map('map',{zoomControl:true}).fitBounds([[44.086,12.016],[44.100,12.036]]);
 const orto=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
   {maxZoom:19,attribution:'Esri World Imagery'});
-const osm=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'OSM'});
 orto.addTo(map);
 
 // ---------- utilità raster ----------
 function lonToI(lon){return (lon-S.lon0)/(S.lon1-S.lon0)*(NX-1);}
 function latToJ(lat){return (S.lat1-lat)/(S.lat1-S.lat0)*(NY-1);}
 
-function rasterizePolys(polys){ // polys: [ [ [lon,lat],... ] , ...] -> Uint8Array mask
+function rasterizePolys(polys,pts){
   const c=document.createElement('canvas'); c.width=NX; c.height=NY;
   const g=c.getContext('2d',{willReadFrequently:true});
   g.fillStyle='#fff';
-  for(const ring of polys){
+  for(const ring of (polys||[])){
     g.beginPath();
     ring.forEach((p,i)=>{const x=lonToI(p[0]),y=latToJ(p[1]); i?g.lineTo(x,y):g.moveTo(x,y);});
     g.closePath(); g.fill();
@@ -124,10 +157,14 @@ function rasterizePolys(polys){ // polys: [ [ [lon,lat],... ] , ...] -> Uint8Arr
   const d=g.getImageData(0,0,NX,NY).data;
   const m=new Uint8Array(NX*NY);
   for(let k=0;k<NX*NY;k++) m[k]=d[k*4+3]>127?1:0;
+  for(const p of (pts||[])){
+    const i=Math.round(lonToI(p[0])), j=Math.round(latToJ(p[1]));
+    if(i>=0&&i<NX&&j>=0&&j<NY)m[j*NX+i]=1;
+  }
   return m;
 }
 
-function chamferDist(mask){ // distanza in metri dalle celle mask=1
+function chamferDist(mask){
   const INF=1e12, d=new Float32Array(NX*NY).fill(INF);
   for(let k=0;k<NX*NY;k++) if(mask[k]) d[k]=0;
   const DD=Math.hypot(MX,MY);
@@ -150,7 +187,7 @@ function chamferDist(mask){ // distanza in metri dalle celle mask=1
   return d;
 }
 
-function overlayFromPainter(paint){ // paint(k)->[r,g,b,a] o null
+function overlayFromPainter(paint){
   const c=document.createElement('canvas'); c.width=NX; c.height=NY;
   const g=c.getContext('2d'); const im=g.createImageData(NX,NY);
   for(let k=0;k<NX*NY;k++){
@@ -162,12 +199,11 @@ function overlayFromPainter(paint){ // paint(k)->[r,g,b,a] o null
 }
 
 // ---------- stato ----------
-let habitatPolys=[];             // array di ring [[lon,lat],...]
-let habMask=new Uint8Array(NX*NY);
-let habDist=null;                // Float32Array distanze (m)
-let steep=20, fascia=350;
+let habitatPolys=[], habMask=new Uint8Array(NX*NY);
+let stabPolys=[], stabPts=[], stabDist=null;
+let sTrk=12, sFix=20, fascia=350;
+let dTrk=0.55, dFix=0.80, yTrk=1600, yFix=1300;
 
-// celle di ogni particella (precalcolo)
 const parcels=DATA.parcels.features;
 parcels.forEach((f,i)=>{f.properties._i=i;});
 const parcelCells=parcels.map(f=>{
@@ -179,6 +215,7 @@ const parcelCells=parcels.map(f=>{
 // ---------- layer Leaflet ----------
 let pendLayer=null, idonLayer=null, fasciaLayer=null;
 let habLayer=L.geoJSON(null,{style:{color:'#22d3ee',weight:3,fillColor:'#22d3ee',fillOpacity:0.25}}).addTo(map);
+let stabLayer=L.layerGroup().addTo(map);
 let parcLayer=null;
 
 function buildPendLayer(){
@@ -191,36 +228,56 @@ function buildPendLayer(){
   });
   if(pendLayer)pendLayer.setUrl(url); else pendLayer=L.imageOverlay(url,bounds,{opacity:1});
 }
-function inFascia(k){ return habMask[k]===1 || (habDist && habDist[k]<=fascia); }
-function cellIdonea(k){ return slope[k]<=steep && !(habitatPolys.length && inFascia(k)); }
+function hasStab(){return stabPolys.length>0||stabPts.length>0;}
+function inFascia(k){ return hasStab() && stabDist && stabDist[k]<=fascia; }
+// 2 = tracker, 1 = fissi, 0 = non idonea
+function cellClass(k){
+  if(habitatPolys.length && habMask[k])return 0;
+  if(inFascia(k))return 0;
+  if(slope[k]<=Math.min(sTrk,sFix))return 2;
+  if(slope[k]<=sFix)return 1;
+  return 0;
+}
 
 function buildIdonLayer(){
-  const url=overlayFromPainter(k=> cellIdonea(k)?[46,200,90,80]:[215,45,45,80]);
+  const url=overlayFromPainter(k=>{
+    const c=cellClass(k);
+    if(c===2)return [74,222,128,85];
+    if(c===1)return [250,204,21,85];
+    return [215,45,45,80];
+  });
   if(idonLayer)idonLayer.setUrl(url); else idonLayer=L.imageOverlay(url,bounds,{opacity:1});
 }
 function buildFasciaLayer(){
   const url=overlayFromPainter(k=>{
-    if(!habitatPolys.length||!habDist)return null;
-    if(habMask[k])return null;                       // l'habitat ha il suo layer
-    if(habDist[k]<=fascia)return [139,92,246,110];   // viola
+    if(!hasStab()||!stabDist)return null;
+    if(stabDist[k]===0)return null;              // lo stabilimento ha il suo layer
+    if(stabDist[k]<=fascia)return [139,92,246,110];
     return null;
   });
   if(fasciaLayer)fasciaLayer.setUrl(url); else fasciaLayer=L.imageOverlay(url,bounds,{opacity:1});
 }
 
 function classify(){
-  // per particella: % celle idonee
   return parcels.map((f,i)=>{
     const cells=parcelCells[i];
-    let ok=0, sl=[], fas=0;
-    for(const k of cells){ if(cellIdonea(k))ok++; if(habitatPolys.length&&inFascia(k))fas++; sl.push(slope[k]); }
+    let trk=0,fix=0,vinc=0; const sl=[];
+    for(const k of cells){
+      const c=cellClass(k);
+      if(c===2)trk++; else if(c===1)fix++;
+      if((habitatPolys.length&&habMask[k])||inFascia(k))vinc++;
+      sl.push(slope[k]);
+    }
     sl.sort((a,b)=>a-b);
-    const n=cells.length||1;
-    return {name:f.properties.name, ha:f.properties.ha,
-      pctIdonea:ok/n*100, haIdonei:f.properties.ha*ok/n,
+    const n=cells.length||1, ha=f.properties.ha;
+    const haTrk=ha*trk/n, haFix=ha*fix/n;
+    const mwTrk=haTrk*dTrk, mwFix=haFix*dFix;
+    return {name:f.properties.name, ha,
+      pctIdonea:(trk+fix)/n*100,
+      haTrk,haFix, mwTrk,mwFix, mw:mwTrk+mwFix,
+      gwh:(mwTrk*yTrk+mwFix*yFix)/1000,
       med:sl.length?sl[Math.floor(sl.length/2)]:NaN,
-      pctFascia:fas/n*100,
-      pctSteep:sl.length?sl.filter(s=>s>steep).length/n*100:0};
+      pctVinc:vinc/n*100};
   });
 }
 
@@ -236,11 +293,12 @@ function buildParcLayer(stats){
     style:f=>styleFor(stats[f.properties._i]),
     onEachFeature:(f,l)=>{
       const st=stats[f.properties._i];
-      l.bindPopup(`<b>${f.properties.name}</b> — ${f.properties.ha.toFixed(2)} ha<br>
-        Superficie idonea: <b>${st.pctIdonea.toFixed(0)}%</b> (${st.haIdonei.toFixed(2)} ha)<br>
-        Pendenza mediana: ${st.med.toFixed(1)}%<br>
-        Sopra soglia ${steep}%: ${st.pctSteep.toFixed(0)}%<br>
-        In habitat/fascia: ${st.pctFascia.toFixed(0)}%`);
+      l.bindPopup(`<b>${f.properties.name}</b> — ${st.ha.toFixed(2)} ha<br>
+        Idonea: <b>${st.pctIdonea.toFixed(0)}%</b> · pend. mediana ${st.med.toFixed(1)}%<br>
+        <span style="color:#15803d">Tracker: ${st.haTrk.toFixed(2)} ha → ${st.mwTrk.toFixed(2)} MWp</span><br>
+        <span style="color:#a16207">Fissi: ${st.haFix.toFixed(2)} ha → ${st.mwFix.toFixed(2)} MWp</span><br>
+        Totale: <b>${st.mw.toFixed(2)} MWp</b> ≈ ${(st.gwh*1000).toFixed(0)} MWh/anno<br>
+        In habitat/fascia: ${st.pctVinc.toFixed(0)}%`);
     }
   });
   if(document.getElementById('lyParc').checked)parcLayer.addTo(map);
@@ -248,31 +306,41 @@ function buildParcLayer(stats){
 
 function refreshResults(){
   const stats=classify();
-  const totHa=stats.reduce((a,s)=>a+s.ha,0), totOk=stats.reduce((a,s)=>a+s.haIdonei,0);
+  const totHa=stats.reduce((a,s)=>a+s.ha,0);
+  const haT=stats.reduce((a,s)=>a+s.haTrk,0), haF=stats.reduce((a,s)=>a+s.haFix,0);
+  const mwT=stats.reduce((a,s)=>a+s.mwTrk,0), mwF=stats.reduce((a,s)=>a+s.mwFix,0);
+  const gwh=stats.reduce((a,s)=>a+s.gwh,0);
   const nOk=stats.filter(s=>s.pctIdonea>=90).length,
         nPart=stats.filter(s=>s.pctIdonea>=50&&s.pctIdonea<90).length,
         nNo=stats.filter(s=>s.pctIdonea<50).length;
+  let warn='';
+  if(!habitatPolys.length)warn+='<br><span style="color:#ffb84d">⚠ habitat non caricato: vincolo 1 non applicato</span>';
+  if(!hasStab())warn+='<br><span style="color:#ffb84d">⚠ stabilimento non impostato: fascia non applicata</span>';
   document.getElementById('riepilogo').innerHTML=
-    `Superficie idonea: <b>${totOk.toFixed(1)} ha</b> su ${totHa.toFixed(1)} ha totali (${(totOk/totHa*100).toFixed(0)}%)<br>
-     Particelle: <b>${nOk} idonee</b> · ${nPart} parziali · <span class="bad">${nNo} non idonee</span>`+
-     (habitatPolys.length?'':'<br><span style="color:#ffb84d">⚠ habitat non caricato: fascia non applicata</span>');
-  const rows=stats.slice().sort((a,b)=>b.pctIdonea-a.pctIdonea).map(s=>{
+    `<span class="trk">Tracker: ${haT.toFixed(1)} ha → <b>${mwT.toFixed(1)} MWp</b></span><br>
+     <span class="fix">Fissi: ${haF.toFixed(1)} ha → <b>${mwF.toFixed(1)} MWp</b></span><br>
+     Totale: <b>${(mwT+mwF).toFixed(1)} MWp</b> su ${(haT+haF).toFixed(1)} di ${totHa.toFixed(1)} ha
+     (${((haT+haF)/totHa*100).toFixed(0)}%)<br>
+     Producibilità stimata: <b>${gwh.toFixed(1)} GWh/anno</b><br>
+     Particelle: <b>${nOk} idonee</b> · ${nPart} parziali · <span class="bad">${nNo} non idonee</span>`+warn;
+  const rows=stats.slice().sort((a,b)=>b.mw-a.mw).map(s=>{
     const cl=s.pctIdonea>=90?'cl-ok':s.pctIdonea>=50?'cl-part':'cl-no';
-    return `<tr class="${cl}"><td>${s.name}</td><td>${s.ha.toFixed(2)}</td><td>${s.pctIdonea.toFixed(0)}%</td><td>${s.med.toFixed(1)}%</td></tr>`;
+    return `<tr class="${cl}"><td>${s.name}</td><td>${s.ha.toFixed(2)}</td><td>${s.pctIdonea.toFixed(0)}%</td><td>${s.mw.toFixed(2)}</td></tr>`;
   }).join('');
   document.getElementById('ptab').innerHTML=
-    '<tr><th>Particella</th><th>ha</th><th>idonea</th><th>pend.med</th></tr>'+rows;
+    '<tr><th>Particella</th><th>ha</th><th>idonea</th><th>MWp</th></tr>'+rows;
   buildParcLayer(stats);
 }
 
 function refreshAll(){
   buildPendLayer(); buildIdonLayer(); buildFasciaLayer();
   syncLayers(); refreshResults();
-  try{localStorage.setItem('fer_params',JSON.stringify({steep,fascia}));}catch(e){}
+  try{localStorage.setItem('fer_params3',JSON.stringify({sTrk,sFix,fascia,dTrk,dFix,yTrk,yFix}));}catch(e){}
 }
 
 function syncLayers(){
-  const pairs=[['lyPend',pendLayer],['lyIdon',idonLayer],['lyFascia',fasciaLayer],['lyHab',habLayer],['lyParc',parcLayer]];
+  const pairs=[['lyPend',pendLayer],['lyIdon',idonLayer],['lyFascia',fasciaLayer],
+               ['lyStab',stabLayer],['lyHab',habLayer],['lyParc',parcLayer]];
   for(const[id,ly]of pairs){
     if(!ly)continue;
     const on=document.getElementById(id).checked;
@@ -284,116 +352,189 @@ function syncLayers(){
   if(!o&&map.hasLayer(orto))map.removeLayer(orto);
 }
 
-// ---------- habitat ----------
+// ---------- habitat (vincolo 1) ----------
 function setHabitat(polys,label){
   habitatPolys=polys;
   habLayer.clearLayers();
   if(polys.length){
     habLayer.addData({type:'Feature',geometry:{type:'MultiPolygon',coordinates:polys.map(r=>[r])},properties:{}});
     habMask=rasterizePolys(polys);
-    habDist=chamferDist(habMask);
     document.getElementById('habStatus').className='status ok';
     document.getElementById('habStatus').textContent=`Habitat caricato (${label}): ${polys.length} poligono/i.`;
     try{localStorage.setItem('fer_habitat',JSON.stringify(polys));}catch(e){}
   }else{
-    habMask=new Uint8Array(NX*NY); habDist=null;
+    habMask=new Uint8Array(NX*NY);
     document.getElementById('habStatus').className='status';
-    document.getElementById('habStatus').textContent='Nessun habitat caricato.';
+    document.getElementById('habStatus').textContent='Habitat non caricato: vincolo non applicato.';
     try{localStorage.removeItem('fer_habitat');}catch(e){}
   }
   refreshAll();
 }
 
-function parseKmlPolys(text){
+// ---------- stabilimento (vincolo 2) ----------
+function redrawStabLayer(){
+  stabLayer.clearLayers();
+  for(const ring of stabPolys)
+    L.polygon(ring.map(p=>[p[1],p[0]]),{color:'#fb923c',weight:3,fillColor:'#fb923c',fillOpacity:0.35}).addTo(stabLayer);
+  for(const p of stabPts)
+    L.circleMarker([p[1],p[0]],{radius:7,color:'#7c2d12',weight:2,fillColor:'#fb923c',fillOpacity:1}).addTo(stabLayer);
+}
+function setStab(polys,pts,label){
+  stabPolys=polys; stabPts=pts;
+  redrawStabLayer();
+  if(hasStab()){
+    stabDist=chamferDist(rasterizePolys(polys,pts));
+    document.getElementById('stabStatus').className='status ok';
+    document.getElementById('stabStatus').textContent=
+      `Stabilimento impostato (${label}): ${polys.length} poligono/i, ${pts.length} punto/i.`;
+    try{localStorage.setItem('fer_stab',JSON.stringify({polys,pts}));}catch(e){}
+  }else{
+    stabDist=null;
+    document.getElementById('stabStatus').className='status';
+    document.getElementById('stabStatus').textContent='Stabilimento non impostato: fascia non applicata.';
+    try{localStorage.removeItem('fer_stab');}catch(e){}
+  }
+  refreshAll();
+}
+
+// ---------- parsing file ----------
+function parseKml(text){
   const doc=new DOMParser().parseFromString(text,'text/xml');
-  const out=[];
+  const polys=[],pts=[];
   doc.querySelectorAll('Polygon').forEach(pg=>{
     const co=pg.querySelector('outerBoundaryIs coordinates')||pg.querySelector('coordinates');
     if(!co)return;
     const ring=co.textContent.trim().split(/\s+/).map(t=>{const p=t.split(',');return [parseFloat(p[0]),parseFloat(p[1])];});
-    if(ring.length>2)out.push(ring);
+    if(ring.length>2)polys.push(ring);
   });
-  return out;
+  doc.querySelectorAll('Point coordinates').forEach(co=>{
+    const p=co.textContent.trim().split(',');
+    pts.push([parseFloat(p[0]),parseFloat(p[1])]);
+  });
+  return {polys,pts};
 }
-function parseGeoJsonPolys(obj){
-  const out=[];
+function parseGeoJson(obj){
+  const polys=[],pts=[];
   const feats=obj.type==='FeatureCollection'?obj.features:[obj];
   for(const f of feats){
     const g=f.geometry||f;
     if(!g)continue;
-    if(g.type==='Polygon')out.push(g.coordinates[0]);
-    if(g.type==='MultiPolygon')g.coordinates.forEach(p=>out.push(p[0]));
+    if(g.type==='Polygon')polys.push(g.coordinates[0]);
+    if(g.type==='MultiPolygon')g.coordinates.forEach(p=>polys.push(p[0]));
+    if(g.type==='Point')pts.push(g.coordinates.slice(0,2));
+    if(g.type==='MultiPoint')g.coordinates.forEach(p=>pts.push(p.slice(0,2)));
   }
-  return out;
+  return {polys,pts};
+}
+function readVectorFile(file,cb){
+  file.text().then(t=>{
+    const r=t.trim().startsWith('{')?parseGeoJson(JSON.parse(t)):parseKml(t);
+    cb(r);
+  });
 }
 
 document.getElementById('habFile').addEventListener('change',ev=>{
   const file=ev.target.files[0]; if(!file)return;
-  file.text().then(t=>{
-    let polys=[];
-    if(t.trim().startsWith('{')) polys=parseGeoJsonPolys(JSON.parse(t));
-    else polys=parseKmlPolys(t);
-    if(polys.length)setHabitat(polys,file.name);
+  readVectorFile(file,r=>{
+    if(r.polys.length)setHabitat(r.polys,file.name);
     else{document.getElementById('habStatus').className='status warn';
       document.getElementById('habStatus').textContent='Nessun poligono trovato nel file.';}
   });
   ev.target.value='';
 });
-
-// disegno manuale
-let drawing=false, drawPts=[], drawTmp=null;
-const drawBtn=document.getElementById('habDraw');
-drawBtn.addEventListener('click',()=>{
-  drawing=!drawing; drawBtn.classList.toggle('on',drawing);
-  drawPts=[]; if(drawTmp){map.removeLayer(drawTmp);drawTmp=null;}
-  map.getContainer().style.cursor=drawing?'crosshair':'';
-  if(drawing){document.getElementById('habStatus').className='status warn';
-    document.getElementById('habStatus').textContent='Clicca i vertici sulla mappa; doppio clic per chiudere il poligono.';}
+document.getElementById('stabFile').addEventListener('change',ev=>{
+  const file=ev.target.files[0]; if(!file)return;
+  readVectorFile(file,r=>{
+    if(r.polys.length||r.pts.length)setStab(r.polys,r.pts,file.name);
+    else{document.getElementById('stabStatus').className='status warn';
+      document.getElementById('stabStatus').textContent='Nessun poligono/punto trovato nel file.';}
+  });
+  ev.target.value='';
 });
+
+// ---------- disegno ----------
+let mode=null;           // null | 'hab' | 'stab'
+let drawPts=[], drawTmp=null;
+const habDrawBtn=document.getElementById('habDraw');
+const stabDrawBtn=document.getElementById('stabDraw');
+function setMode(m){
+  mode=(mode===m)?null:m;
+  habDrawBtn.classList.toggle('on',mode==='hab');
+  stabDrawBtn.classList.toggle('on',mode==='stab');
+  drawPts=[]; if(drawTmp){map.removeLayer(drawTmp);drawTmp=null;}
+  map.getContainer().style.cursor=mode?'crosshair':'';
+  if(mode==='hab'){document.getElementById('habStatus').className='status warn';
+    document.getElementById('habStatus').textContent='Clicca i vertici sulla mappa; doppio clic per chiudere il poligono.';}
+  if(mode==='stab'){document.getElementById('stabStatus').className='status warn';
+    document.getElementById('stabStatus').textContent='Clicca sulla mappa la posizione dello stabilimento (uno o più punti). Ripremi il tasto per finire.';}
+}
+habDrawBtn.addEventListener('click',()=>setMode('hab'));
+stabDrawBtn.addEventListener('click',()=>setMode('stab'));
+
 map.on('click',e=>{
-  if(!drawing)return;
-  drawPts.push([e.latlng.lng,e.latlng.lat]);
-  if(drawTmp)map.removeLayer(drawTmp);
-  drawTmp=L.polyline(drawPts.map(p=>[p[1],p[0]]),{color:'#22d3ee',dashArray:'4 4'}).addTo(map);
+  if(mode==='hab'){
+    drawPts.push([e.latlng.lng,e.latlng.lat]);
+    if(drawTmp)map.removeLayer(drawTmp);
+    drawTmp=L.polyline(drawPts.map(p=>[p[1],p[0]]),{color:'#22d3ee',dashArray:'4 4'}).addTo(map);
+  }else if(mode==='stab'){
+    setStab(stabPolys,stabPts.concat([[e.latlng.lng,e.latlng.lat]]),'segnato a mano');
+  }
 });
 map.on('dblclick',e=>{
-  if(!drawing||drawPts.length<3)return;
+  if(mode!=='hab'||drawPts.length<3)return;
   L.DomEvent.stop(e);
-  drawing=false; drawBtn.classList.remove('on');
-  map.getContainer().style.cursor='';
-  if(drawTmp){map.removeLayer(drawTmp);drawTmp=null;}
-  setHabitat(habitatPolys.concat([drawPts.slice()]),'disegno manuale');
-  drawPts=[];
+  const ring=drawPts.slice();
+  setMode('hab'); // toggle off
+  setHabitat(habitatPolys.concat([ring]),'disegno manuale');
 });
 map.doubleClickZoom.disable();
 
 document.getElementById('habClear').addEventListener('click',()=>setHabitat([],''));
+document.getElementById('stabClear').addEventListener('click',()=>setStab([],[],''));
 
 // ---------- controlli ----------
-function fmtSteep(){
-  const deg=Math.atan(steep/100)*180/Math.PI;
-  document.getElementById('steepVal').textContent=`${steep}% (${deg.toFixed(1)}°)`;
+function pctDeg(v){return `${v}% (${(Math.atan(v/100)*180/Math.PI).toFixed(1)}°)`;}
+function fmtVals(){
+  document.getElementById('sTrkVal').textContent=pctDeg(sTrk);
+  document.getElementById('sFixVal').textContent=pctDeg(sFix);
+  document.getElementById('fasciaVal').textContent=`${fascia} m`;
 }
-function fmtFascia(){document.getElementById('fasciaVal').textContent=`${fascia} m`;}
-
-document.getElementById('steep').addEventListener('input',ev=>{steep=parseFloat(ev.target.value);fmtSteep();refreshAllDebounced();});
-document.getElementById('fascia').addEventListener('input',ev=>{fascia=parseFloat(ev.target.value);fmtFascia();refreshAllDebounced();});
 let tdb=null;
 function refreshAllDebounced(){clearTimeout(tdb);tdb=setTimeout(refreshAll,120);}
-['lyOrto','lyPend','lyIdon','lyFascia','lyHab','lyParc'].forEach(id=>
+document.getElementById('sTrk').addEventListener('input',ev=>{sTrk=parseFloat(ev.target.value);fmtVals();refreshAllDebounced();});
+document.getElementById('sFix').addEventListener('input',ev=>{sFix=parseFloat(ev.target.value);fmtVals();refreshAllDebounced();});
+document.getElementById('fascia').addEventListener('input',ev=>{fascia=parseFloat(ev.target.value);fmtVals();refreshAllDebounced();});
+[['dTrk',v=>dTrk=v],['dFix',v=>dFix=v],['yTrk',v=>yTrk=v],['yFix',v=>yFix=v]].forEach(([id,set])=>
+  document.getElementById(id).addEventListener('input',ev=>{
+    const v=parseFloat(ev.target.value); if(isFinite(v)&&v>=0){set(v);refreshAllDebounced();}}));
+['lyOrto','lyPend','lyIdon','lyFascia','lyStab','lyHab','lyParc'].forEach(id=>
   document.getElementById(id).addEventListener('change',syncLayers));
 
 // ---------- avvio ----------
 try{
-  const p=JSON.parse(localStorage.getItem('fer_params')||'null');
-  if(p){steep=p.steep;fascia=p.fascia;
-    document.getElementById('steep').value=steep;document.getElementById('fascia').value=fascia;}
+  const p=JSON.parse(localStorage.getItem('fer_params3')||'null');
+  if(p){
+    sTrk=p.sTrk;sFix=p.sFix;fascia=p.fascia;dTrk=p.dTrk;dFix=p.dFix;yTrk=p.yTrk;yFix=p.yFix;
+    for(const[id,v]of [['sTrk',sTrk],['sFix',sFix],['fascia',fascia],['dTrk',dTrk],['dFix',dFix],['yTrk',yTrk],['yFix',yFix]])
+      document.getElementById(id).value=v;
+  }
 }catch(e){}
-fmtSteep();fmtFascia();
-let savedHab=null;
+fmtVals();
+let savedHab=null,savedStab=null;
 try{savedHab=JSON.parse(localStorage.getItem('fer_habitat')||'null');}catch(e){}
-if(savedHab&&savedHab.length)setHabitat(savedHab,'salvato in precedenza');
-else refreshAll();
+try{savedStab=JSON.parse(localStorage.getItem('fer_stab')||'null');}catch(e){}
+if(savedHab&&savedHab.length){habitatPolys=savedHab;habMask=rasterizePolys(savedHab);
+  habLayer.addData({type:'Feature',geometry:{type:'MultiPolygon',coordinates:savedHab.map(r=>[r])},properties:{}});
+  document.getElementById('habStatus').className='status ok';
+  document.getElementById('habStatus').textContent=`Habitat caricato (salvato in precedenza): ${savedHab.length} poligono/i.`;}
+if(savedStab&&((savedStab.polys||[]).length||(savedStab.pts||[]).length)){
+  stabPolys=savedStab.polys||[];stabPts=savedStab.pts||[];
+  redrawStabLayer();
+  stabDist=chamferDist(rasterizePolys(stabPolys,stabPts));
+  document.getElementById('stabStatus').className='status ok';
+  document.getElementById('stabStatus').textContent=
+    `Stabilimento impostato (salvato in precedenza): ${stabPolys.length} poligono/i, ${stabPts.length} punto/i.`;}
+refreshAll();
 </script>
 </body>
 </html>
