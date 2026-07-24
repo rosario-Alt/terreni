@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rb.ftv — Step X-Elio · Interfaccia Servizi Accordo Quadro</title>
+<style>
+  :root{
+    --blu:#1F3864; --blu2:#2d4f8a; --oro:#BF6900; --rosso:#C00000; --verde:#2E7D32;
+    --bg:#f4f6fa; --card:#ffffff; --testo:#1c2333; --grigio:#5b6473; --bordo:#dde3ee;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--testo);font-size:15px}
+  header{background:linear-gradient(135deg,var(--blu) 0%,var(--blu2) 100%);color:#fff;padding:22px 28px}
+  header h1{font-size:22px;letter-spacing:.3px}
+  header h1 span{color:#ffd479}
+  header p{opacity:.85;font-size:13px;margin-top:4px}
+  .layout{display:flex;min-height:calc(100vh - 90px)}
+  nav{width:270px;background:#fff;border-right:1px solid var(--bordo);padding:16px 10px;flex-shrink:0}
+  nav h2{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--grigio);margin:14px 8px 6px}
+  .btn-serv{display:block;width:100%;text-align:left;border:1px solid var(--bordo);background:#fff;border-radius:10px;
+    padding:10px 12px;margin-bottom:7px;cursor:pointer;font-size:13.5px;line-height:1.3;transition:all .15s}
+  .btn-serv small{display:block;color:var(--grigio);font-size:11.5px;margin-top:2px}
+  .btn-serv:hover{border-color:var(--blu2);box-shadow:0 2px 8px rgba(31,56,100,.12)}
+  .btn-serv.attivo{background:var(--blu);color:#fff;border-color:var(--blu)}
+  .btn-serv.attivo small{color:#cfd9ec}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:20px;margin-left:4px;vertical-align:middle}
+  .tag.fisso{background:#e3edda;color:var(--verde)}
+  .tag.mw{background:#fdeeda;color:var(--oro)}
+  .tag.nd{background:#f8dede;color:var(--rosso)}
+  .btn-serv.attivo .tag{filter:brightness(1.15)}
+  main{flex:1;padding:26px 32px;max-width:980px}
+  .scheda{display:none;animation:fade .25s}
+  .scheda.visibile{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .scheda>h2{color:var(--blu);font-size:21px;margin-bottom:4px}
+  .sotto{color:var(--grigio);font-size:13.5px;margin-bottom:18px}
+  .blocco{background:var(--card);border:1px solid var(--bordo);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+  .blocco h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--blu);margin-bottom:10px;
+    border-bottom:2px solid var(--bg);padding-bottom:6px}
+  .blocco p{line-height:1.55;margin-bottom:8px}
+  .blocco ul{margin:4px 0 4px 20px;line-height:1.6}
+  .blocco li{margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:6px 0}
+  th{background:var(--blu);color:#fff;padding:7px 10px;text-align:left;font-weight:600}
+  td{padding:7px 10px;border-bottom:1px solid var(--bordo)}
+  tr:nth-child(even) td{background:#f7f9fd}
+  .avviso{border-left:4px solid var(--oro);background:#fff8ec;padding:10px 14px;border-radius:0 8px 8px 0;
+    font-size:13.5px;line-height:1.5;margin:10px 0}
+  .avviso.critico{border-color:var(--rosso);background:#fdf1f1}
+  .check{list-style:none;margin:0 !important}
+  .check li{margin-bottom:6px;display:flex;gap:9px;align-items:flex-start}
+  .check input{margin-top:3px;accent-color:var(--blu);width:15px;height:15px;flex-shrink:0}
+  .check label{cursor:pointer;line-height:1.45}
+  .contatore{font-size:12.5px;color:var(--grigio);margin-top:8px;font-style:italic}
+  textarea{width:100%;min-height:210px;border:1px solid var(--bordo);border-radius:8px;padding:12px;
+    font-family:'Consolas','Courier New',monospace;font-size:12.5px;line-height:1.5;resize:vertical;background:#fbfcfe}
+  .riga-azioni{display:flex;gap:10px;margin-top:10px;align-items:center}
+  .btn-azione{background:var(--blu);color:#fff;border:none;border-radius:8px;padding:9px 18px;cursor:pointer;
+    font-size:13.5px;font-weight:600;transition:background .15s}
+  .btn-azione:hover{background:var(--blu2)}
+  .btn-azione.sec{background:#fff;color:var(--blu);border:1px solid var(--blu)}
+  .ok-copia{color:var(--verde);font-size:13px;font-weight:600;opacity:0;transition:opacity .3s}
+  .ok-copia.mostra{opacity:1}
+  .gng{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}
+  .gng div{flex:1;min-width:180px;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.5}
+  .gng .go{background:#e6f2e6;border:1px solid #b5d6b5}
+  .gng .cond{background:#fdf3e3;border:1px solid #ecd3a4}
+  .gng .nogo{background:#fbe7e7;border:1px solid #e5b4b4}
+  .gng b{display:block;margin-bottom:4px;font-size:14px}
+  .go b{color:var(--verde)} .cond b{color:var(--oro)} .nogo b{color:var(--rosso)}
+  .campi{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px 14px;margin:10px 0 4px}
+  .campi label{display:block;font-size:11.5px;font-weight:600;color:var(--grigio);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  .campi input,.campi select{width:100%;border:1px solid var(--bordo);border-radius:8px;padding:8px 10px;font-size:13.5px;background:#fbfcfe;font-family:inherit}
+  .campi input:focus,.campi select:focus{outline:none;border-color:var(--blu2)}
+  .campo-largo{grid-column:1/-1}
+  .btn-azione:disabled{opacity:.45;cursor:not-allowed}
+  footer{padding:14px 28px;color:var(--grigio);font-size:11.5px;border-top:1px solid var(--bordo);background:#fff}
+  @media(max-width:820px){.layout{flex-direction:column}nav{width:100%;border-right:none;border-bottom:1px solid var(--bordo)}}
+</style>
+</head>
+<body>
+<header>
+  <h1>rb.ftv <span>·</span> Step X-Elio</h1>
+  <p>Interfaccia operativa per i servizi dell'Accordo Quadro X-Elio EMENA S.r.l. — supporto ai procedimenti autorizzativi FER &amp; BESS · uso interno del consulente</p>
+</header>
+
+<div class="layout">
+<nav>
+  <h2>Analisi vincolistiche</h2>
+  <button class="btn-serv attivo" data-s="s1">Fattispecie 1 — BESS <span class="tag fisso">€ fisso</span><small>Analisi vincolistica / inquadramento iter · per area</small></button>
+  <button class="btn-serv" data-s="s2">Fattispecie 2 — FTV / Agri-FTV <span class="tag fisso">€ fisso</span><small>Analisi vincolistica / inquadramento iter · per istanza</small></button>
+  <h2>Revisione documentale</h2>
+  <button class="btn-serv" data-s="sA">Fattispecie A — Integrazione complessa <span class="tag fisso">€ fisso</span><small>Richiesta integrazioni multi-ente</small></button>
+  <button class="btn-serv" data-s="sB">Fattispecie B — Integrazione tematica <span class="tag fisso">€ fisso</span><small>Richiesta da 1-2 enti (ARPA, ENAC…)</small></button>
+  <button class="btn-serv" data-s="sC">Fattispecie C — Istanza da presentare <span class="tag fisso">€ fisso</span><small>Revisione intero fascicolo / variante complessa</small></button>
+  <h2>Assistenza continuativa</h2>
+  <button class="btn-serv" data-s="sD">Fattispecie D — Integrazioni + iter <span class="tag mw">€/MW</span><small>Fino al provvedimento conclusivo</small></button>
+  <button class="btn-serv" data-s="sE">Fattispecie E — Istanza + iter <span class="tag mw">€/MW</span><small>Fino al provvedimento conclusivo</small></button>
+  <h2>Rete</h2>
+  <button class="btn-serv" data-s="sT">Supporto TSO/DSO — Open season <span class="tag nd">da quotare</span><small>Capacità residua stazioni</small></button>
+  <h2>Metodo</h2>
+  <button class="btn-serv" data-s="sG">Relazione Go / No-Go <small>Strumento di lavoro standard rb.ftv</small></button>
+</nav>
+
+<main>
+
+<!-- ============ FATTISPECIE 1 ============ -->
+<section class="scheda visibile" id="s1">
+  <h2>Fattispecie 1 — Analisi vincolistica BESS</h2>
+  <p class="sotto">Analisi vincolistica e corretto inquadramento dell'iter autorizzativo per siti greenfield proposti dal Cliente, o verifica di analisi effettuate da terzi — impianti di accumulo (BESS).</p>
+
+  <div class="blocco"><h3>Attività rb.ftv</h3><ul>
+    <li>Screening vincolistico dell'area: vincoli paesaggistici, ambientali, idrogeologici (PAI), archeologici, usi civici, fasce di rispetto infrastrutturali;</li>
+    <li>Verifica aree idonee/non idonee ai sensi del D.Lgs. 199/2021 e della normativa regionale applicabile;</li>
+    <li>Individuazione del procedimento autorizzativo corretto (AU, PAS, edilizia libera ex art. 6-quater, VIA/screening) e dei titoli accessori;</li>
+    <li>Verifica di analisi vincolistiche predisposte da terzi per conto del Cliente (second opinion);</li>
+    <li>Restituzione dell'esito nella <b>Relazione Go/No-Go</b> con criticità e misure di mitigazione.</li>
+  </ul></div>
+
+  <div class="blocco"><h3>Compensi (Allegato 1 — per singola area)</h3>
+    <table><tr><th>Fino 5 ha</th><th>6–10 ha</th><th>11–15 ha</th><th>&gt; 15 ha</th></tr>
+    <tr><td>€ 500</td><td>€ 650</td><td>€ 800</td><td>€ 1.200</td></tr></table>
+    <div class="avviso">Spese incluse nel compenso (art. 3.2). Sopralluoghi <b>esclusi</b> dall'Accordo (art. 4): se richiesti, quotare a parte con addendum.</div>
+  </div>
+
+  <div class="blocco"><h3>Input da richiedere al Cliente</h3><ul class="check" data-ck>
+    <li><input type="checkbox" id="c1a"><label for="c1a">Perimetro area su shapefile/KMZ e particelle catastali</label></li>
+    <li><input type="checkbox" id="c1b"><label for="c1b">Potenza indicativa e layout preliminare (se disponibile)</label></li>
+    <li><input type="checkbox" id="c1c"><label for="c1c">Titolo di disponibilità delle aree (opzione/preliminare) o perimetro espropri</label></li>
+    <li><input type="checkbox" id="c1d"><label for="c1d">Soluzione di connessione ipotizzata / STMG se già richiesta</label></li>
+    <li><input type="checkbox" id="c1e"><label for="c1e">Eventuali analisi vincolistiche di terzi da verificare</label></li>
+  </ul><p class="contatore" data-cont>0 elementi ricevuti</p></div>
+
+  <div class="blocco"><h3>Output & risposta al Cliente</h3>
+    <p><b>Deliverable:</b> Relazione Go/No-Go (formato editabile, art. 2.6) entro il termine del Contratto Attuativo.</p>
+    <textarea data-tpl>Spett.le X-Elio Europe Middle East & North Africa S.r.l.
+c.a. Responsabile di Progetto — [NOME]
+Oggetto: Accordo Quadro — Contratto Attuativo n. [__] — Fattispecie 1 (BESS) — Iniziativa "[NOME INIZIATIVA]" — trasmissione Relazione Go/No-Go
+
+Con riferimento al Contratto Attuativo in oggetto, trasmettiamo in allegato la Relazione Go/No-Go relativa all'area di [COMUNE/PROV], estensione [__] ha, per impianto BESS di potenza indicativa [__] MW.
+
+Esito della verifica (§7 della Relazione): [GO / GO CONDIZIONATO / NO-GO]
+Quadro vincolistico: si rinvia alla matrice del §2 della Relazione.
+Inquadramento aree idonee ex D.Lgs. 199/2021 (§3): [IDONEA / NON IDONEA / PARZIALE]
+Procedimento autorizzativo individuato (§4): [AU / PAS / art. 6-quater / screening VIA]
+Principali criticità e mitigazioni: si rinvia al §6 della Relazione.
+
+Restiamo a disposizione per l'incontro di restituzione e chiediamo il rilascio dell'attestazione di regolare esecuzione entro i termini contrattuali.
+
+Cordiali saluti
+rb.ftv — [NOME CONSULENTE]</textarea>
+    <div class="riga-azioni"><button class="btn-azione" data-copia>Copia risposta</button><span class="ok-copia">Copiato ✓</span></div>
+  </div>
+</section>
+
+<!-- ============ FATTISPECIE 2 ============ -->
+<section class="scheda" id="s2">
+  <h2>Fattispecie 2 — Analisi vincolistica FTV / Agri-FTV</h2>
+  <p class="sotto">Analisi vincolistica e corretto inquadramento dell'iter autorizzativo per siti greenfield fotovoltaici e agrivoltaici, o verifica di analisi di terzi.</p>
+
+  <div class="blocco"><h3>Attività rb.ftv</h3><ul>
+    <li>Screening vincolistico completo dell'area (paesaggio, ambiente, PAI, beni culturali, aree agricole di pregio/DOP-IGP);</li>
+    <li>Verifica aree idonee ex D.Lgs. 199/2021, DM 21.06.2024 e leggi regionali di recepimento — punto dirimente per FTV a terra;</li>
+    <li>Distinzione FTV standard / agrivoltaico (requisiti DM e Linee Guida CREA-GSE, compatibilità colturale);</li>
+    <li>Individuazione del procedimento principale (AU, PAS, procedimenti regionali/provinciali, VIA statale o regionale per soglie) e dei titoli accessori;</li>
+    <li>Second opinion su analisi di terzi, con evidenza degli scostamenti;</li>
+    <li>Esito nella <b>Relazione Go/No-Go</b>.</li>
+  </ul></div>
+
+  <div class="blocco"><h3>Compensi (Allegato 1 — per istanza, decrescenti con il numero di istanze)</h3>
+    <table><tr><th>Istanze 1–3</th><th>Istanze 4–6</th><th>Istanze 7–10</th><th>Istanze &gt; 10</th></tr>
+    <tr><td>€ 600</td><td>€ 750</td><td>€ 900</td><td>€ 1.500</td></tr></table>
+    <div class="avviso">Nota: nella tabella contrattuale gli importi <b>crescono</b> con il numero di istanze (600 → 1.500), mentre l'intestazione parla di meccanismo di riduzione: incongruenza da chiarire con il Cliente prima della firma dell'Attuativo (v. Nota di negoziazione).</div>
+  </div>
+
+  <div class="blocco"><h3>Input da richiedere al Cliente</h3><ul class="check" data-ck>
+    <li><input type="checkbox" id="c2a"><label for="c2a">Perimetro aree (shapefile/KMZ) e visure/mappali</label></li>
+    <li><input type="checkbox" id="c2b"><label for="c2b">Potenza di picco e tipologia (FTV a terra / agrivoltaico avanzato)</label></li>
+    <li><input type="checkbox" id="c2c"><label for="c2c">Destinazione urbanistica e certificati (CDU se disponibili)</label></li>
+    <li><input type="checkbox" id="c2d"><label for="c2d">Soluzione di connessione / STMG</label></li>
+    <li><input type="checkbox" id="c2e"><label for="c2e">Analisi di terzi da verificare (per second opinion)</label></li>
+  </ul><p class="contatore" data-cont>0 elementi ricevuti</p></div>
+
+  <div class="blocco"><h3>Output & risposta al Cliente</h3>
+    <p><b>Deliverable:</b> Relazione Go/No-Go per istanza.</p>
+    <textarea data-tpl>Spett.le X-Elio EMENA S.r.l.
+c.a. Responsabile di Progetto — [NOME]
+Oggetto: Accordo Quadro — Contratto Attuativo n. [__] — Fattispecie 2 (FTV/Agri-FTV) — Iniziativa "[NOME]" — trasmissione Relazione Go/No-Go
+
+Trasmettiamo la Relazione Go/No-Go per il sito di [COMUNE/PROV] — [__] MWp, tipologia [FTV a terra / agrivoltaico].
+
+Esito (§7 della Relazione): [GO / GO CONDIZIONATO / NO-GO]
+Area idonea ex D.Lgs. 199/2021 (§3): [SÌ / NO / PARZIALE — rif. normativa regionale]
+Procedimento individuato (§4): [AU / PAS / VIA + AU / altro]
+Connessione e capacità di rete (§5): [stato STMG / rinvio]
+Criticità principali: [sintesi — si rinvia al §6 della Relazione]
+
+Restiamo in attesa dell'attestazione di regolare esecuzione ai sensi dell'art. 3.4 dell'Accordo Quadro.
+
+Cordiali saluti
+rb.ftv — [NOME CONSULENTE]</textarea>
+    <div class="riga-azioni"><button class="btn-azione" data-copia>Copia risposta</button><span class="ok-copia">Copiato ✓</span></div>
+  </div>
+</section>
+
+<!-- ============ FATTISPECIE A ============ -->
+<section class="scheda" id="sA">
+  <h2>Fattispecie A — Richiesta di integrazione complessa</h2>
+  <p class="sotto">Istanza già presentata: il Cliente ha ricevuto una richiesta di integrazione complessa, su aspetti tecnici sollevati dall'Autorità Competente e dagli Enti coinvolti nel procedimento.</p>
+
+  <div class="blocco"><h3>Attività rb.ftv</h3><ul>
+    <li>Analisi della richiesta di integrazione e mappatura punto-per-punto dei rilievi (matrice ente → rilievo → documento → responsabile);</li>
+    <li>Verifica di completezza e coerenza della documentazione predisposta dai developer del Cliente in risposta;</li>
+    <li>Controllo particelle catastali (aree impianto e connessione, disponibilità vs espropri/concessioni);</li>
+    <li>Conferma del corretto inquadramento procedimentale, con mitigazioni in caso di criticità;</li>
+    <li>Coordinamento e follow-up con i developer; supporto nelle interlocuzioni con le autorità e partecipazione alle Conferenze dei Servizi (sempre con personale X-Elio presente).</li>
+  </ul></div>
+
+  <div class="blocco"><h3>Compensi (Allegato 1 — per istanza)</h3>
+    <table><tr><th>Istanze 1–3</th><th>Istanze 4–6</th><th>Istanze 7–10</th><th>Istanze &gt; 10</th></tr>
+    <tr><td>€ 1.200</td><td>€ 1.200</td><td>€ 1.000</td><td>€ 1.000</td></tr></table>
+    <div class="avviso critico">Attenzione (clausole Allegato): i chiarimenti successivi sulla stessa integrazione restano inclusi <b>senza limite di tempo</b>. Tracciare ogni richiesta ricevuta e la data, e negoziare il limite temporale proposto nella Nota di negoziazione (punto 9). Se l'incarico si rivela di tipologia diversa: addendum di riqualificazione (clausola c).</div>
+  </div>
+
+  <div class="blocco"><h3>Input da richiedere al Cliente</h3><ul class="check" data-ck>
+    <li><input type="checkbox" id="cAa"><label for="cAa">Richiesta di integrazione dell'Autorità (protocollo e termini di risposta)</label></li>
+    <li><input type="checkbox" id="cAb"><label for="cAb">Fascicolo di progetto depositato (istanza originaria completa)</label></li>
+    <li><input type="checkbox" id="cAc"><label for="cAc">Bozze di risposta/elaborati dei developer da revisionare</label></li>
+    <li><input type="checkbox" id="cAd"><label for="cAd">Elenco particelle aggiornato e titoli di disponibilità</label></li>
+    <li><input type="checkbox" id="cAe"><label for="cAe">Referenti developer e Responsabile di Progetto X-Elio</label></li>
+  </ul><p class="contatore" data-cont>0 elementi ricevuti</p></div>
+
+  <div class="blocco"><h3>Output & risposta al Cliente</h3>
+    <p><b>Deliverable:</b> matrice dei rilievi con esito di revisione + verbale di verifica documentale; minute delle riunioni con la P.A. (obbligo art. 1).</p>
+    <textarea data-tpl>Spett.le X-Elio EMENA S.r.l.
+c.a. Responsabile di Progetto — [NOME]
+Oggetto: Contratto Attuativo n. [__] — Fattispecie A — Iniziativa "[NOME]" — esito revisione risposta a richiesta integrazioni prot. [__]
+
+Abbiamo completato la verifica della documentazione predisposta dai developer in riscontro alla richiesta di integrazione in oggetto ([N] rilievi da [ENTI]).
+
+Esito: [COMPLETA E COERENTE / CRITICITÀ DA SANARE — v. matrice allegata]
+Rilievi con criticità: [n. e sintesi]
+Mitigazioni proposte: [sintesi]
+Termine di deposito: [DATA] — margini residui: [gg]
+
+Nota ex art. 1: per ogni incontro con la P.A. garantiremo preavviso, partecipazione del Vostro personale e minuta tempestiva.
+
+Cordiali saluti
+rb.ftv — [NOME CONSULENTE]</textarea>
+    <div class="riga-azioni"><button class="btn-azione" data-copia>Copia risposta</button><span class="ok-copia">Copiato ✓</span></div>
+  </div>
+</section>
+
+<!-- ============ FATTISPECIE B ============ -->
+<section class="scheda" id="sB">
+  <h2>Fattispecie B — Richiesta di integrazione tematica</h2>
+  <p class="sotto">Richiesta di integrazione formulata esclusivamente da uno o due Enti del procedimento (es. ARPA, ENAC…), senza investire il progetto nel suo complesso.</p>
+
+  <div class="blocco"><h3>Attività rb.ftv</h3><ul>
+    <li>Analisi del rilievo tematico e del perimetro esatto della richiesta;</li>
+    <li>Revisione della risposta tecnica predisposta dal developer sul tema specifico;</li>
+    <li>Verifica che la risposta non apra fronti su altri elaborati del fascicolo;</li>
+    <li>Follow-up con l'ente richiedente (con personale X-Elio) fino al riscontro.</li>
+  </ul></div>
+
+  <div class="blocco"><h3>Compensi (Allegato 1 — per istanza)</h3>
+    <table><tr><th>Istanze 1–3</th><th>Istanze 4–6</th><th>Istanze 7–10</th><th>Istanze &gt; 10</th></tr>
+    <tr><td>€ 600</td><td>€ 600</td><td>€ 500</td><td>€ 500</td></tr></table>
+    <div class="avviso">Se in corso d'opera emerge che la verifica va estesa ad altri fascicoli inizialmente considerati unitari: addendum pari alla fattispecie B – Cat. 1-3 (€ 600), non soggetto a riduzione progressiva (clausola d dell'Allegato).</div>
+  </div>
+
+  <div class="blocco"><h3>Input da richiedere al Cliente</h3><ul class="check" data-ck>
+    <li><input type="checkbox" id="cBa"><label for="cBa">Nota dell'ente richiedente (protocollo, tema, termini)</label></li>
+    <li><input type="checkbox" id="cBb"><label for="cBb">Elaborato/i oggetto del rilievo</label></li>
+    <li><input type="checkbox" id="cBc"><label for="cBc">Bozza di risposta del developer</label></li>
+    <li><input type="checkbox" id="cBd"><label for="cBd">Referente tecnico del tema (developer)</label></li>
+  </ul><p class="contatore" data-cont>0 elementi ricevuti</p></div>
+
+  <div class="blocco"><h3>Output & risposta al Cliente</h3>
+    <p><b>Deliverable:</b> nota di revisione tematica con esito e raccomandazioni.</p>
+    <textarea data-tpl>Spett.le X-Elio EMENA S.r.l.
+c.a. Responsabile di Progetto — [NOME]
+Oggetto: Contratto Attuativo n. [__] — Fattispecie B — Iniziativa "[NOME]" — revisione risposta a rilievo [ENTE] prot. [__]
+
+Completata la revisione della risposta al rilievo tematico di [ENTE] in materia di [TEMA].
+
+Esito: [IDONEA AL DEPOSITO / DA INTEGRARE — v. nota allegata]
+Osservazioni: [sintesi]
+Termine di risposta all'ente: [DATA]
+
+Segnaliamo che il rilievo [NON estende / estende] la verifica ad altri fascicoli: [in caso affermativo, si applica l'addendum ex clausola d) dell'Allegato 1].
+
+Cordiali saluti
+rb.ftv — [NOME CONSULENTE]</textarea>
+    <div class="riga-azioni"><button class="btn-azione" data-copia>Copia risposta</button><span class="ok-copia">Copiato ✓</span></div>
+  </div>
+</section>
+
+<!-- ============ FATTISPECIE C ============ -->
+<section class="scheda" id="sC">
+  <h2>Fattispecie C — Istanza da presentare / variante complessa</h2>
+  <p class="sotto">Istanza autorizzativa ancora da presentare, o variante complessa: revisione di tutto il fascicolo tecnico da depositare all'Autorità Competente per l'avvio dell'iter.</p>
+
+  <div class="blocco"><h3>Attività rb.ftv</h3><ul>
+    <li>Revisione integrale del fascicolo di progetto pre-deposito (indice, elaborati, coerenza interna);</li>
+    <li>Verifica accuratezza e completezza delle particelle catastali (impianto + opere di connessione) e confronto disponibilità/espropri;</li>
+    <li>Conferma del procedimento principale e dei titoli accessori; utilizzo delle aree idonee ove possibile;</li>
+    <li>Controllo preliminare dei contenuti tecnici con proposte di mitigazione;</li>
+    <li>Checklist di depositabilità e coordinamento con i developer fino al deposito.</li>
+  </ul></div>
+
+  <div class="blocco"><h3>Compensi (Allegato 1 — per istanza)</h3>
+    <table><tr><th>Istanze 1–3</th><th>Istanze 4–6</th><th>Istanze 7–10</th><th>Istanze &gt; 10</th></tr>
+    <tr><td>€ 3.000</td><td>€ 3.000</td><td>€ 2.500</td><td>€ 2.500</td></tr></table>
+    <div class="avviso">L'incarico si ferma al supporto per l'avvio dell'iter: <b>non</b> comprende l'assistenza continuativa durante l'istruttoria (quella è fattispecie E). Se il Cliente chiede di proseguire: passaggio a D/E con scomputo di quanto già erogato (clausola g).</div>
+  </div>
+
+  <div class="blocco"><h3>Input da richiedere al Cliente</h3><ul class="check" data-ck>
+    <li><input type="checkbox" id="cCa"><label for="cCa">Fascicolo completo di progetto (elenco elaborati firmato)</label></li>
+    <li><input type="checkbox" id="cCb"><label for="cCb">Piano particellare (impianto + connessione)</label></li>
+    <li><input type="checkbox" id="cCc"><label for="cCc">STMG accettata / benestare connessione</label></li>
+    <li><input type="checkbox" id="cCd"><label for="cCd">Studi specialistici dei developer (rb.ftv li revisiona, non li produce — art. 4)</label></li>
+    <li><input type="checkbox" id="cCe"><label for="cCe">Cronoprogramma di deposito previsto</label></li>
+  </ul><p class="contatore" data-cont>0 elementi ricevuti</p></div>
+
+  <div class="blocco"><h3>Output & risposta al Cliente</h3>
+    <p><b>Deliverable:</b> verbale di revisione del fascicolo + checklist di depositabilità con esito.</p>
+    <textarea data-tpl>Spett.le X-Elio EMENA S.r.l.
+c.a. Responsabile di Progetto — [NOME]
+Oggetto: Contratto Attuativo n. [__] — Fattispecie C — Iniziativa "[NOME]" — esito revisione fascicolo pre-deposito
+
+Completata la revisione integrale del fascicolo per l'istanza [TIPO PROCEDIMENTO] presso [AUTORITÀ].
+
+Esito: [DEPOSITABILE / DEPOSITABILE CON RISERVE / NON DEPOSITABILE]
+Elaborati revisionati: [N] — criticità rilevate: [N — dettaglio e mitigazioni al §6 della Relazione Go/No-Go aggiornata]
+Verifica catastale (part.lle impianto + connessione, rif. §1 della Relazione): [ESITO — part.lle da sanare: …]
+Procedimento confermato (rif. §4 della Relazione): [SÌ / riqualificato in …]
+Esito complessivo dell'iniziativa: rif. §7 della Relazione Go/No-Go aggiornata pre-deposito.
+
+Si allega la checklist di depositabilità. Per l'assistenza durante l'istruttoria fino al provvedimento è attivabile la fattispecie E, con scomputo del corrispettivo già erogato.
+
+Cordiali saluti
+rb.ftv — [NOME CONSULENTE]</textarea>
+    <div class="riga-azioni"><button class="btn-azione" data-copia>Copia risposta</button><span class="ok-copia">Copiato ✓</span></div>
+  </div>
+</section>
+
+<!-- ============ FATTISPECIE D ============ -->
+<section class="scheda" id="sD">
+  <h2>Fattispecie D — Integrazione complessa + assistenza fino al provvedimento</h2>
+  <p class="sotto">Come la fattispecie A, ma con assistenza e supporto tecnico-specialistico fino alla conclusione dell'iter autorizzativo / emissione del provvedimento conclusivo.</p>
+
+  <div class="blocco"><h3>Attività rb.ftv</h3><ul>
+    <li>Tutte le attività della fattispecie A (matrice rilievi, revisione risposte, catasto, coordinamento developer);</li>
+    <li>Presidio continuativo dell'istruttoria: monitoraggio scadenze, solleciti, interlocuzioni con gli enti (con personale X-Elio);</li>
+    <li>Partecipazione alle Conferenze dei Servizi e predisposizione delle minute;</li>
+    <li>Gestione delle ulteriori richieste della P.A. fino al provvedimento conclusivo;</li>
+    <li>Reportistica periodica di avanzamento al Responsabile di Progetto.</li>
+  </ul></div>
+
+  <div class="blocco"><h3>Compensi (Allegato 1 — €/MW)</h3>
+    <table><tr><th>Istanze 1–3</th><th>Istanze 4–6</th><th>Istanze 7–10</th><th>Istanze &gt; 10</th></tr>
+    <tr><td>€/MW 1.200</td><td>€/MW 1.100</td><td>€/MW 950</td><td>€/MW 750</td></tr></table>
+    <div class="avviso critico">Rischio-tempo: il compenso è fisso ma la durata dell'iter non è governabile. In sede di Attuativo pretendere milestone intermedie di fatturazione (deposito risposta, chiusura CdS, chiusura integrazioni) e clausola di revisione oltre 18-24 mesi (Nota di negoziazione, punto 10).</div>
+  </div>
+
+  <div class="blocco"><h3>Input da richiedere al Cliente</h3><ul class="check" data-ck>
+    <li><input type="checkbox" id="cDa"><label for="cDa">Tutto l'input della fattispecie A (richiesta, fascicolo, bozze, catasto)</label></li>
+    <li><input type="checkbox" id="cDb"><label for="cDb">Potenza dell'impianto in MW (base di calcolo del corrispettivo)</label></li>
+    <li><input type="checkbox" id="cDc"><label for="cDc">Stato dell'istruttoria e storico interlocuzioni con gli enti</label></li>
+    <li><input type="checkbox" id="cDd"><label for="cDd">Milestone di fatturazione concordate nell'Attuativo</label></li>
+  </ul><p class="contatore" data-cont>0 elementi ricevuti</p></div>
+
+  <div class="blocco"><h3>Output & risposta al Cliente</h3>
+    <p><b>Deliverable:</b> matrice rilievi + report periodici di avanzamento + minute CdS, fino al provvedimento.</p>
+    <textarea data-tpl>Spett.le X-Elio EMENA S.r.l.
+c.a. Responsabile di Progetto — [NOME]
+Oggetto: Contratto Attuativo n. [__] — Fattispecie D — Iniziativa "[NOME]" ([__] MW) — report avanzamento istruttoria n. [__]
+
+Stato dell'iter al [DATA]:
+— Risposta a integrazioni prot. [__]: [depositata il … / in revisione]
+— Conferenza dei Servizi: [convocata il … / conclusa — esito]
+— Richieste pendenti: [elenco enti e temi]
+— Prossime scadenze: [date]
+— Milestone contrattuale di riferimento: [n. — stato]
+
+Criticità e azioni proposte: [sintesi]
+
+Cordiali saluti
+rb.ftv — [NOME CONSULENTE]</textarea>
+    <div class="riga-azioni"><button class="btn-azione" data-copia>Copia risposta</button><span class="ok-copia">Copiato ✓</span></div>
+  </div>
+</section>
+
+<!-- ============ FATTISPECIE E ============ -->
+<section class="scheda" id="sE">
+  <h2>Fattispecie E — Istanza da presentare + assistenza fino al provvedimento</h2>
+  <p class="sotto">Come la fattispecie C (revisione integrale del fascicolo pre-deposito), più tutte le attività propedeutiche alla presentazione dell'istanza e l'assistenza continuativa fino al provvedimento conclusivo.</p>
+
+  <div class="blocco"><h3>Attività rb.ftv</h3><ul>
+    <li>Tutte le attività della fattispecie C (revisione fascicolo, catasto, procedimento, checklist depositabilità);</li>
+    <li>Supporto al deposito dell'istanza e alla verifica di procedibilità;</li>
+    <li>Presidio continuativo dell'istruttoria: integrazioni, CdS, interlocuzioni con gli enti (con personale X-Elio);</li>
+    <li>Gestione di ogni richiesta della P.A. fino all'emissione del provvedimento;</li>
+    <li>Reportistica periodica di avanzamento.</li>
+  </ul></div>
+
+  <div class="blocco"><h3>Compensi (Allegato 1 — €/MW)</h3>
+    <table><tr><th>Istanze 1–3</th><th>Istanze 4–6</th><th>Istanze 7–10</th><th>Istanze &gt; 10</th></tr>
+    <tr><td>€/MW 1.700</td><td>€/MW 1.600</td><td>€/MW 1.400</td><td>€/MW 1.100</td></tr></table>
+    <div class="avviso critico">È la fattispecie a maggior valore ma anche a maggior rischio-durata: stesse cautele della D (milestone intermedie + clausola di revisione temporale). Verificare che lo scomputo di corrispettivi A-C già erogati operi solo sulla medesima istanza.</div>
+  </div>
+
+  <div class="blocco"><h3>Input da richiedere al Cliente</h3><ul class="check" data-ck>
+    <li><input type="checkbox" id="cEa"><label for="cEa">Tutto l'input della fattispecie C (fascicolo, particellare, STMG, studi)</label></li>
+    <li><input type="checkbox" id="cEb"><label for="cEb">Potenza in MW (base di calcolo) e cronoprogramma target</label></li>
+    <li><input type="checkbox" id="cEc"><label for="cEc">Delega/accreditamento ai portali di deposito (senza potere di rappresentanza — art. 1)</label></li>
+    <li><input type="checkbox" id="cEd"><label for="cEd">Milestone di fatturazione concordate nell'Attuativo</label></li>
+  </ul><p class="contatore" data-cont>0 elementi ricevuti</p></div>
+
+  <div class="blocco"><h3>Output & risposta al Cliente</h3>
+    <p><b>Deliverable:</b> checklist di depositabilità + istanza depositata + report periodici fino al provvedimento.</p>
+    <textarea data-tpl>Spett.le X-Elio EMENA S.r.l.
+c.a. Responsabile di Progetto — [NOME]
+Oggetto: Contratto Attuativo n. [__] — Fattispecie E — Iniziativa "[NOME]" ([__] MW) — [esito revisione pre-deposito / report avanzamento n. __]
+
+[FASE 1 — PRE-DEPOSITO]
+Esito revisione fascicolo: [DEPOSITABILE / CON RISERVE] — istanza [TIPO] presso [AUTORITÀ], deposito previsto il [DATA].
+Rif. Relazione Go/No-Go aggiornata: procedimento confermato al §4, criticità e mitigazioni al §6, esito al §7.
+
+[FASE 2 — ISTRUTTORIA]
+— Procedibilità: [verificata il …]
+— Integrazioni richieste: [stato]
+— Conferenza dei Servizi: [stato]
+— Prossime scadenze: [date] — milestone di riferimento: [n.]
+
+Criticità e azioni: [sintesi]
+
+Cordiali saluti
+rb.ftv — [NOME CONSULENTE]</textarea>
+    <div class="riga-azioni"><button class="btn-azione" data-copia>Copia risposta</button><span class="ok-copia">Copiato ✓</span></div>
+  </div>
+</section>
+
+<!-- ============ TSO/DSO ============ -->
+<section class="scheda" id="sT">
+  <h2>Supporto TSO/DSO — Capacità residua in open season</h2>
+  <p class="sotto">Supporto nella valutazione della capacità residua presso le stazioni del TSO (Terna) / DSO in caso di open season, ai fini della connessione (art. 1.2).</p>
+
+  <div class="blocco"><h3>Attività rb.ftv</h3><ul>
+    <li>Analisi delle mappe di capacità e dei dati pubblicati da Terna/DSO per le stazioni di interesse;</li>
+    <li>Valutazione della capacità residua e del posizionamento delle iniziative del Cliente rispetto alla finestra di open season;</li>
+    <li>Supporto nella predisposizione della documentazione di partecipazione, nei termini della finestra;</li>
+    <li>Raccordo con l'inquadramento autorizzativo delle iniziative interessate (sinergia con fattispecie 1/2).</li>
+  </ul></div>
+
+  <div class="blocco"><h3>Compensi</h3>
+    <div class="avviso critico"><b>Nessuna tariffa autonoma nell'Allegato 1:</b> il servizio è remunerato solo se ricompreso in un Attuativo A-E. Se X-Elio lo richiede come attività a sé stante, <b>non avviare il lavoro</b> senza aver concordato il corrispettivo (proposta rb.ftv: importo fisso per stazione/nodo valutato, oppure tariffa giornaliera). V. Nota di negoziazione, punto 19.</div>
+  </div>
+
+  <div class="blocco"><h3>Input da richiedere al Cliente</h3><ul class="check" data-ck>
+    <li><input type="checkbox" id="cTa"><label for="cTa">Elenco stazioni/nodi di interesse e iniziative collegate</label></li>
+    <li><input type="checkbox" id="cTb"><label for="cTb">Finestra temporale dell'open season (avviso Terna/DSO)</label></li>
+    <li><input type="checkbox" id="cTc"><label for="cTc">Potenze richieste per iniziativa e STMG esistenti</label></li>
+    <li><input type="checkbox" id="cTd"><label for="cTd">Conferma scritta del corrispettivo (se fuori Attuativo A-E)</label></li>
+  </ul><p class="contatore" data-cont>0 elementi ricevuti</p></div>
+
+  <div class="blocco"><h3>Output & risposta al Cliente</h3>
+    <p><b>Deliverable:</b> nota di valutazione capacità per stazione/nodo con raccomandazione di partecipazione.</p>
+    <textarea data-tpl>Spett.le X-Elio EMENA S.r.l.
+c.a. Responsabile di Progetto — [NOME]
+Oggetto: Supporto valutazione capacità residua TSO/DSO — open season [RIF.] — stazioni [ELENCO]
+
+Trasmettiamo la valutazione della capacità residua per le stazioni in oggetto, in vista della finestra di open season [DATE].
+
+Sintesi per stazione:
+— [STAZIONE 1]: capacità residua [__] MW — raccomandazione: [PARTECIPARE / NON PARTECIPARE / APPROFONDIRE]
+— [STAZIONE 2]: …
+
+Nota contrattuale: trattandosi di attività [ricompresa nel Contratto Attuativo n. __ / non ricompresa in Attuativi in essere], [nessun corrispettivo aggiuntivo / si applica il corrispettivo concordato con Vs. conferma del __].
+
+Cordiali saluti
+rb.ftv — [NOME CONSULENTE]</textarea>
+    <div class="riga-azioni"><button class="btn-azione" data-copia>Copia risposta</button><span class="ok-copia">Copiato ✓</span></div>
+  </div>
+</section>
+
+<!-- ============ GO/NO-GO ============ -->
+<section class="scheda" id="sG">
+  <h2>Relazione Go / No-Go — strumento di lavoro rb.ftv</h2>
+  <p class="sotto">Deliverable standard con cui rb.ftv restituisce a X-Elio l'esito delle analisi vincolistiche (fattispecie 1 e 2) e delle verifiche di depositabilità (C/E). La Relazione la genera rb.ftv al termine dell'analisi del terreno, direttamente dallo <b>step Export</b> qui sotto: un documento unico, sempre uguale nella struttura §1–§7, così il cliente impara a leggerlo e a decidere in fretta.</p>
+
+  <div class="blocco"><h3>I tre esiti</h3>
+    <div class="gng">
+      <div class="go"><b>GO</b>Nessun vincolo ostativo; procedimento individuato; area idonea o compatibile. L'iniziativa può procedere al passo successivo.</div>
+      <div class="cond"><b>GO CONDIZIONATO</b>Criticità superabili con le mitigazioni indicate (riperimetrazione, variante di layout, titoli accessori). Procedere solo dopo le azioni elencate.</div>
+      <div class="nogo"><b>NO-GO</b>Vincolo ostativo o area non idonea senza mitigazione realistica. Sconsigliato investire ulteriormente sull'area; eventuali alternative segnalate.</div>
+    </div>
+  </div>
+
+  <div class="blocco"><h3>Struttura ufficiale della Relazione rb.ftv</h3><ul>
+    <li><b>§1 Anagrafica iniziativa</b> — committente, sito, potenza, tecnologia (FTV/Agri/BESS), particelle;</li>
+    <li><b>§2 Quadro vincolistico</b> — matrice vincoli (paesaggistici, ambientali, PAI, beni culturali, fasce di rispetto, usi civici) con fonte e distanza;</li>
+    <li><b>§3 Aree idonee</b> — inquadramento ex D.Lgs. 199/2021 / DM 21.06.2024 / legge regionale;</li>
+    <li><b>§4 Iter autorizzativo</b> — procedimento principale, titoli accessori, autorità competente, tempi attesi;</li>
+    <li><b>§5 Connessione</b> — stato STMG, capacità di rete (raccordo con supporto TSO/DSO);</li>
+    <li><b>§6 Criticità e mitigazioni</b> — tabella criticità → mitigazione → impatto residuo;</li>
+    <li><b>§7 Esito</b> — GO / GO CONDIZIONATO / NO-GO con motivazione sintetica e condizioni;</li>
+    <li><b>Allegati</b> — cartografie, estratti PRG/PPR, visure.</li>
+  </ul>
+  <div class="avviso">Questa numerazione è quella richiamata nei template di risposta delle fattispecie 1, 2, C ed E: non modificarla senza aggiornare anche i template. Il modello compilabile riutilizzabile è salvato nel progetto in <b>templates/go-no-go_xelio.md</b> (con versione Word in <b>templates/go-no-go_xelio.docx</b>).</div></div>
+
+  <div class="blocco"><h3>Step Export — genera la Relazione per la nuova iniziativa</h3>
+    <p>Compila i campi noti al termine dell'analisi del terreno e genera la bozza di Relazione: i dati mancanti restano come [SEGNAPOSTO] da completare nel file editabile.</p>
+    <div class="campi">
+      <div><label for="gIniziativa">Nome iniziativa</label><input type="text" id="gIniziativa" placeholder="es. BESS Montalto 01"></div>
+      <div><label for="gComune">Comune (Prov.)</label><input type="text" id="gComune" placeholder="es. Montalto di Castro (VT)"></div>
+      <div><label for="gTecnologia">Tecnologia</label><select id="gTecnologia"><option>BESS</option><option>FTV a terra</option><option>Agrivoltaico</option></select></div>
+      <div><label for="gPotenza">Potenza (MW / MWp)</label><input type="text" id="gPotenza" placeholder="es. 50 MW"></div>
+      <div><label for="gSuperficie">Superficie (ha)</label><input type="text" id="gSuperficie" placeholder="es. 8,5"></div>
+      <div><label for="gParticelle">Particelle catastali</label><input type="text" id="gParticelle" placeholder="Fg. __ part. __, …"></div>
+      <div><label for="gFattispecie">Fattispecie Attuativo</label><select id="gFattispecie"><option>1 — BESS</option><option>2 — FTV / Agri-FTV</option><option>C — Istanza da presentare</option><option>E — Istanza + iter</option></select></div>
+      <div><label for="gAttuativo">Contratto Attuativo n.</label><input type="text" id="gAttuativo" placeholder="es. 03/2026"></div>
+      <div><label for="gProcedimento">Procedimento individuato (§4)</label><input type="text" id="gProcedimento" placeholder="AU / PAS / art. 6-quater / screening VIA"></div>
+      <div><label for="gEsito">Esito (§7)</label><select id="gEsito"><option>GO</option><option>GO CONDIZIONATO</option><option>NO-GO</option></select></div>
+      <div class="campo-largo"><label for="gMotivazione">Motivazione sintetica dell'esito / condizioni (§7)</label><input type="text" id="gMotivazione" placeholder="es. area idonea, nessun vincolo ostativo; condizioni: …"></div>
+    </div>
+    <div class="riga-azioni">
+      <button class="btn-azione" id="gGenera">Genera Relazione (export)</button>
+      <button class="btn-azione sec" id="gScarica" disabled>Scarica .md editabile</button>
+      <button class="btn-azione sec" id="gCopiaRel" disabled>Copia testo</button>
+      <span class="ok-copia" id="gOk">Fatto ✓</span>
+    </div>
+    <textarea id="gOut" style="margin-top:10px;min-height:260px" placeholder="La bozza di Relazione Go/No-Go compilata comparirà qui…" readonly></textarea>
+  </div>
+
+  <div class="blocco"><h3>Autocontrollo pre-consegna (obbligatorio prima dell'invio)</h3>
+    <ul class="check" data-ck data-label="controlli superati" data-done="autocontrollo completo, la Relazione può essere consegnata">
+      <li><input type="checkbox" id="q1"><label for="q1">§1 — Anagrafica completa: committente, sito, potenza, tecnologia e particelle coincidono con l'input del Cliente</label></li>
+      <li><input type="checkbox" id="q2"><label for="q2">§2 — Ogni vincolo in matrice ha fonte normativa/cartografica e distanza dall'area; nessuna riga "da verificare" residua</label></li>
+      <li><input type="checkbox" id="q3"><label for="q3">§3 — Verifica aree idonee con riferimento puntuale a D.Lgs. 199/2021, DM 21.06.2024 e legge regionale applicabile</label></li>
+      <li><input type="checkbox" id="q4"><label for="q4">§4 — Procedimento principale, titoli accessori, autorità competente e tempi attesi indicati e coerenti col §2 e §3</label></li>
+      <li><input type="checkbox" id="q5"><label for="q5">§5 — Stato connessione/STMG aggiornato all'ultima comunicazione disponibile</label></li>
+      <li><input type="checkbox" id="q6"><label for="q6">§6 — Ogni criticità ha una mitigazione e un impatto residuo; le criticità citate nei template di risposta esistono in tabella</label></li>
+      <li><input type="checkbox" id="q7"><label for="q7">§7 — Esito coerente con §§2–6; se GO CONDIZIONATO, le condizioni sono elencate ed azionabili; se NO-GO, indicate eventuali alternative</label></li>
+      <li><input type="checkbox" id="q8"><label for="q8">Allegati — cartografie, estratti PRG/PPR e visure richiamati nel testo e presenti nel pacchetto di consegna</label></li>
+      <li><input type="checkbox" id="q9"><label for="q9">Perimetro art. 4 — la Relazione revisiona elaborati di terzi, non contiene progettazione/ingegneria a firma rb.ftv</label></li>
+      <li><input type="checkbox" id="q10"><label for="q10">Consegna in <b>formato editabile</b> (art. 2.6) — file .md/.docx, non solo PDF</label></li>
+      <li><input type="checkbox" id="q11"><label for="q11">Richiesta formale di <b>attestazione di regolare esecuzione entro 10 giorni</b> inclusa nella mail di trasmissione (art. 3.4 — condiziona la maturazione del compenso)</label></li>
+    </ul><p class="contatore" data-cont>0 controlli superati</p></div>
+
+  <div class="blocco"><h3>Regole d'uso contrattuali</h3><ul>
+    <li>Consegna sempre in <b>formato editabile</b> (obbligo art. 2.6 dell'Accordo Quadro);</li>
+    <li>La relazione <b>revisiona</b> studi specialistici di terzi ma non ne assume la paternità tecnica (art. 4: progettazione e ingegneria escluse);</li>
+    <li>Alla consegna, chiedere formalmente l'<b>attestazione di regolare esecuzione</b> (condizione di maturazione del compenso ex art. 3.4);</li>
+    <li>Archiviare data di consegna e protocollo: fa fede per milestone e fatturazione (30 gg d.f. f.m.).</li>
+  </ul></div>
+</section>
+
+</main>
+</div>
+
+<footer>rb.ftv · Step X-Elio — strumento interno di lavoro del consulente · Compensi da Allegato 1 della bozza di Accordo Quadro (REV 24.07.2026, non ancora sottoscritta: verificare la versione firmata prima dell'uso verso il cliente) · Le checklist non vengono salvate alla chiusura della pagina.</footer>
+
+<script>
+  // Navigazione a bottoni
+  var bottoni = document.querySelectorAll('.btn-serv');
+  bottoni.forEach(function(b){
+    b.addEventListener('click', function(){
+      bottoni.forEach(function(x){x.classList.remove('attivo')});
+      b.classList.add('attivo');
+      document.querySelectorAll('.scheda').forEach(function(s){s.classList.remove('visibile')});
+      document.getElementById(b.dataset.s).classList.add('visibile');
+      window.scrollTo({top:0,behavior:'smooth'});
+    });
+  });
+  // Contatori checklist (solo in memoria)
+  document.querySelectorAll('[data-ck]').forEach(function(ul){
+    var cont = ul.parentElement.querySelector('[data-cont]');
+    var tot = ul.querySelectorAll('input').length;
+    var label = ul.dataset.label || 'elementi ricevuti';
+    var done = ul.dataset.done || 'input completo, si può partire';
+    ul.addEventListener('change', function(){
+      var n = ul.querySelectorAll('input:checked').length;
+      cont.textContent = n + ' su ' + tot + ' ' + label + (n===tot ? ' — ' + done + ' ✓' : '');
+      cont.style.color = (n===tot) ? '#2E7D32' : '';
+      cont.style.fontWeight = (n===tot) ? '600' : '';
+    });
+  });
+  // Copia template
+  document.querySelectorAll('[data-copia]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var ta = btn.closest('.blocco').querySelector('[data-tpl]');
+      ta.select();
+      try { document.execCommand('copy'); } catch(e) {}
+      if (navigator.clipboard) { navigator.clipboard.writeText(ta.value).catch(function(){}); }
+      var ok = btn.parentElement.querySelector('.ok-copia');
+      ok.classList.add('mostra');
+      setTimeout(function(){ok.classList.remove('mostra')},1800);
+    });
+  });
+
+  // Step Export — generatore Relazione Go/No-Go
+  function gVal(id, seg){
+    var v = document.getElementById(id).value.trim();
+    return v || seg;
+  }
+  function gFlash(){
+    var ok = document.getElementById('gOk');
+    ok.classList.add('mostra');
+    setTimeout(function(){ok.classList.remove('mostra')},1800);
+  }
+  document.getElementById('gGenera').addEventListener('click', function(){
+    var oggi = new Date().toLocaleDateString('it-IT');
+    var iniz = gVal('gIniziativa','[NOME INIZIATIVA]');
+    var comune = gVal('gComune','[COMUNE (PROV)]');
+    var tecno = document.getElementById('gTecnologia').value;
+    var pot = gVal('gPotenza','[POTENZA]');
+    var sup = gVal('gSuperficie','[SUPERFICIE ha]');
+    var part = gVal('gParticelle','[FG./PARTICELLE]');
+    var fatt = document.getElementById('gFattispecie').value;
+    var att = gVal('gAttuativo','[N. ATTUATIVO]');
+    var proc = gVal('gProcedimento','[AU / PAS / art. 6-quater / screening VIA]');
+    var esito = document.getElementById('gEsito').value;
+    var motiv = gVal('gMotivazione','[MOTIVAZIONE SINTETICA / CONDIZIONI]');
+    var txt =
+'# RELAZIONE GO / NO-GO — rb.ftv\n' +
+'**Iniziativa:** "' + iniz + '" — ' + comune + '\n' +
+'**Committente:** X-Elio Europe Middle East & North Africa S.r.l.\n' +
+'**Contratto Attuativo n.:** ' + att + ' — **Fattispecie:** ' + fatt + '\n' +
+'**Data:** ' + oggi + ' — **Rev.:** 00 — **Redatta da:** [NOME CONSULENTE] (rb.ftv)\n\n' +
+'---\n\n' +
+'## §1 Anagrafica iniziativa\n' +
+'| Campo | Valore |\n|---|---|\n' +
+'| Committente | X-Elio EMENA S.r.l. |\n' +
+'| Sito | ' + comune + ' |\n' +
+'| Tecnologia | ' + tecno + ' |\n' +
+'| Potenza | ' + pot + ' |\n' +
+'| Superficie | ' + sup + ' ha |\n' +
+'| Particelle catastali | ' + part + ' |\n' +
+'| Titolo di disponibilità aree | [OPZIONE / PRELIMINARE / ESPROPRIO] |\n\n' +
+'## §2 Quadro vincolistico\n' +
+'| Vincolo | Presente | Fonte | Distanza dall\'area | Note |\n|---|---|---|---|---|\n' +
+'| Paesaggistico (art. 136/142 D.Lgs. 42/2004) | [SÌ/NO] | [PPR/decreto] | [m/km] | [ ] |\n' +
+'| Ambientale (SIC/ZSC/ZPS, IBA, parchi) | [SÌ/NO] | [FONTE] | [m/km] | [ ] |\n' +
+'| Idrogeologico (PAI/PGRA) | [SÌ/NO] | [FONTE] | [m/km] | [ ] |\n' +
+'| Beni culturali / archeologico | [SÌ/NO] | [FONTE] | [m/km] | [ ] |\n' +
+'| Fasce di rispetto (strade, elettrodotti, metanodotti, aeroporti) | [SÌ/NO] | [FONTE] | [m/km] | [ ] |\n' +
+'| Usi civici | [SÌ/NO] | [FONTE] | [m/km] | [ ] |\n' +
+'| Aree agricole di pregio / DOP-IGP | [SÌ/NO] | [FONTE] | [m/km] | [ ] |\n\n' +
+'## §3 Aree idonee\n' +
+'Inquadramento ex D.Lgs. 199/2021, DM 21.06.2024 e legge regionale [RIF. L.R.]: **[IDONEA / NON IDONEA / PARZIALE]**\n' +
+'[MOTIVAZIONE E RIFERIMENTI CARTOGRAFICI]\n\n' +
+'## §4 Iter autorizzativo\n' +
+'- Procedimento principale: **' + proc + '**\n' +
+'- Autorità competente: [MASE / REGIONE / PROVINCIA / COMUNE]\n' +
+'- Titoli accessori: [ELENCO]\n' +
+'- Tempi attesi: [MESI]\n\n' +
+'## §5 Connessione\n' +
+'- Stato STMG: [RICHIESTA / ACCETTATA il __ / DA RICHIEDERE]\n' +
+'- Capacità di rete / open season: [NOTE — raccordo supporto TSO/DSO]\n\n' +
+'## §6 Criticità e mitigazioni\n' +
+'| # | Criticità | Mitigazione | Impatto residuo |\n|---|---|---|---|\n' +
+'| 1 | [CRITICITÀ] | [MITIGAZIONE] | [ALTO/MEDIO/BASSO] |\n\n' +
+'## §7 Esito\n' +
+'**' + esito + '** — ' + motiv + '\n' +
+(esito === 'GO CONDIZIONATO' ? 'Condizioni da soddisfare prima di procedere:\n1. [CONDIZIONE]\n\n' : '') +
+(esito === 'NO-GO' ? 'Eventuali aree alternative segnalate: [ALTERNATIVE / NESSUNA]\n\n' : '\n') +
+'## Allegati\n' +
+'A1 — Cartografie (inquadramento, vincoli)\nA2 — Estratti PRG/PPR\nA3 — Visure e mappali\n\n' +
+'---\n' +
+'*Documento consegnato in formato editabile ai sensi dell\'art. 2.6 dell\'Accordo Quadro. La presente Relazione revisiona elaborati e analisi di terzi e non costituisce attività di progettazione o ingegneria (art. 4). Si richiede attestazione di regolare esecuzione entro 10 giorni dalla consegna (art. 3.4).*\n';
+    var out = document.getElementById('gOut');
+    out.value = txt;
+    document.getElementById('gScarica').disabled = false;
+    document.getElementById('gCopiaRel').disabled = false;
+    gFlash();
+  });
+  document.getElementById('gScarica').addEventListener('click', function(){
+    var iniz = gVal('gIniziativa','iniziativa');
+    var nome = 'go-no-go_' + iniz.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') + '.md';
+    var blob = new Blob([document.getElementById('gOut').value], {type:'text/markdown;charset=utf-8'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nome;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
+    gFlash();
+  });
+  document.getElementById('gCopiaRel').addEventListener('click', function(){
+    var out = document.getElementById('gOut');
+    out.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    if (navigator.clipboard) { navigator.clipboard.writeText(out.value).catch(function(){}); }
+    gFlash();
+  });
+</script>
+</body>
+</html>
