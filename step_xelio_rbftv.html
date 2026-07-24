@@ -99,6 +99,8 @@
   <button class="btn-serv" data-s="sE">Fattispecie E — Istanza + iter <span class="tag mw">€/MW</span><small>Fino al provvedimento conclusivo</small></button>
   <h2>Rete</h2>
   <button class="btn-serv" data-s="sT">Supporto TSO/DSO — Open season <span class="tag nd">da quotare</span><small>Capacità residua stazioni</small></button>
+  <h2>Checklist regionali</h2>
+  <button class="btn-serv" data-s="sR">AU Campania — All. A-02 <small>Contenuti minimi progetto definitivo</small></button>
   <h2>Metodo</h2>
   <button class="btn-serv" data-s="sG">Relazione Go / No-Go <small>Strumento di lavoro standard rb.ftv</small></button>
 </nav>
@@ -171,7 +173,7 @@ rb.ftv — [NOME CONSULENTE]</textarea>
   <div class="blocco"><h3>Compensi (Allegato 1 — per istanza, decrescenti con il numero di istanze)</h3>
     <table><tr><th>Istanze 1–3</th><th>Istanze 4–6</th><th>Istanze 7–10</th><th>Istanze &gt; 10</th></tr>
     <tr><td>€ 600</td><td>€ 750</td><td>€ 900</td><td>€ 1.500</td></tr></table>
-    <div class="avviso">Nota: nella tabella contrattuale gli importi <b>crescono</b> con il numero di istanze (600 → 1.500), mentre l'intestazione parla di meccanismo di riduzione: incongruenza da chiarire con il Cliente prima della firma dell'Attuativo (v. Nota di negoziazione).</div>
+    <div class="avviso">La SOW firmata (rev. 2) conferma questi importi, <b>crescenti</b> con il numero di istanze (600 → 1.500): la tabella sottoscritta è quella vigente e prevale su ogni precedente nota di negoziazione sul punto.</div>
   </div>
 
   <div class="blocco"><h3>Input da richiedere al Cliente</h3><ul class="check" data-ck>
@@ -314,6 +316,7 @@ rb.ftv — [NOME CONSULENTE]</textarea>
     <table><tr><th>Istanze 1–3</th><th>Istanze 4–6</th><th>Istanze 7–10</th><th>Istanze &gt; 10</th></tr>
     <tr><td>€ 3.000</td><td>€ 3.000</td><td>€ 2.500</td><td>€ 2.500</td></tr></table>
     <div class="avviso">L'incarico si ferma al supporto per l'avvio dell'iter: <b>non</b> comprende l'assistenza continuativa durante l'istruttoria (quella è fattispecie E). Se il Cliente chiede di proseguire: passaggio a D/E con scomputo di quanto già erogato (clausola g).</div>
+    <div class="avviso">Per istanze di <b>Autorizzazione Unica in Regione Campania</b>: verificare il fascicolo anche contro la checklist dei contenuti minimi dell'Allegato A-02 (scheda "AU Campania — All. A-02").</div>
   </div>
 
   <div class="blocco"><h3>Input da richiedere al Cliente</h3><ul class="check" data-ck>
@@ -410,6 +413,7 @@ rb.ftv — [NOME CONSULENTE]</textarea>
     <table><tr><th>Istanze 1–3</th><th>Istanze 4–6</th><th>Istanze 7–10</th><th>Istanze &gt; 10</th></tr>
     <tr><td>€/MW 1.700</td><td>€/MW 1.600</td><td>€/MW 1.400</td><td>€/MW 1.100</td></tr></table>
     <div class="avviso critico">È la fattispecie a maggior valore ma anche a maggior rischio-durata: stesse cautele della D (milestone intermedie + clausola di revisione temporale). Verificare che lo scomputo di corrispettivi A-C già erogati operi solo sulla medesima istanza.</div>
+    <div class="avviso">Per istanze di <b>Autorizzazione Unica in Regione Campania</b>: prima del deposito, passare il fascicolo contro la checklist dell'Allegato A-02 (scheda "AU Campania — All. A-02").</div>
   </div>
 
   <div class="blocco"><h3>Input da richiedere al Cliente</h3><ul class="check" data-ck>
@@ -484,6 +488,51 @@ Cordiali saluti
 rb.ftv — [NOME CONSULENTE]</textarea>
     <div class="riga-azioni"><button class="btn-azione" data-copia>Copia risposta</button><span class="ok-copia">Copiato ✓</span></div>
   </div>
+</section>
+
+<!-- ============ AU CAMPANIA — ALLEGATO A-02 ============ -->
+<section class="scheda" id="sR">
+  <h2>AU Campania — Requisiti minimi del progetto definitivo (Allegato A-02)</h2>
+  <p class="sotto">Contenuti minimi del progetto definitivo da allegare alla domanda di Autorizzazione Unica ex art. 12 D.Lgs. 387/2003 in Regione Campania (livello definitivo ex artt. 24–32 D.P.R. 207/2010). Da usare come griglia di verifica del fascicolo nelle fattispecie C ed E per istanze campane.</p>
+
+  <div class="blocco"><h3>Modalità di presentazione</h3><ul>
+    <li>Progetto definitivo comprensivo di: opere di connessione alla rete, altre infrastrutture indispensabili, lavori di dismissione e ripristino dei luoghi allo stato antecedente;</li>
+    <li>Consegna in <b>formato cartaceo originale + formato digitale</b> alla Giunta Regionale — D.G. Sviluppo Economico e Attività Produttive, U.O.D. Energia (500203);</li>
+    <li>La documentazione digitale è resa consultabile agli Enti del procedimento sul portale SID di Sviluppo Campania.</li>
+  </ul></div>
+
+  <div class="blocco"><h3>Checklist elaborati (contenuti minimi rilevanti per FTV / Agri-FTV / BESS)</h3>
+  <ul class="check" data-ck data-label="elaborati verificati" data-done="fascicolo completo rispetto all'Allegato A-02">
+    <li><input type="checkbox" id="r01"><label for="r01"><b>01 Relazione generale</b> — criteri delle scelte progettuali e inserimento territoriale; geologia, topografia, idrologia/idrogeologia, strutture e geotecnica, interferenze, espropri, paesaggio, ambiente, beni storico-artistici e archeologici; idoneità reti esterne; interferenze con reti aeree/sotterranee e soluzioni</label></li>
+    <li><input type="checkbox" id="r02"><label for="r02"><b>02 Relazione tecnica</b> — dati del proponente; scelta tecnologica e producibilità attesa; descrizione intervento, fasi, tempi e modalità di esecuzione; computo metrico estimativo</label></li>
+    <li><input type="checkbox" id="r03"><label for="r03"><b>02 Dismissione</b> — stima vita utile, modalità di dismissione/smaltimento con computo/stima dei costi; impegno alla dismissione e ripristino con <b>cauzione a garanzia</b> (fideiussione bancaria o assicurativa parametrata ai costi)</label></li>
+    <li><input type="checkbox" id="r04"><label for="r04"><b>02 Analisi economiche</b> — calcolo dei proventi annui (incentivi vigenti × producibilità); ricadute sociali, occupazionali ed economiche locali per impianti &gt; 1 MW</label></li>
+    <li><input type="checkbox" id="r05"><label for="r05"><b>03 Relazione geologica</b> — con planimetria ubicazione indagini; carta geologica, geomorfologica e dei dissesti in scala 1:5.000</label></li>
+    <li><input type="checkbox" id="r06"><label for="r06"><b>03 Relazione idrologica, idrogeologica e idraulica</b> — con carta idrogeologica e della vulnerabilità 1:5.000</label></li>
+    <li><input type="checkbox" id="r07"><label for="r07"><b>03 Relazione strutture</b> — tipologie strutturali, schemi e modelli di calcolo (stato di fatto per opere esistenti)</label></li>
+    <li><input type="checkbox" id="r08"><label for="r08"><b>03 Indagini geognostiche + relazione geotecnica e strutturale</b> per le fondazioni; in zona sismica: analisi di risposta sismica locale</label></li>
+    <li><input type="checkbox" id="r09"><label for="r09"><b>03 Relazione acustica</b> (tecnico abilitato) — rispetto limiti verso i recettori sensibili</label></li>
+    <li><input type="checkbox" id="r10"><label for="r10"><b>03 Relazione elettromagnetica</b> (tecnico abilitato) — rispetto limiti verso i recettori sensibili</label></li>
+    <li><input type="checkbox" id="r11"><label for="r11"><b>03 Relazione faunistica e floristica</b>; relazione archeologica ove prevista; relazione tecnico-impiantistica</label></li>
+    <li><input type="checkbox" id="r12"><label for="r12"><b>04 Rilievo topografico</b></label></li>
+    <li><input type="checkbox" id="r13"><label for="r13"><b>05 Rilievo fotografico</b> — condizioni del sito ante-intervento + planimetria dei punti di scatto</label></li>
+    <li><input type="checkbox" id="r14"><label for="r14"><b>06 Cartografia CTR 1:10.000</b> — perimetro impianto, confini e distanze da recettori ambientali (aree protette, Rete Natura 2000, ZPS/SIC, vincolo paesaggistico, idrogeologico RD 3267/23, fasce PAI, fasce reticolo idrico r.d. 523/1904, aree inedificabili) e <b>distanze delle abitazioni</b></label></li>
+    <li><input type="checkbox" id="r15"><label for="r15"><b>06 Stralcio urbanistico + N.T.A.</b>; planimetria ≥ 1:500 con strade e costruzioni confinanti</label></li>
+    <li><input type="checkbox" id="r16"><label for="r16"><b>06 Sezioni</b> (min. 2, trasversali e longitudinali, ≥ 1:200 altezze / 1:2.000 lunghezze) — profili ante/post, quote, sterri e riporti per area impianto e piste di accesso</label></li>
+    <li><input type="checkbox" id="r17"><label for="r17"><b>06 Elaborati strutturali e impiantistici</b> — planimetrie e sezioni quotate (1:100 / 1:50), cavidotti con sezione tipo e ancoraggi (1:100 / 1:10), particolari tipo (1:20); schemi funzionali e dimensionamento; reti esterne con norme di sicurezza</label></li>
+    <li><input type="checkbox" id="r18"><label for="r18"><b>07 Piano particellare di esproprio</b> (ove previsto) — estratto mappa 1:2.000 con mappali e visure alla data dell'istanza; avvisi di avvio del procedimento ex art. 11 D.P.R. 327/2001</label></li>
+    <li><input type="checkbox" id="r19"><label for="r19"><b>08 Autocertificazione camerale</b>; documento d'identità del proponente; dichiarazione di composizione societaria / documentazione antimafia (art. 67 D.Lgs. 159/2011)</label></li>
+    <li><input type="checkbox" id="r20"><label for="r20"><b>08 Connessione</b> — riscontro della domanda di allacciamento al Gestore di rete e <b>preventivo di connessione accettato</b> dal proponente (STMG)</label></li>
+    <li><input type="checkbox" id="r21"><label for="r21"><b>08 Titoli di disponibilità delle aree</b> (obbligo esplicito per FTV) — copie conformi di titoli registrati (superficie, usufrutto, preliminari registrati, proprietà, affitto); se necessaria: richiesta di pubblica utilità + vincolo preordinato all'esproprio con piano particellare</label></li>
+    <li><input type="checkbox" id="r22"><label for="r22"><b>08 Relazione paesistica</b>; eventuale documentazione di settore per autorizzazioni/nulla osta confluenti nell'AU</label></li>
+    <li><input type="checkbox" id="r23"><label for="r23"><b>08 Elenco autorizzazioni, valutazioni, pareri e assensi</b> necessari, con indicazione delle Amministrazioni preposte (impianto + opere di connessione)</label></li>
+  </ul><p class="contatore" data-cont>0 elaborati verificati</p></div>
+
+  <div class="blocco"><h3>Note d'uso</h3><ul>
+    <li>La checklist è filtrata per le tecnologie rb.ftv/X-Elio (FTV, Agri-FTV, BESS): l'Allegato A-02 contiene ulteriori requisiti specifici per eolico (anemometria, gittata massima, distanze aerogeneratori, elaborati DGR 532/2016, oneri istruttori 0,03%), biomasse/biometano (provenienza risorsa, pedologia DD 69/2020, ISO 9001/14001 per FORSU) e idroelettrico (concessione di derivazione), qui omessi;</li>
+    <li>Per <b>BESS stand-alone</b> il modello A-02 nasce per impianti di produzione FER ex art. 12 D.Lgs. 387/2003: verificare con l'Autorità Competente l'applicabilità e gli adattamenti richiesti;</li>
+    <li>Esito della verifica da riportare nella <b>checklist di depositabilità</b> (fattispecie C/E) e nel §4 della Relazione Go/No-Go.</li>
+  </ul></div>
 </section>
 
 <!-- ============ GO/NO-GO ============ -->
@@ -561,7 +610,7 @@ rb.ftv — [NOME CONSULENTE]</textarea>
 </main>
 </div>
 
-<footer>rb.ftv · Step X-Elio — strumento interno di lavoro del consulente · Compensi da Allegato 1 della bozza di Accordo Quadro (REV 24.07.2026, non ancora sottoscritta: verificare la versione firmata prima dell'uso verso il cliente) · Le checklist non vengono salvate alla chiusura della pagina.</footer>
+<footer>rb.ftv · Step X-Elio — strumento interno di lavoro del consulente · Compensi allineati alla SOW assistenza sviluppo rev. 2 <b>firmata</b> (verificati sul documento sottoscritto) · Requisiti AU Campania da Allegato A-02 (fonte BURC) · Le checklist non vengono salvate alla chiusura della pagina.</footer>
 
 <script>
   // Navigazione a bottoni
