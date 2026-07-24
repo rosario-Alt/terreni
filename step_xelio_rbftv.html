@@ -103,6 +103,7 @@
   <button class="btn-serv" data-s="sR">AU Campania — All. A-02 <small>Contenuti minimi progetto definitivo</small></button>
   <h2>Metodo</h2>
   <button class="btn-serv" data-s="sG">Relazione Go / No-Go <small>Strumento di lavoro standard rb.ftv</small></button>
+  <button class="btn-serv" data-s="sX">Documenti &amp; Export <small>Effetto cumulo, tavole, PAUR, rilievi, avanzamento</small></button>
 </nav>
 
 <main>
@@ -607,6 +608,46 @@ rb.ftv — [NOME CONSULENTE]</textarea>
   </ul></div>
 </section>
 
+<!-- ============ DOCUMENTI & EXPORT ============ -->
+<section class="scheda" id="sX">
+  <h2>Documenti &amp; Export — generatore rb.ftv</h2>
+  <p class="sotto">Tutti i documenti che rb.ftv allega alle mail verso X-Elio, generati da un'unica anagrafica: compila una volta i dati dell'iniziativa, scegli il documento e scaricalo in formato editabile. La Relazione Go/No-Go si genera invece dalla scheda "Relazione Go / No-Go".</p>
+
+  <div class="blocco"><h3>Anagrafica iniziativa (comune a tutti i documenti)</h3>
+    <div class="campi">
+      <div><label for="xIniziativa">Nome iniziativa</label><input type="text" id="xIniziativa" placeholder="es. FTV Capaccio 02"></div>
+      <div><label for="xComune">Comune (Prov.)</label><input type="text" id="xComune" placeholder="es. Capaccio Paestum (SA)"></div>
+      <div><label for="xTecnologia">Tecnologia</label><select id="xTecnologia"><option>FTV a terra</option><option>Agrivoltaico</option><option>BESS</option></select></div>
+      <div><label for="xPotenza">Potenza (MW / MWp)</label><input type="text" id="xPotenza" placeholder="es. 40 MWp"></div>
+      <div><label for="xAttuativo">Contratto Attuativo n.</label><input type="text" id="xAttuativo" placeholder="es. 03/2026"></div>
+      <div><label for="xFattispecie">Fattispecie</label><select id="xFattispecie"><option>1 — BESS</option><option>2 — FTV / Agri-FTV</option><option>A — Integrazione complessa</option><option>B — Integrazione tematica</option><option>C — Istanza da presentare</option><option>D — Integrazioni + iter</option><option>E — Istanza + iter</option></select></div>
+      <div><label for="xAutorita">Autorità competente</label><input type="text" id="xAutorita" placeholder="es. Regione Campania"></div>
+      <div><label for="xProt">Protocollo di riferimento</label><input type="text" id="xProt" placeholder="es. prot. 12345 del …"></div>
+    </div>
+  </div>
+
+  <div class="blocco"><h3>Genera documento</h3>
+    <div class="campi">
+      <div class="campo-largo"><label for="xDoc">Documento da generare</label>
+        <select id="xDoc">
+          <option value="cumulo">Report effetto cumulo</option>
+          <option value="tavole">Elenco tavole/elaborati — matrice di revisione</option>
+          <option value="paur">Dossier istanza PAUR (art. 27-bis D.Lgs. 152/2006)</option>
+          <option value="rilievi">Matrice rilievi — risposta a richiesta integrazioni</option>
+          <option value="stato">Report avanzamento istruttoria</option>
+        </select></div>
+    </div>
+    <div class="riga-azioni">
+      <button class="btn-azione" id="xGenera">Genera documento</button>
+      <button class="btn-azione sec" id="xScarica" disabled>Scarica .md editabile</button>
+      <button class="btn-azione sec" id="xCopia" disabled>Copia testo</button>
+      <span class="ok-copia" id="xOk">Fatto ✓</span>
+    </div>
+    <textarea id="xOut" style="margin-top:10px;min-height:260px" placeholder="La bozza del documento selezionato comparirà qui…" readonly></textarea>
+    <div class="avviso">Le <b>tavole di progetto</b> (elaborati grafici, CAD) sono prodotte dai developer del Cliente: l'art. 4 dell'Accordo esclude progettazione e ingegneria. Il tool genera la <b>matrice di revisione</b> delle tavole, non i disegni. Ogni documento esce con i [SEGNAPOSTO] da completare nel file editabile.</div>
+  </div>
+</section>
+
 </main>
 </div>
 
@@ -745,6 +786,144 @@ rb.ftv — [NOME CONSULENTE]</textarea>
     try { document.execCommand('copy'); } catch(e) {}
     if (navigator.clipboard) { navigator.clipboard.writeText(out.value).catch(function(){}); }
     gFlash();
+  });
+
+  // Documenti & Export — generatori multipli
+  function xVal(id, seg){
+    var v = document.getElementById(id).value.trim();
+    return v || seg;
+  }
+  function xFlash(){
+    var ok = document.getElementById('xOk');
+    ok.classList.add('mostra');
+    setTimeout(function(){ok.classList.remove('mostra')},1800);
+  }
+  function slugFile(prefisso, nome){
+    return prefisso + '_' + nome.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'') + '.md';
+  }
+  function scaricaMd(nomeFile, testo){
+    var blob = new Blob([testo], {type:'text/markdown;charset=utf-8'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nomeFile;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
+  }
+  function xTesta(titolo){
+    var oggi = new Date().toLocaleDateString('it-IT');
+    return '# ' + titolo + ' — rb.ftv\n' +
+      '**Iniziativa:** "' + xVal('xIniziativa','[NOME INIZIATIVA]') + '" — ' + xVal('xComune','[COMUNE (PROV)]') + '\n' +
+      '**Committente:** X-Elio Europe Middle East & North Africa S.r.l.\n' +
+      '**Tecnologia:** ' + document.getElementById('xTecnologia').value + ' — **Potenza:** ' + xVal('xPotenza','[POTENZA]') + '\n' +
+      '**Contratto Attuativo n.:** ' + xVal('xAttuativo','[N. ATTUATIVO]') + ' — **Fattispecie:** ' + document.getElementById('xFattispecie').value + '\n' +
+      '**Autorità competente:** ' + xVal('xAutorita','[AUTORITÀ]') + ' — **Rif.:** ' + xVal('xProt','[PROT./RIF.]') + '\n' +
+      '**Data:** ' + oggi + ' — **Rev.:** 00 — **Redatto da:** [NOME CONSULENTE] (rb.ftv)\n\n---\n\n';
+  }
+  var xPiede = '\n---\n' +
+    '*Documento consegnato in formato editabile ai sensi dell’art. 2.6 dell’Accordo Quadro. rb.ftv revisiona elaborati e analisi predisposti da terzi e non svolge attività di progettazione o ingegneria (art. 4). Si richiede attestazione di regolare esecuzione entro 10 giorni dalla consegna (art. 3.4).*\n';
+
+  var xDocumenti = {
+    cumulo: { prefisso: 'effetto-cumulo', titolo: 'REPORT EFFETTO CUMULO', corpo: function(){
+      return '## 1 Oggetto e finalità\n' +
+        'Valutazione dell’effetto cumulo dell’iniziativa con gli impianti FER esistenti, autorizzati e in iter nell’area vasta, ai sensi delle Linee Guida DM 10.09.2010 (All. 4), del D.Lgs. 152/2006 e dei criteri regionali [RIF. NORMATIVA REGIONALE].\n\n' +
+        '## 2 Metodologia\n' +
+        '- Raggio di indagine: [__] km (cumulo paesaggistico-visivo) / [__] km (cumulo ambientale)\n' +
+        '- Fonti censimento: [GSE Atlaimpianti / portale regionale / Terna Econnextion / ortofoto / sopralluoghi di terzi]\n' +
+        '- Data di aggiornamento del censimento: [DATA]\n\n' +
+        '## 3 Censimento impianti nell’area vasta\n' +
+        '| # | Denominazione | Tecnologia | Potenza | Distanza | Stato | Fonte |\n|---|---|---|---|---|---|---|\n' +
+        '| 1 | [IMPIANTO] | [FTV/EOLICO/BESS] | [MW] | [km] | [ESISTENTE/AUTORIZZATO/IN ITER] | [FONTE] |\n' +
+        '| 2 | [IMPIANTO] | […] | […] | […] | […] | […] |\n\n' +
+        '## 4 Valutazione del cumulo paesaggistico-visivo\n' +
+        '[ANALISI: intervisibilità, bacino visivo, saturazione percettiva — rinvio a fotoinserimenti/carte di intervisibilità predisposti dai developer e qui revisionati]\n\n' +
+        '## 5 Valutazione del cumulo ambientale\n' +
+        '[ANALISI: consumo di suolo complessivo, frammentazione habitat, rumore, traffico di cantiere — con riferimento agli studi specialistici di terzi revisionati]\n\n' +
+        '## 6 Conclusioni\n' +
+        '**[NESSUN EFFETTO CUMULO SIGNIFICATIVO / EFFETTO CUMULO DA MITIGARE / EFFETTO CUMULO OSTATIVO]** — [MOTIVAZIONE]\n' +
+        'Misure di mitigazione proposte: [ELENCO — raccordo con §6 della Relazione Go/No-Go]\n';
+    }},
+    tavole: { prefisso: 'elenco-tavole', titolo: 'ELENCO ELABORATI E TAVOLE — MATRICE DI REVISIONE', corpo: function(){
+      return 'Gli elaborati e le tavole elencati sono predisposti dai developer del Cliente; rb.ftv ne registra qui l’esito della revisione documentale (art. 4: nessuna attività di progettazione o ingegneria).\n\n' +
+        '| # | Codice | Titolo tavola/elaborato | Rev. | Data | Redattore | Esito revisione | Note |\n|---|---|---|---|---|---|---|---|\n' +
+        '| 1 | [COD] | [TITOLO] | [00] | [DATA] | [DEVELOPER] | [CONFORME / DA INTEGRARE / NON ESAMINATO] | [ ] |\n' +
+        '| 2 | [COD] | [TITOLO] | […] | […] | […] | […] | [ ] |\n' +
+        '| 3 | [COD] | [TITOLO] | […] | […] | […] | […] | [ ] |\n\n' +
+        '## Riepilogo\n' +
+        '- Elaborati totali: [N] — conformi: [N] — da integrare: [N] — non esaminati: [N]\n' +
+        '- Criticità principali: [SINTESI — dettaglio al §6 della Relazione Go/No-Go]\n' +
+        '- Per istanze AU Campania: verifica incrociata con la checklist Allegato A-02 eseguita il [DATA] — esito [COMPLETO/INCOMPLETO]\n';
+    }},
+    paur: { prefisso: 'dossier-paur', titolo: 'DOSSIER ISTANZA PAUR (art. 27-bis D.Lgs. 152/2006)', corpo: function(){
+      return '## 1 Inquadramento\n' +
+        'Progetto soggetto a VIA di competenza regionale: il Provvedimento Autorizzatorio Unico Regionale ricomprende la VIA e i titoli abilitativi indicati al §4. Autorità competente: ' + xVal('xAutorita','[REGIONE]') + '.\n\n' +
+        '## 2 Checklist documentazione da depositare\n' +
+        '- [ ] Istanza ex art. 27-bis c. 1\n' +
+        '- [ ] Progetto [DEFINITIVO] con opere di connessione e infrastrutture indispensabili\n' +
+        '- [ ] Studio di Impatto Ambientale (SIA)\n' +
+        '- [ ] Sintesi non tecnica\n' +
+        '- [ ] Avviso al pubblico ex art. 24\n' +
+        '- [ ] Elenco delle autorizzazioni, intese, concessioni, licenze, pareri, nulla osta e assensi ricompresi nel PAUR, con amministrazioni competenti\n' +
+        '- [ ] Piano particellare (impianto + connessione)\n' +
+        '- [ ] Ricevuta oneri istruttori [IMPORTO/RIF.]\n' +
+        '- [ ] Documentazione di settore applicabile: [ELENCO]\n\n' +
+        '## 3 Fasi e termini del procedimento\n' +
+        '| Fase | Termine | Data attesa/effettiva | Stato |\n|---|---|---|---|\n' +
+        '| Verifica completezza documentale | 30 gg | [DATA] | [ ] |\n' +
+        '| Pubblicazione e consultazione pubblica | 45/60 gg | [DATA] | [ ] |\n' +
+        '| Richiesta/deposito integrazioni | [30 gg, prorogabili] | [DATA] | [ ] |\n' +
+        '| Conferenza dei Servizi (art. 14-ter L. 241/1990, modalità sincrona) | […] | [DATA] | [ ] |\n' +
+        '| Determinazione motivata conclusiva e rilascio PAUR | […] | [DATA] | [ ] |\n\n' +
+        '## 4 Titoli ricompresi nel PAUR\n' +
+        '[ELENCO: VIA, autorizzazione paesaggistica, [AU ex art. 12 D.Lgs. 387/2003 ove applicabile], svincolo idrogeologico, …]\n\n' +
+        '## 5 Stato e prossime scadenze\n' +
+        'Stato: [DA DEPOSITARE / DEPOSITATO il __] — prossima scadenza: [DATA — ADEMPIMENTO]\n';
+    }},
+    rilievi: { prefisso: 'matrice-rilievi', titolo: 'MATRICE RILIEVI — RISPOSTA A RICHIESTA INTEGRAZIONI', corpo: function(){
+      return 'Richiesta di integrazione ' + xVal('xProt','[PROT./DATA]') + ' — termine di deposito della risposta: [DATA].\n\n' +
+        '| # | Ente | Rilievo (sintesi) | Elaborato interessato | Responsabile developer | Stato risposta | Esito revisione rb.ftv | Note |\n|---|---|---|---|---|---|---|---|\n' +
+        '| 1 | [ENTE] | [RILIEVO] | [ELABORATO] | [NOME] | [BOZZA/DEFINITIVA] | [COMPLETA E COERENTE / DA SANARE] | [ ] |\n' +
+        '| 2 | [ENTE] | […] | […] | […] | […] | […] | [ ] |\n\n' +
+        '## Riepilogo\n' +
+        '- Rilievi totali: [N] — con risposta idonea: [N] — con criticità da sanare: [N]\n' +
+        '- Mitigazioni proposte: [SINTESI]\n' +
+        '- Margini residui sul termine di deposito: [gg]\n' +
+        '- Nota ex art. 1: per ogni incontro con la P.A. — preavviso, presenza personale X-Elio, minuta tempestiva.\n';
+    }},
+    stato: { prefisso: 'avanzamento', titolo: 'REPORT AVANZAMENTO ISTRUTTORIA n. [__]', corpo: function(){
+      return '## 1 Stato dell’iter alla data del report\n' +
+        '- Risposta a integrazioni ' + xVal('xProt','[PROT.]') + ': [depositata il … / in revisione]\n' +
+        '- Conferenza dei Servizi: [convocata il … / conclusa — esito]\n' +
+        '- Richieste pendenti: [ELENCO ENTI E TEMI]\n\n' +
+        '## 2 Scadenze e milestone\n' +
+        '| Scadenza | Data | Adempimento | Milestone contrattuale |\n|---|---|---|---|\n' +
+        '| [1] | [DATA] | […] | [n. — stato] |\n\n' +
+        '## 3 Criticità e azioni proposte\n' +
+        '[SINTESI — raccordo con §6 della Relazione Go/No-Go]\n\n' +
+        '## 4 Prossimo report\n' +
+        'Previsto per il [DATA].\n';
+    }}
+  };
+
+  document.getElementById('xGenera').addEventListener('click', function(){
+    var d = xDocumenti[document.getElementById('xDoc').value];
+    document.getElementById('xOut').value = xTesta(d.titolo) + d.corpo() + xPiede;
+    document.getElementById('xScarica').disabled = false;
+    document.getElementById('xCopia').disabled = false;
+    xFlash();
+  });
+  document.getElementById('xScarica').addEventListener('click', function(){
+    var d = xDocumenti[document.getElementById('xDoc').value];
+    scaricaMd(slugFile(d.prefisso, xVal('xIniziativa','iniziativa')), document.getElementById('xOut').value);
+    xFlash();
+  });
+  document.getElementById('xCopia').addEventListener('click', function(){
+    var out = document.getElementById('xOut');
+    out.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    if (navigator.clipboard) { navigator.clipboard.writeText(out.value).catch(function(){}); }
+    xFlash();
   });
 </script>
 </body>
