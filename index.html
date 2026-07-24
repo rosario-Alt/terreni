@@ -721,6 +721,7 @@ rb.ftv — [NOME CONSULENTE]</textarea>
           <option value="paur">Dossier istanza PAUR (art. 27-bis D.Lgs. 152/2006)</option>
           <option value="rilievi">Matrice rilievi — risposta a richiesta integrazioni</option>
           <option value="stato">Report avanzamento istruttoria</option>
+          <option value="mail">Mail di trasmissione con elenco allegati</option>
         </select></div>
     </div>
     <div class="riga-azioni">
@@ -730,7 +731,27 @@ rb.ftv — [NOME CONSULENTE]</textarea>
       <span class="ok-copia" id="xOk">Fatto ✓</span>
     </div>
     <textarea id="xOut" style="margin-top:10px;min-height:260px" placeholder="La bozza del documento selezionato comparirà qui…" readonly></textarea>
-    <div class="avviso">Le <b>tavole di progetto</b> (elaborati grafici, CAD) sono prodotte dai developer del Cliente: l'art. 4 dell'Accordo esclude progettazione e ingegneria. Il tool genera la <b>matrice di revisione</b> delle tavole, non i disegni. Ogni documento esce con i [SEGNAPOSTO] da completare nel file editabile.</div>
+    <div class="avviso">Le <b>tavole di progetto</b> (elaborati grafici, CAD) sono prodotte dai developer del Cliente: l'art. 4 dell'Accordo esclude progettazione e ingegneria. Il tool genera la <b>matrice di revisione</b> delle tavole e le <b>tavole A3 di inquadramento</b> qui sotto, non i disegni tecnici. Ogni documento esce con i [SEGNAPOSTO] da completare nel file editabile.</div>
+  </div>
+
+  <div class="blocco"><h3>Perimetro area — file KML (Google Earth)</h3>
+    <p>Incolla le coordinate dei vertici dell'area, una per riga, nel formato <b>lat, lon</b> (come le copi da Google Maps: clic destro sul punto → copia coordinate). Minimo 3 vertici; il poligono si chiude da solo.</p>
+    <textarea id="kIn" style="min-height:110px" placeholder="40.421512, 15.005897&#10;40.420103, 15.009214&#10;40.417886, 15.007344"></textarea>
+    <div class="riga-azioni">
+      <button class="btn-azione" id="kGenera">Genera e scarica .kml</button>
+      <span class="ok-copia" id="kOk">Scaricato ✓</span>
+      <span id="kErr" style="color:var(--rosso);font-size:13px;font-weight:600"></span>
+    </div>
+  </div>
+
+  <div class="blocco"><h3>Tavola A3 — inquadramento con cartiglio rb.ftv</h3>
+    <p>Genera una tavola formato A3 orizzontale con cartiglio compilato dall'anagrafica: si apre in una nuova finestra, inserisci l'immagine (screenshot del geoportale, ortofoto, estratto PRG…) e stampi in PDF A3.</p>
+    <div class="campi">
+      <div><label for="tNumero">Tavola n.</label><input type="text" id="tNumero" placeholder="es. T01"></div>
+      <div><label for="tTitolo">Titolo tavola</label><input type="text" id="tTitolo" placeholder="es. Inquadramento vincolistico su ortofoto"></div>
+      <div><label for="tScala">Scala</label><input type="text" id="tScala" placeholder="es. 1:10.000"></div>
+    </div>
+    <div class="riga-azioni"><button class="btn-azione" id="tApri">Apri tavola A3 per la stampa →</button></div>
   </div>
 </section>
 
@@ -977,6 +998,28 @@ rb.ftv — [NOME CONSULENTE]</textarea>
         '- Margini residui sul termine di deposito: [gg]\n' +
         '- Nota ex art. 1: per ogni incontro con la P.A. — preavviso, presenza personale X-Elio, minuta tempestiva.\n';
     }},
+    mail: { prefisso: 'mail-trasmissione', titolo: 'MAIL DI TRASMISSIONE', corpo: function(){
+      return 'Testo da incollare nel client di posta (adattare oggetto e allegati alla fattispecie):\n\n' +
+        '---\n\n' +
+        'Spett.le X-Elio Europe Middle East & North Africa S.r.l.\n' +
+        'c.a. Responsabile di Progetto — [NOME]\n' +
+        'Oggetto: Accordo Quadro — Contratto Attuativo n. ' + xVal('xAttuativo','[__]') + ' — Fattispecie ' + document.getElementById('xFattispecie').value.split(' ')[0] + ' — Iniziativa "' + xVal('xIniziativa','[NOME]') + '" — trasmissione deliverable\n\n' +
+        'Con riferimento al Contratto Attuativo in oggetto, trasmettiamo in allegato la documentazione relativa all’iniziativa ' + xVal('xIniziativa','[NOME]') + ' — ' + xVal('xComune','[COMUNE (PROV)]') + ':\n\n' +
+        'ALLEGATI (spuntare/eliminare le voci non pertinenti):\n' +
+        '- [ ] Relazione Go/No-Go (formato editabile ex art. 2.6) — esito: [GO / GO CONDIZIONATO / NO-GO]\n' +
+        '- [ ] Perimetro area impianto (.kml)\n' +
+        '- [ ] Tavola A3 — inquadramento vincolistico [T01]\n' +
+        '- [ ] Tavola A3 — [ALTRA TAVOLA]\n' +
+        '- [ ] Report effetto cumulo\n' +
+        '- [ ] Elenco tavole/elaborati — matrice di revisione\n' +
+        '- [ ] Dossier istanza PAUR\n' +
+        '- [ ] Matrice rilievi — risposta a integrazioni\n' +
+        '- [ ] Report avanzamento istruttoria\n' +
+        '- [ ] [ALTRO]\n\n' +
+        'Restiamo a disposizione per l’incontro di restituzione e chiediamo il rilascio dell’attestazione di regolare esecuzione entro 10 giorni dalla presente, ai sensi dell’art. 3.4 dell’Accordo Quadro.\n\n' +
+        'Cordiali saluti\n' +
+        'rb.ftv — [NOME CONSULENTE]\n';
+    }},
     stato: { prefisso: 'avanzamento', titolo: 'REPORT AVANZAMENTO ISTRUTTORIA n. [__]', corpo: function(){
       return '## 1 Stato dell’iter alla data del report\n' +
         '- Risposta a integrazioni ' + xVal('xProt','[PROT.]') + ': [depositata il … / in revisione]\n' +
@@ -1010,6 +1053,87 @@ rb.ftv — [NOME CONSULENTE]</textarea>
     try { document.execCommand('copy'); } catch(e) {}
     if (navigator.clipboard) { navigator.clipboard.writeText(out.value).catch(function(){}); }
     xFlash();
+  });
+
+  // KML perimetro area
+  document.getElementById('kGenera').addEventListener('click', function(){
+    var err = document.getElementById('kErr');
+    err.textContent = '';
+    var righe = document.getElementById('kIn').value.split('\n').map(function(r){return r.trim()}).filter(Boolean);
+    var punti = [];
+    for (var i = 0; i < righe.length; i++) {
+      var m = righe[i].split(/[,;\s]+/).filter(Boolean);
+      var lat = parseFloat(m[0]), lon = parseFloat(m[1]);
+      if (m.length < 2 || isNaN(lat) || isNaN(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) {
+        err.textContent = 'Riga ' + (i+1) + ' non valida: usa il formato "lat, lon".';
+        return;
+      }
+      punti.push(lon + ',' + lat + ',0');
+    }
+    if (punti.length < 3) { err.textContent = 'Servono almeno 3 vertici.'; return; }
+    punti.push(punti[0]);
+    var nome = xVal('xIniziativa','Area impianto');
+    var desc = xVal('xComune','') + ' — ' + document.getElementById('xTecnologia').value + ' ' + xVal('xPotenza','');
+    var kml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<kml xmlns="http://www.opengis.net/kml/2.2"><Document>\n' +
+      '<name>' + nome + '</name>\n' +
+      '<Placemark><name>' + nome + '</name><description>' + desc + ' (rb.ftv)</description>\n' +
+      '<Style><LineStyle><color>ff0000ff</color><width>2.5</width></LineStyle><PolyStyle><color>330000ff</color></PolyStyle></Style>\n' +
+      '<Polygon><outerBoundaryIs><LinearRing><coordinates>\n' + punti.join('\n') + '\n</coordinates></LinearRing></outerBoundaryIs></Polygon>\n' +
+      '</Placemark></Document></kml>\n';
+    var blob = new Blob([kml], {type:'application/vnd.google-earth.kml+xml'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = slugFile('perimetro', xVal('xIniziativa','area')).replace(/\.md$/, '.kml');
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
+    var ok = document.getElementById('kOk');
+    ok.classList.add('mostra');
+    setTimeout(function(){ok.classList.remove('mostra')},1800);
+  });
+
+  // Tavola A3 con cartiglio
+  document.getElementById('tApri').addEventListener('click', function(){
+    var esc = function(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')};
+    var oggi = new Date().toLocaleDateString('it-IT');
+    var num = esc(document.getElementById('tNumero').value.trim() || 'T01');
+    var tit = esc(document.getElementById('tTitolo').value.trim() || '[TITOLO TAVOLA]');
+    var scala = esc(document.getElementById('tScala').value.trim() || '[SCALA]');
+    var iniz = esc(xVal('xIniziativa','[INIZIATIVA]'));
+    var comune = esc(xVal('xComune','[COMUNE (PROV)]'));
+    var tecno = esc(document.getElementById('xTecnologia').value + ' ' + xVal('xPotenza',''));
+    var w = window.open('', '_blank');
+    if (!w) { alert('Sblocca i popup per questo file per aprire la tavola.'); return; }
+    w.document.write('<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"><title>Tavola ' + num + ' — ' + iniz + '</title>' +
+      '<style>' +
+      '@page{size:A3 landscape;margin:8mm}' +
+      '*{box-sizing:border-box;margin:0;padding:0}' +
+      'body{font-family:Segoe UI,Arial,sans-serif}' +
+      '.foglio{width:404mm;height:271mm;border:1.2mm solid #1F3864;display:flex;flex-direction:column;margin:0 auto}' +
+      '.mappa{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f4f6fa}' +
+      '.mappa img{max-width:100%;max-height:100%}' +
+      '.segn{color:#5b6473;text-align:center;font-size:14px;line-height:1.7}' +
+      '.cartiglio{border-top:1.2mm solid #1F3864;display:flex;flex-shrink:0}' +
+      '.cartiglio div{padding:3mm 4mm;border-right:.3mm solid #1F3864;font-size:11px}' +
+      '.cartiglio b{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#5b6473;margin-bottom:1mm}' +
+      '.logo{background:#1F3864;color:#fff;font-size:16px;font-weight:700;display:flex;align-items:center;padding:0 6mm}' +
+      '.barra{background:#eef2fa;padding:8px;text-align:center;font-size:13px}' +
+      '@media print{.barra{display:none}}' +
+      '</style></head><body>' +
+      '<div class="barra">1) Inserisci l’immagine: <input type="file" accept="image/*" onchange="var f=this.files[0];if(f){document.getElementById(\'img\').src=URL.createObjectURL(f);document.getElementById(\'img\').style.display=\'block\';document.getElementById(\'seg\').style.display=\'none\'}">&nbsp;&nbsp;2) <button onclick="window.print()">Stampa / Salva PDF (A3 orizzontale)</button></div>' +
+      '<div class="foglio">' +
+      '<div class="mappa"><img id="img" style="display:none"><div class="segn" id="seg">Inserisci qui l’immagine dalla barra in alto<br>(screenshot geoportale / ortofoto / estratto PRG-PPR)<br>La barra non viene stampata.</div></div>' +
+      '<div class="cartiglio">' +
+      '<div class="logo">rb.ftv</div>' +
+      '<div style="flex:1.4"><b>Iniziativa</b>' + iniz + '<br>' + comune + '</div>' +
+      '<div style="flex:1"><b>Tecnologia / Potenza</b>' + tecno + '</div>' +
+      '<div style="flex:1.6"><b>Titolo tavola</b>' + tit + '</div>' +
+      '<div><b>Tavola n.</b>' + num + '</div>' +
+      '<div><b>Scala</b>' + scala + '</div>' +
+      '<div><b>Data</b>' + oggi + '</div>' +
+      '<div style="border-right:none"><b>Redazione</b>[NOME CONSULENTE]<br><span style="font-size:9px">Inquadramento su elaborati di terzi — non costituisce progettazione (art. 4)</span></div>' +
+      '</div></div></body></html>');
+    w.document.close();
   });
 
   // Flusso guidato — Nuova pratica X-Elio
