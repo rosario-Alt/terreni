@@ -776,7 +776,15 @@ rb.ftv — [NOME CONSULENTE]</textarea>
     <div class="avviso">Funziona con Chrome o Edge (API File System Access). Al clic si apre la finestra di scelta: seleziona <b>C:\analisi</b> e consenti la modifica — per sicurezza il browser non può scrivere in una cartella senza questo consenso, da rinnovare con un clic a ogni apertura della pagina (il tool non conserva nulla nel browser). Su altri browser resta il download classico: sposti i file a mano in C:\analisi.</div>
   </div>
 
-  <div class="blocco"><h3>2 · Nuova richiesta (protocolla e crea cartella)</h3>
+  <div class="blocco"><h3>2 · Posta in arrivo — mail di richiesta X-Elio</h3>
+    <p>Salva la mail dal tuo client come file <b>.eml</b> (in quasi tutti i client: trascina la mail sul desktop, o "Salva con nome") e caricala qui: il tool legge oggetto, data e allegati, precompila la richiesta e, alla registrazione, archivia mail e allegati nella cartella della pratica.</p>
+    <div class="riga-azioni">
+      <input type="file" id="pEml" accept=".eml,message/rfc822" style="font-size:13px">
+      <span id="pEmlInfo" style="font-size:13px;color:var(--grigio)"></span>
+    </div>
+  </div>
+
+  <div class="blocco"><h3>3 · Nuova richiesta (protocolla e crea cartella)</h3>
     <div class="campi">
       <div><label for="pIniziativa">Nome iniziativa</label><input type="text" id="pIniziativa" placeholder="es. FTV Capaccio 02"></div>
       <div><label for="pFattispecie">Prestazione (fattispecie)</label><select id="pFattispecie"></select></div>
@@ -784,6 +792,7 @@ rb.ftv — [NOME CONSULENTE]</textarea>
       <div id="pMWbox" style="display:none"><label for="pMW">Potenza (MW)</label><input type="number" id="pMW" placeholder="es. 40" step="0.1"></div>
       <div><label for="pImporto">Importo (€)</label><input type="number" id="pImporto" step="0.01"></div>
       <div><label for="pDataR">Data richiesta</label><input type="date" id="pDataR"></div>
+      <div><label for="pTecnico">Assegna a (tecnico)</label><input type="text" id="pTecnico" placeholder="es. Flavia assegna dopo"></div>
     </div>
     <div class="riga-azioni">
       <button class="btn-azione" id="pRegistra">Registra richiesta →</button>
@@ -791,26 +800,36 @@ rb.ftv — [NOME CONSULENTE]</textarea>
     </div>
   </div>
 
-  <div class="blocco"><h3>3 · Scheda avanzamento prestazioni</h3>
+  <div class="blocco"><h3>4 · Scheda di controllo avanzamento prestazioni</h3>
+    <p>Ciclo di ogni pratica: <b>Ricevuta → Assegnata → Inviata → Chiusa</b>. "Assegna" imposta il tecnico, "Inviata oggi" registra la data di invio della risposta a X-Elio, "Chiudi" chiude l'attività.</p>
     <div class="campi">
       <div class="campo-largo"><label for="pAttiva">Pratica attiva (i documenti generati si archiviano qui)</label><select id="pAttiva"><option value="">— nessuna: i file vengono scaricati —</option></select></div>
     </div>
-    <div style="overflow-x:auto"><table id="pTabella">
-      <tr><th>N.</th><th>Iniziativa</th><th>Prestazione</th><th>Importo €</th><th>Richiesta</th><th>Evasione</th><th></th></tr>
-    </table></div>
+    <div style="overflow-x:auto"><table id="pTabella"></table></div>
     <div class="riga-azioni">
       <button class="btn-azione sec" id="pCsv">Esporta registro CSV</button>
       <span style="font-size:12.5px;color:var(--grigio)">Il CSV viene riscritto anche nell'archivio a ogni modifica (per Excel/fatturazione).</span>
     </div>
   </div>
 
-  <div class="blocco"><h3>4 · Archivia documentazione analizzata</h3>
+  <div class="blocco"><h3>5 · Archivia documentazione analizzata</h3>
     <p>Copia nella cartella della pratica attiva i documenti ricevuti o analizzati (PDF del cliente, richieste dell'ente, DXF, shapefile…).</p>
     <div class="riga-azioni">
       <input type="file" id="pFiles" multiple style="font-size:13px">
       <button class="btn-azione sec" id="pCarica">Copia nell'archivio →</button>
       <span class="ok-copia" id="pOk2">Copiati ✓</span>
     </div>
+  </div>
+
+  <div class="blocco"><h3>6 · Fine mese — report e proforma fattura</h3>
+    <div class="campi">
+      <div><label for="pMese">Mese</label><input type="month" id="pMese"></div>
+    </div>
+    <div class="riga-azioni">
+      <button class="btn-azione" id="pReport">Report avanzamento mensile</button>
+      <button class="btn-azione sec" id="pProforma">Proforma fattura da emettere</button>
+    </div>
+    <div class="avviso">La proforma include le pratiche <b>inviate</b> nel mese selezionato. Ricorda l'art. 3.4: il compenso matura con milestone + <b>attestazione di regolare esecuzione</b> — emetti fattura solo per le pratiche con attestazione ricevuta (spunta nella scheda-avanzamento.md di ogni pratica). Pagamento 30 gg d.f. f.m.</div>
   </div>
 </section>
 
@@ -1353,10 +1372,13 @@ rb.ftv — [NOME CONSULENTE]</textarea>
     await w.write(contenuto);
     await w.close();
   }
+  function statoDi(p){
+    return p.dataChiusura ? 'Chiusa' : p.dataEvasione ? 'Inviata' : p.tecnico ? 'Assegnata' : 'Ricevuta';
+  }
   function registroCsv(){
-    var righe = ['N.;Iniziativa;Prestazione;Scaglione;Importo EUR;Data richiesta;Data evasione;Cartella'];
+    var righe = ['N.;Iniziativa;Prestazione;Scaglione;Importo EUR;Data richiesta;Assegnata a;Data invio;Data chiusura;Stato;Cartella'];
     (registro.pratiche || []).forEach(function(p){
-      righe.push([p.n, p.iniziativa, p.prestazione, p.scaglione, String(p.importo).replace('.',','), dataIT(p.dataRichiesta), dataIT(p.dataEvasione), p.cartella].join(';'));
+      righe.push([p.n, p.iniziativa, p.prestazione, p.scaglione, String(p.importo).replace('.',','), dataIT(p.dataRichiesta), p.tecnico || '', dataIT(p.dataEvasione), dataIT(p.dataChiusura), statoDi(p), p.cartella].join(';'));
     });
     return righe.join('\r\n');
   }
@@ -1369,13 +1391,16 @@ rb.ftv — [NOME CONSULENTE]</textarea>
       '| Scaglione SOW | ' + p.scaglione + ' |\n' +
       '| Importo | € ' + p.importo + ' |\n' +
       '| Data richiesta | ' + dataIT(p.dataRichiesta) + ' |\n' +
-      '| Data evasione | ' + (dataIT(p.dataEvasione) || '[IN CORSO]') + ' |\n\n' +
+      '| Assegnata a | ' + (p.tecnico || '[DA ASSEGNARE]') + ' |\n' +
+      '| Data invio risposta | ' + (dataIT(p.dataEvasione) || '[IN CORSO]') + ' |\n' +
+      '| Data chiusura attività | ' + (dataIT(p.dataChiusura) || '[APERTA]') + ' |\n' +
+      '| Stato | ' + statoDi(p) + ' |\n\n' +
       '## Milestone e attestazione (art. 3.4)\n' +
       '- [ ] Deliverable consegnato in formato editabile (art. 2.6) il: ' + (dataIT(p.dataEvasione) || '[DATA]') + '\n' +
       '- [ ] Attestazione di regolare esecuzione richiesta il: [DATA]\n' +
       '- [ ] Attestazione ricevuta il: [DATA]\n' +
       '- [ ] Fattura emessa il: [DATA] — pagamento 30 gg d.f. f.m.\n\n' +
-      '## Documenti in cartella\n(salvati automaticamente dal tool o copiati con "Archivia documentazione analizzata")\n';
+      '## Documenti in cartella\n(mail di richiesta, allegati X-Elio, deliverable generati dal tool, documentazione analizzata)\n';
   }
   async function salvaRegistro(){
     await scriviFile(archivioDir, 'registro_rbftv.json', JSON.stringify(registro, null, 2));
@@ -1383,15 +1408,20 @@ rb.ftv — [NOME CONSULENTE]</textarea>
   }
   function renderRegistro(){
     var tb = document.getElementById('pTabella');
-    tb.innerHTML = '<tr><th>N.</th><th>Iniziativa</th><th>Prestazione</th><th>Importo €</th><th>Richiesta</th><th>Evasione</th><th></th></tr>';
+    tb.innerHTML = '<tr><th>N.</th><th>Iniziativa</th><th>Prestazione</th><th>Importo €</th><th>Richiesta</th><th>Tecnico</th><th>Stato</th><th>Invio</th><th>Chiusura</th><th>Azioni</th></tr>';
     var sel = document.getElementById('pAttiva');
     var attuale = praticaAttiva;
     sel.innerHTML = '<option value="">— nessuna: i file vengono scaricati —</option>';
     (registro && registro.pratiche || []).forEach(function(p){
+      var azioni = '';
+      if (!p.tecnico) azioni += '<button class="btn-mini" data-assegna="' + p.n + '">Assegna</button> ';
+      if (!p.dataEvasione) azioni += '<button class="btn-mini" data-invia="' + p.n + '">Inviata oggi</button> ';
+      else if (!p.dataChiusura) azioni += '<button class="btn-mini" data-chiudi="' + p.n + '">Chiudi</button>';
+      else azioni = '✅';
       var tr = document.createElement('tr');
       tr.innerHTML = '<td><b>' + p.n + '</b></td><td>' + p.iniziativa + '</td><td>' + p.prestazione.replace('Fattispecie ','F.') + '<br><span style="font-size:11px;color:var(--grigio)">' + p.scaglione + '</span></td>' +
-        '<td>' + p.importo + '</td><td>' + dataIT(p.dataRichiesta) + '</td><td>' + (dataIT(p.dataEvasione) || '—') + '</td>' +
-        '<td>' + (p.dataEvasione ? '✅' : '<button class="btn-mini" data-evadi="' + p.n + '">Evasa oggi</button>') + '</td>';
+        '<td>' + p.importo + '</td><td>' + dataIT(p.dataRichiesta) + '</td><td>' + (p.tecnico || '—') + '</td><td>' + statoDi(p) + '</td>' +
+        '<td>' + (dataIT(p.dataEvasione) || '—') + '</td><td>' + (dataIT(p.dataChiusura) || '—') + '</td><td>' + azioni + '</td>';
       tb.appendChild(tr);
       var o = document.createElement('option');
       o.value = p.n; o.textContent = p.n + ' — ' + p.iniziativa;
@@ -1399,18 +1429,34 @@ rb.ftv — [NOME CONSULENTE]</textarea>
     });
     sel.value = attuale || '';
   }
-  document.getElementById('pTabella').addEventListener('click', async function(e){
-    var b = e.target.closest('[data-evadi]');
-    if (!b) return;
-    var p = registro.pratiche.find(function(x){return x.n === b.dataset.evadi});
-    p.dataEvasione = new Date().toISOString().slice(0,10);
+  async function aggiornaPratica(p, msg){
     try {
       await salvaRegistro();
       var dir = await archivioDir.getDirectoryHandle(p.cartella, {create:true});
       await scriviFile(dir, 'scheda-avanzamento.md', schedaMd(p));
-      toast('Pratica ' + p.n + ' evasa in data odierna — registro aggiornato.');
+      toast(msg);
     } catch(err) { toast('Errore salvataggio: ' + err.message); }
     renderRegistro();
+  }
+  document.getElementById('pTabella').addEventListener('click', async function(e){
+    var oggi = new Date().toISOString().slice(0,10);
+    var b = e.target.closest('[data-assegna],[data-invia],[data-chiudi]');
+    if (!b) return;
+    if (b.dataset.assegna) {
+      var p = registro.pratiche.find(function(x){return x.n === b.dataset.assegna});
+      var t = prompt('Assegna la pratica ' + p.n + ' al tecnico:', '');
+      if (!t) return;
+      p.tecnico = t.trim();
+      await aggiornaPratica(p, 'Pratica ' + p.n + ' assegnata a ' + p.tecnico + '.');
+    } else if (b.dataset.invia) {
+      var p2 = registro.pratiche.find(function(x){return x.n === b.dataset.invia});
+      p2.dataEvasione = oggi;
+      await aggiornaPratica(p2, 'Pratica ' + p2.n + ': risposta inviata in data odierna.');
+    } else if (b.dataset.chiudi) {
+      var p3 = registro.pratiche.find(function(x){return x.n === b.dataset.chiudi});
+      p3.dataChiusura = oggi;
+      await aggiornaPratica(p3, 'Pratica ' + p3.n + ' chiusa.');
+    }
   });
   document.getElementById('pAttiva').addEventListener('change', function(){
     praticaAttiva = this.value;
@@ -1447,7 +1493,8 @@ rb.ftv — [NOME CONSULENTE]</textarea>
     var p = {
       n: n, iniziativa: iniz, prestazione: t.nome, scaglione: sc + (t.permw ? ' × ' + (document.getElementById('pMW').value || '?') + ' MW' : ''),
       importo: document.getElementById('pImporto').value || '0',
-      dataRichiesta: document.getElementById('pDataR').value, dataEvasione: '',
+      dataRichiesta: document.getElementById('pDataR').value, dataEvasione: '', dataChiusura: '',
+      tecnico: document.getElementById('pTecnico').value.trim(),
       cartella: n + '_' + slugBase(iniz)
     };
     try {
@@ -1455,11 +1502,22 @@ rb.ftv — [NOME CONSULENTE]</textarea>
       registro.pratiche.push(p);
       await salvaRegistro();
       await scriviFile(dir, 'scheda-avanzamento.md', schedaMd(p));
+      var nArch = 0;
+      if (emlPendente) {
+        await scriviFile(dir, 'mail-richiesta.eml', emlPendente.raw);
+        for (var i = 0; i < emlPendente.allegati.length; i++) {
+          await scriviFile(dir, emlPendente.allegati[i].nome, emlPendente.allegati[i].dati);
+        }
+        nArch = 1 + emlPendente.allegati.length;
+        emlPendente = null;
+        document.getElementById('pEmlInfo').textContent = '';
+        document.getElementById('pEml').value = '';
+      }
       praticaAttiva = p.n;
       renderRegistro();
       var ok = document.getElementById('pOk');
       ok.classList.add('mostra'); setTimeout(function(){ok.classList.remove('mostra')},1800);
-      toast('Registrata pratica ' + p.n + ' — creata cartella ' + p.cartella + ' (ora attiva).');
+      toast('Registrata pratica ' + p.n + ' — cartella ' + p.cartella + (nArch ? ' — archiviati mail e ' + (nArch-1) + ' allegati' : '') + ' (ora attiva).');
     } catch(err) { toast('Errore: ' + err.message); }
   });
 
@@ -1487,6 +1545,115 @@ rb.ftv — [NOME CONSULENTE]</textarea>
       ok.classList.add('mostra'); setTimeout(function(){ok.classList.remove('mostra')},1800);
       toast(files.length + ' file archiviati in ' + p.cartella + '.');
     } catch(err) { toast('Errore: ' + err.message); }
+  });
+
+  // Posta in arrivo: lettura mail .eml
+  var emlPendente = null;
+  function decodificaParola(s){
+    return s.replace(/=\?([^?]+)\?([BQ])\?([^?]*)\?=/gi, function(_, cs, tipo, dati){
+      try {
+        if (tipo.toUpperCase() === 'B') {
+          var bin = atob(dati);
+          var bytes = new Uint8Array(bin.length);
+          for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          return new TextDecoder(cs).decode(bytes);
+        }
+        return dati.replace(/_/g,' ').replace(/=([0-9A-F]{2})/gi, function(m,h){return String.fromCharCode(parseInt(h,16))});
+      } catch(e) { return dati; }
+    });
+  }
+  document.getElementById('pEml').addEventListener('change', async function(){
+    var f = this.files[0];
+    if (!f) return;
+    var txt = await f.text();
+    var testa = txt.split(/\r?\n\r?\n/)[0].replace(/\r?\n[ \t]+/g,' ');
+    var oggetto = decodificaParola(((testa.match(/^Subject:[ \t]*(.*)$/mi) || [])[1] || '').trim());
+    var dataMail = (testa.match(/^Date:[ \t]*(.*)$/mi) || [])[1] || '';
+    var d = new Date(dataMail);
+    var allegati = [];
+    txt.split(/\r?\n--[^\r\n]{6,}/).forEach(function(parte){
+      var m = parte.match(/Content-Disposition:[^\r\n]*attachment[\s\S]{0,200}?filename\*?="?([^"\r\n;]+)"?/i) ||
+              parte.match(/filename\*?="?([^"\r\n;]+)"?/i);
+      if (m && /Content-Transfer-Encoding:[ \t]*base64/i.test(parte)) {
+        var corpo = parte.split(/\r?\n\r?\n/).slice(1).join('').replace(/[^A-Za-z0-9+\/=]/g,'');
+        try {
+          var bin = atob(corpo);
+          var bytes = new Uint8Array(bin.length);
+          for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          allegati.push({nome: decodificaParola(m[1]).replace(/[\/\\]/g,'_'), dati: bytes});
+        } catch(e) {}
+      }
+    });
+    emlPendente = {raw: txt, allegati: allegati};
+    if (oggetto) document.getElementById('pIniziativa').value = oggetto.replace(/^(re|fwd?|i|r):\s*/i,'').slice(0,80);
+    if (!isNaN(d)) document.getElementById('pDataR').value = d.toISOString().slice(0,10);
+    document.getElementById('pEmlInfo').textContent = 'Mail letta: "' + (oggetto || f.name) + '" — ' + allegati.length + ' allegati. Verranno archiviati alla registrazione (punto 3).';
+    toast('Mail X-Elio letta: richiesta precompilata, controlla fattispecie e importo e registra.');
+  });
+
+  // Fine mese: report avanzamento + proforma fattura
+  (function(){ document.getElementById('pMese').value = new Date().toISOString().slice(0,7); })();
+  async function salvaInRadice(nome, testo){
+    if (archivioDir) {
+      try { await scriviFile(archivioDir, nome, testo); toast('Salvato nell’archivio: ' + nome); return; }
+      catch(e) { toast('Archivio non scrivibile: scarico il file.'); }
+    }
+    var blob = new Blob([testo], {type:'text/markdown;charset=utf-8'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = nome;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
+  }
+  function euro(n){ return Number(n || 0).toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+  document.getElementById('pReport').addEventListener('click', function(){
+    if (!registro || !registro.pratiche.length) { alert('Registro vuoto o archivio non collegato.'); return; }
+    var mese = document.getElementById('pMese').value;
+    var P = registro.pratiche;
+    var ricevute = P.filter(function(p){return (p.dataRichiesta||'').indexOf(mese) === 0});
+    var inviate = P.filter(function(p){return (p.dataEvasione||'').indexOf(mese) === 0});
+    var chiuse = P.filter(function(p){return (p.dataChiusura||'').indexOf(mese) === 0});
+    var aperte = P.filter(function(p){return !p.dataChiusura});
+    var totInviate = inviate.reduce(function(s,p){return s + Number(p.importo||0)}, 0);
+    var txt = '# REPORT AVANZAMENTO PRESTAZIONI — ' + mese + ' — rb.ftv / X-Elio\n\n' +
+      '**Generato il:** ' + new Date().toLocaleDateString('it-IT') + '\n\n' +
+      '## Sintesi del mese\n' +
+      '| Voce | N. | Importo € |\n|---|---|---|\n' +
+      '| Richieste ricevute | ' + ricevute.length + ' | ' + euro(ricevute.reduce(function(s,p){return s+Number(p.importo||0)},0)) + ' |\n' +
+      '| Risposte inviate | ' + inviate.length + ' | ' + euro(totInviate) + ' |\n' +
+      '| Attività chiuse | ' + chiuse.length + ' | ' + euro(chiuse.reduce(function(s,p){return s+Number(p.importo||0)},0)) + ' |\n' +
+      '| Pratiche ancora aperte (totale) | ' + aperte.length + ' | ' + euro(aperte.reduce(function(s,p){return s+Number(p.importo||0)},0)) + ' |\n\n' +
+      '## Dettaglio pratiche del mese\n' +
+      '| N. | Iniziativa | Prestazione | Tecnico | Importo € | Richiesta | Invio | Chiusura | Stato |\n|---|---|---|---|---|---|---|---|---|\n' +
+      P.filter(function(p){
+        return (p.dataRichiesta||'').indexOf(mese) === 0 || (p.dataEvasione||'').indexOf(mese) === 0 || (p.dataChiusura||'').indexOf(mese) === 0 || !p.dataChiusura;
+      }).map(function(p){
+        return '| ' + p.n + ' | ' + p.iniziativa + ' | ' + p.prestazione.replace('Fattispecie ','F.') + ' | ' + (p.tecnico||'—') + ' | ' + euro(p.importo) + ' | ' + dataIT(p.dataRichiesta) + ' | ' + (dataIT(p.dataEvasione)||'—') + ' | ' + (dataIT(p.dataChiusura)||'—') + ' | ' + statoDi(p) + ' |';
+      }).join('\n') + '\n';
+    salvaInRadice('report-avanzamento_' + mese + '.md', txt);
+  });
+  document.getElementById('pProforma').addEventListener('click', function(){
+    if (!registro || !registro.pratiche.length) { alert('Registro vuoto o archivio non collegato.'); return; }
+    var mese = document.getElementById('pMese').value;
+    var righe = registro.pratiche.filter(function(p){return (p.dataEvasione||'').indexOf(mese) === 0});
+    if (!righe.length) { alert('Nessuna pratica inviata nel mese ' + mese + '.'); return; }
+    var tot = righe.reduce(function(s,p){return s + Number(p.importo||0)}, 0);
+    var txt = '# PROFORMA FATTURA — [N. FATTURA] — ' + mese + '\n\n' +
+      '**Emittente:** rb.ftv — [RAGIONE SOCIALE, P.IVA, SEDE]\n' +
+      '**Destinatario:** X-Elio Europe Middle East & North Africa S.r.l. — [P.IVA/SDI, SEDE]\n' +
+      '**Data emissione:** [DATA] — **Pagamento:** bonifico 30 gg d.f. f.m. — IBAN [__]\n\n' +
+      '## Prestazioni (Accordo Quadro / Contratti Attuativi)\n' +
+      '| Pratica | Iniziativa | Prestazione | Scaglione SOW | Data invio | Attestazione 3.4 | Importo € |\n|---|---|---|---|---|---|---|\n' +
+      righe.map(function(p){
+        return '| ' + p.n + ' | ' + p.iniziativa + ' | ' + p.prestazione.replace('Fattispecie ','F.') + ' | ' + p.scaglione + ' | ' + dataIT(p.dataEvasione) + ' | [RICEVUTA il __ / IN ATTESA] | ' + euro(p.importo) + ' |';
+      }).join('\n') + '\n\n' +
+      '| Riepilogo | € |\n|---|---|\n' +
+      '| Imponibile | ' + euro(tot) + ' |\n' +
+      '| [Contributo previdenziale __%] | [__] |\n' +
+      '| [IVA 22% / regime applicabile] | [__] |\n' +
+      '| **Totale** | **[__]** |\n\n' +
+      '> Verifica art. 3.4 prima dell’emissione: fatturare solo le prestazioni con milestone raggiunta e attestazione di regolare esecuzione ricevuta; togliere dalla proforma le righe in attesa.\n';
+    salvaInRadice('proforma-fattura_' + mese + '.md', txt);
   });
 
   // Salvataggio unificato: archivio se collegato con pratica attiva, altrimenti download
