@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RB FTV - Terreni per Impianti Fotovoltaici</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --verde: #1b8a3f;
+            --verde-scuro: #12662e;
+            --giallo: #f5b301;
+            --blu-notte: #16324f;
+            --grigio-chiaro: #f6f8fa;
+            --testo: #24313f;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--testo);
+            background: var(--grigio-chiaro);
+            min-height: 100vh;
+        }
+
+        /* ---------- Header / Navigazione ---------- */
+        header {
+            background: var(--blu-notte);
+            color: white;
+            padding: 15px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+        }
+
+        .nav {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: var(--giallo);
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 18px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .nav a:hover {
+            color: var(--giallo);
+        }
+
+        /* ---------- Hero ---------- */
+        .hero {
+            background: linear-gradient(135deg, var(--blu-notte), var(--verde-scuro));
+            color: white;
+            text-align: center;
+            padding: 80px 20px 90px;
+        }
+
+        .hero h1 {
+            font-size: 2.6em;
+            margin-bottom: 15px;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            opacity: 0.92;
+        }
+
+        .cta {
+            display: inline-block;
+            background: var(--giallo);
+            color: var(--blu-notte);
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(245, 179, 1, 0.4);
+        }
+
+        /* ---------- Sezioni ---------- */
+        section {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        section h2 {
+            text-align: center;
+            font-size: 2em;
+            color: var(--blu-notte);
+            margin-bottom: 10px;
+        }
+
+        section .sottotitolo {
+            text-align: center;
+            color: #5b6b7b;
+            margin-bottom: 40px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card .icona {
+            font-size: 2.2em;
+            margin-bottom: 12px;
+        }
+
+        .card h3 {
+            color: var(--verde-scuro);
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #55636f;
+            line-height: 1.5;
+        }
+
+        /* ---------- Requisiti terreni ---------- */
+        .requisiti {
+            background: white;
+        }
+
+        .requisiti-lista {
+            max-width: 750px;
+            margin: 0 auto;
+            list-style: none;
+        }
+
+        .requisiti-lista li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 14px 18px;
+            border-left: 4px solid var(--verde);
+            background: var(--grigio-chiaro);
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .requisiti-lista .check {
+            color: var(--verde);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        /* ---------- Form proposta ---------- */
+        .form-box {
+            background: white;
+            border-radius: 15px;
+            padding: 35px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #dde3e9;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--verde);
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .btn-invia {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+            background: linear-gradient(45deg, var(--verde), #23a854);
+            color: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-invia:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(27, 138, 63, 0.35);
+        }
+
+        .esito {
+            display: none;
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 10px;
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .esito.show {
+            display: block;
+        }
+
+        /* ---------- Footer ---------- */
+        footer {
+            background: var(--blu-notte);
+            color: #c4d0dc;
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+            font-size: 0.9em;
+        }
+
+        footer a {
+            color: var(--giallo);
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .hero h1 {
+                font-size: 1.9em;
+            }
+            .nav {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="nav">
+            <div class="logo">RB <span>FTV</span></div>
+            <div>
+                <a href="#vantaggi">Vantaggi</a>
+                <a href="#requisiti">Requisiti</a>
+                <a href="#proponi">Proponi terreno</a>
+                <a href="index.html">Ricerca terreni</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <h1>☀️ Il tuo terreno può produrre energia</h1>
+        <p>RB FTV cerca terreni agricoli e industriali per lo sviluppo di impianti fotovoltaici.
+           Affitto a lungo termine con rendita garantita, senza costi per il proprietario.</p>
+        <a href="#proponi" class="cta">Proponi il tuo terreno</a>
+    </div>
+
+    <section id="vantaggi">
+        <h2>Perché affittare il terreno per il fotovoltaico</h2>
+        <p class="sottotitolo">Una rendita stabile e sicura, mentre il terreno resta di tua proprietà</p>
+        <div class="cards">
+            <div class="card">
+                <div class="icona">💶</div>
+                <h3>Rendita garantita</h3>
+                <p>Canone di affitto annuale per 20-30 anni, indicizzato e garantito da contratto registrato.</p>
+            </div>
+            <div class="card">
+                <div class="icona">📜</div>
+                <h3>Zero costi e burocrazia</h3>
+                <p>Tutti i costi di progettazione, autorizzazione e realizzazione sono a carico dello sviluppatore.</p>
+            </div>
+            <div class="card">
+                <div class="icona">🌱</div>
+                <h3>Terreno tutelato</h3>
+                <p>A fine contratto l'impianto viene smantellato e il terreno riconsegnato allo stato originario.</p>
+            </div>
+            <div class="card">
+                <div class="icona">⚡</div>
+                <h3>Energia pulita</h3>
+                <p>Contribuisci alla transizione energetica valorizzando terreni poco produttivi o inutilizzati.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="requisiti" class="requisiti">
+        <h2>Requisiti del terreno ideale</h2>
+        <p class="sottotitolo">Verifica se il tuo terreno è adatto a un impianto fotovoltaico</p>
+        <ul class="requisiti-lista">
+            <li><span class="check">✔</span> Superficie minima di circa 5 ettari (anche più particelle contigue)</li>
+            <li><span class="check">✔</span> Terreno pianeggiante o con leggera pendenza esposta a sud</li>
+            <li><span class="check">✔</span> Vicinanza a una cabina primaria o linea elettrica di media/alta tensione</li>
+            <li><span class="check">✔</span> Assenza di vincoli paesaggistici, ambientali o idrogeologici rilevanti</li>
+            <li><span class="check">✔</span> Destinazione agricola o industriale, anche incolto o dismesso</li>
+            <li><span class="check">✔</span> Accessibilità da strada per i mezzi di cantiere</li>
+        </ul>
+    </section>
+
+    <section id="proponi">
+        <h2>Proponi il tuo terreno</h2>
+        <p class="sottotitolo">Compila il modulo: ti ricontatteremo per una valutazione gratuita e senza impegno</p>
+        <div class="form-box">
+            <form id="formTerreno" onsubmit="return inviaProposta(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>👤 Nome e Cognome *</label>
+                        <input type="text" id="nome" required placeholder="es. Mario Rossi">
+                    </div>
+                    <div class="form-group">
+                        <label>📞 Telefono *</label>
+                        <input type="tel" id="telefono" required placeholder="es. 333 1234567">
+                    </div>
+                    <div class="form-group">
+                        <label>✉️ Email</label>
+                        <input type="email" id="email" placeholder="es. mario@email.it">
+                    </div>
+                    <div class="form-group">
+                        <label>📍 Comune e Provincia *</label>
+                        <input type="text" id="comune" required placeholder="es. Alessandria (AL)">
+                    </div>
+                    <div class="form-group">
+                        <label>📏 Superficie (ettari) *</label>
+                        <input type="number" id="ettari" step="0.1" min="0" required placeholder="es. 8">
+                    </div>
+                    <div class="form-group">
+                        <label>🏗️ Destinazione attuale</label>
+                        <select id="destinazione">
+                            <option value="">Seleziona…</option>
+                            <option value="agricolo">Agricolo coltivato</option>
+                            <option value="incolto">Agricolo incolto</option>
+                            <option value="industriale">Industriale / dismesso</option>
+                            <option value="altro">Altro</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label>📝 Note (riferimenti catastali, vicinanza cabina elettrica, ecc.)</label>
+                        <textarea id="note" rows="4" placeholder="Aggiungi informazioni utili sul terreno…"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn-invia">📩 INVIA PROPOSTA</button>
+            </form>
+            <div id="esito" class="esito">
+                ✅ Proposta registrata! Ti ricontatteremo al più presto per la valutazione del terreno.
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p><strong>RB FTV</strong> — Sviluppo terreni per impianti fotovoltaici</p>
+        <p style="margin-top:8px;">Vai alla <a href="index.html">ricerca terreni sui portali immobiliari</a></p>
+    </footer>
+
+    <script>
+    function inviaProposta(event) {
+        event.preventDefault();
+
+        const proposta = {
+            nome: document.getElementById('nome').value.trim(),
+            telefono: document.getElementById('telefono').value.trim(),
+            email: document.getElementById('email').value.trim(),
+            comune: document.getElementById('comune').value.trim(),
+            ettari: document.getElementById('ettari').value,
+            destinazione: document.getElementById('destinazione').value,
+            note: document.getElementById('note').value.trim(),
+            data: new Date().toISOString()
+        };
+
+        // Salvataggio locale (nessun backend configurato):
+        // le proposte restano nel browser del visitatore.
+        const salvate = JSON.parse(localStorage.getItem('proposteRBFTV') || '[]');
+        salvate.push(proposta);
+        localStorage.setItem('proposteRBFTV', JSON.stringify(salvate));
+
+        document.getElementById('formTerreno').reset();
+        const esito = document.getElementById('esito');
+        esito.classList.add('show');
+        esito.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        return false;
+    }
+    </script>
+</body>
+</html>
