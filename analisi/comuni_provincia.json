@@ -1,0 +1,14 @@
+{
+  "_nota": "Mappa comune -> provincia usata per correggere il campo 'prov' dei nodi, che nel dato e-distribuzione e' inaffidabile. Elenco parziale: estendere man mano.",
+  "Bagnolo di Po": "RO", "Badia Polesine": "RO", "Bergantino": "RO", "Bondeno": "FE",
+  "Bovolone": "VR", "Canaro": "RO", "Casaleone": "VR", "Castagnaro": "VR",
+  "Castelguglielmo": "RO", "Castelmassa": "RO", "Castelnovo Bariano": "RO", "Ceneselli": "RO",
+  "Cerea": "VR", "Cologna Veneta": "VR", "Este": "PD", "Fratta Polesine": "RO",
+  "Giacciano con Baruchella": "RO", "Legnago": "VR", "Lendinara": "RO", "Lonigo": "VI",
+  "Megliadino San Vitale": "PD", "Melara": "RO", "Minerbe": "VR", "Monselice": "PD",
+  "Montagnana": "PD", "Nogara": "VR", "Noventa Vicentina": "VI", "Occhiobello": "RO",
+  "Ospedaletto Euganeo": "PD", "Ostiglia": "MN", "Polesella": "RO", "Revere": "MN",
+  "Rovigo": "RO", "Salara": "RO", "Saletto": "PD", "San Bellino": "RO",
+  "Sanguinetto": "VR", "Sermide": "MN", "Sossano": "VI", "Terrazzo": "VR",
+  "Trecenta": "RO", "Vighizzolo d'Este": "PD", "Villa Bartolomea": "VR", "Villa Poma": "MN"
+}

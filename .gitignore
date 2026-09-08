@@ -1,0 +1,7 @@
+# dati locali: gli elenchi nodi restano fuori dal repo, come nel progetto di origine
+analisi/stato_cabine*.json
+analisi/nodi*.json
+analisi/*_pulito.json
+analisi/*_pulito.csv
+analisi/*_report.txt
+*.kml
