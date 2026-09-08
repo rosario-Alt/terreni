@@ -27,8 +27,17 @@ OUTPUT  <nome>_pulito.json, <nome>_pulito.csv, <nome>_report.txt
 import argparse, csv, json, math, os, re, sys
 import xml.etree.ElementTree as ET
 
-# densita' nazionale di riferimento: valori del file stato_cabine.json completo
+# Densita' di riferimento.
+# NAZIONALE: conteggi del file stato_cabine.json completo. E' un confronto DEBOLE:
+#   la collezione 'terna' e' eterogenea (stazioni RTN, impianti di terzi, progetti in iter),
+#   quindi il rapporto nazionale sovrastima quante stazioni RTN aspettarsi in una zona.
+# UFFICIALE: conteggi dichiarati da Terna per regione (documenti statistici di rete).
+#   E' il confronto FORTE: usalo con --regione quando la zona ricade in una regione coperta.
 CP_NAZ, SE_NAZ, AREA_IT = 1912, 1685, 302073.0
+RIFERIMENTI_REGIONALI = {
+    # regione: (stazioni RTN totali, cabine primarie, superficie km2, fonte)
+    'veneto': (65, 136, 18345.0, 'Terna: 10 SE a 380 kV + 21 a 220 kV + 34 a 150/132 kV; 136 CP'),
+}
 # nomi di collezione accettati -> etichetta
 COLLEZIONI = {
     'cp_edistribuzione': 'CP', 'e-distribuzione': 'CP',
@@ -141,6 +150,7 @@ def main():
     ap.add_argument('--lat', type=float)
     ap.add_argument('--lon', type=float)
     ap.add_argument('--raggio', type=float, default=30.0)
+    ap.add_argument('--regione', help="regione per il confronto di densita' ufficiale, es. Veneto")
     ap.add_argument('--comuni', default=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'comuni_provincia.json'))
     ap.add_argument('--out-dir', default='.')
     args = ap.parse_args()
@@ -260,21 +270,35 @@ def main():
     P('    CP non rosse/arancioni: ' + (', '.join(f"{r['_nome']} ({r['_km']:.1f} km, {r['stato_peggiore']})" for r in libere) or 'NESSUNA'))
 
     # 5 - densita': il test che scopre i layer incompleti
-    P('\n[5] DENSITA vs FILE NAZIONALE  <-- il controllo piu importante')
+    P('\n[5] DENSITA')
     area = math.pi * args.raggio ** 2
-    n_cp, n_se = len(per_coord and [r for r in righe if r['_layer'] == 'CP']), len([r for r in righe if r['_layer'] == 'SE'])
-    cp_att, se_att = CP_NAZ * area / AREA_IT, SE_NAZ * area / AREA_IT
+    n_cp = len([r for r in righe if r['_layer'] == 'CP'])
+    n_se = len([r for r in righe if r['_layer'] == 'SE'])
     cp_viv = sum(1 for r in righe if r['_layer'] == 'CP' and r['_esistente'])
     se_viv = sum(1 for r in righe if r['_layer'] == 'SE' and r['_esistente'])
-    P(f"    disco r={args.raggio:g} km = {area:.0f} km2")
-    P(f"    CP: attese {cp_att:5.1f}  osservate {n_cp:3d}  ({cp_viv} esistenti)   {'OK' if n_cp >= 0.8*cp_att else 'SOTTO ATTESA'}")
-    P(f"    SE: attese {se_att:5.1f}  osservate {n_se:3d}  ({se_viv} esistenti)   {'OK' if n_se >= 0.8*se_att else 'SOTTO ATTESA'}")
+    P(f"    disco r={args.raggio:g} km = {area:.0f} km2   osservati: {n_cp} CP ({cp_viv} esistenti), {n_se} SE ({se_viv} esistenti)")
+
+    rif = RIFERIMENTI_REGIONALI.get((args.regione or '').strip().lower())
+    if rif:
+        se_r, cp_r, area_r, fonte = rif
+        cp_att, se_att = cp_r * area / area_r, se_r * area / area_r
+        P(f"    [FORTE] confronto col dato ufficiale Terna per {args.regione}: {fonte}")
+        P(f"            CP attese {cp_att:5.1f} -> osservate {n_cp:3d}   {'in linea' if n_cp >= 0.8*cp_att else 'SOTTO ATTESA'}")
+        P(f"            SE attese {se_att:5.1f} -> osservate {n_se:3d}   {'in linea' if n_se >= 0.8*se_att else 'SOTTO ATTESA'}")
+        if n_se < 0.6 * se_att:
+            P("            ALLARME: mancano stazioni rispetto al conteggio ufficiale della regione.")
+        P("            NB: se il disco sconfina in altre regioni il riferimento vale solo come ordine di grandezza.")
+    else:
+        P(f"    [DEBOLE] nessun riferimento ufficiale per --regione '{args.regione or ''}': uso il file nazionale")
+        P(f"            CP attese {CP_NAZ*area/AREA_IT:5.1f} -> osservate {n_cp:3d}")
+        P(f"            SE attese {SE_NAZ*area/AREA_IT:5.1f} -> osservate {n_se:3d}")
+        P("            Questo confronto NON e' una prova: la collezione 'terna' del file nazionale e' eterogenea")
+        P("            (stazioni RTN, impianti di terzi, progetti in iter) e sovrastima le stazioni attese in zona.")
+        P("            Per un giudizio valido serve il conteggio ufficiale Terna della regione: vedi RIFERIMENTI_REGIONALI.")
     if n_cp and cp_viv:
-        P(f"    rapporto SE/CP  nazionale {SE_NAZ/CP_NAZ:.2f} | locale {n_se/n_cp:.2f} | locale solo esistenti {se_viv/cp_viv:.2f}")
-        if se_viv / cp_viv < 0.5 * (SE_NAZ / CP_NAZ):
-            P(f"    ALLARME: il layer SE esistenti e a {se_viv/cp_viv/(SE_NAZ/CP_NAZ)*100:.0f}% della densita nazionale.")
-            P("             Ogni CP e alimentata dall alta tensione: se le SE mancano, la fonte del layer e incompleta")
-            P("             (tipico dei layer derivati da OpenStreetMap). Sostituire con l elenco impianti RTN di Terna.")
+        P(f"    rapporto SE/CP  file nazionale {SE_NAZ/CP_NAZ:.2f} | locale {n_se/n_cp:.2f} | locale solo esistenti {se_viv/cp_viv:.2f}")
+        P("    Un rapporto locale basso NON basta a dichiarare un buco: in pianura molte CP sono alimentate da linee")
+        P("    e non da una stazione vicina. Confermare sempre col conteggio regionale ufficiale prima di allarmarsi.")
 
     # 6 - fascia cieca
     if centro and haversine(centro, punto) > 0.5:
