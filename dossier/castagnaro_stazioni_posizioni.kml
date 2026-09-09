@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2"><Document>
+<name>Castagnaro - connessione elettrica</name>
+<description>Nodi elettrici e corridoio 132 kV attorno alle particelle Fg.11/Fg.12 di Castagnaro (VR). Distanze misurate dal centroide delle particelle 45.097205, 11.387268.</description>
+
+<Style id="se"><IconStyle><color>ff0000ff</color><scale>1.2</scale>
+<Icon><href>http://maps.google.com/mapfiles/kml/shapes/electronics.png</href></Icon></IconStyle>
+<LabelStyle><scale>0.9</scale></LabelStyle></Style>
+<Style id="se_iter"><IconStyle><color>ff00a5ff</color><scale>1.1</scale>
+<Icon><href>http://maps.google.com/mapfiles/kml/shapes/electronics.png</href></Icon></IconStyle>
+<LabelStyle><scale>0.8</scale></LabelStyle></Style>
+<Style id="cp_rosso"><IconStyle><color>ff0000cc</color><scale>0.9</scale>
+<Icon><href>http://maps.google.com/mapfiles/kml/shapes/square.png</href></Icon></IconStyle></Style>
+<Style id="cp_ok"><IconStyle><color>ff00cc00</color><scale>0.9</scale>
+<Icon><href>http://maps.google.com/mapfiles/kml/shapes/square.png</href></Icon></IconStyle></Style>
+<Style id="cp_altro"><IconStyle><color>ff00ccff</color><scale>0.9</scale>
+<Icon><href>http://maps.google.com/mapfiles/kml/shapes/square.png</href></Icon></IconStyle></Style>
+<Style id="rfi"><IconStyle><color>ffcccccc</color><scale>0.7</scale>
+<Icon><href>http://maps.google.com/mapfiles/kml/shapes/rail.png</href></Icon></IconStyle></Style>
+<Style id="appross"><IconStyle><color>ff00ffff</color><scale>0.9</scale>
+<Icon><href>http://maps.google.com/mapfiles/kml/shapes/caution.png</href></Icon></IconStyle></Style>
+<Style id="terreno"><LineStyle><color>ff0000ff</color><width>3</width></LineStyle>
+<PolyStyle><color>5000ffff</color></PolyStyle></Style>
+<Style id="linea132"><LineStyle><color>ffff00ff</color><width>4</width></LineStyle></Style>
+<Style id="target"><IconStyle><color>ff00ff00</color><scale>1.4</scale>
+<Icon><href>http://maps.google.com/mapfiles/kml/shapes/target.png</href></Icon></IconStyle></Style>
+
+<Folder><name>1 - TERRENO (Fg.11 e Fg.12, 50,24 ha)</name>
+<Placemark><name>Fg.11 P.11</name><description>Foglio: 11
+Particella: 11
+Area: 15.5365 ha (155,365 mq)
+gml_id: CadastralParcel.IT.AGE.PLA.C041_001100.11
+inspireid_localid: IT.AGE.PLA.C041_001100.11
+inspireid_namespace: IT.AGE.PLA.
+label: 11
+nationalcadastralreference: C041_001100.11
+administrativeunit: C041</description><styleUrl>#terreno</styleUrl><Polygon><outerBoundaryIs><LinearRing><coordinates>11.379028,45.09726,0 11.379045,45.097217,0 11.379109,45.09708,0 11.37937,45.09652,0 11.379617,45.095999,0 11.37991,45.09538,0 11.380159,45.094847,0 11.38037,45.094398,0 11.380504,45.094107,0 11.380529,45.094112,0 11.380669,45.094143,0 11.380979,45.094208,0 11.381703,45.094357,0 11.381966,45.09441,0 11.382403,45.094502,0 11.38299,45.094625,0 11.383493,45.09473,0 11.384002,45.094836,0 11.384386,45.094914,0 11.385004,45.095044,0 11.385263,45.095097,0 11.385661,45.095178,0 11.38543,45.095683,0 11.384804,45.097012,0 11.384263,45.098182,0 11.384206,45.098303,0 11.380453,45.097546,0 11.379972,45.097448,0 11.379028,45.09726,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Fg.11 P.12</name><description>Foglio: 11
+Particella: 12
+Area: 5.6189 ha (56,189 mq)
+gml_id: CadastralParcel.IT.AGE.PLA.C041_001100.12
+inspireid_localid: IT.AGE.PLA.C041_001100.12
+inspireid_namespace: IT.AGE.PLA.
+label: 12
+nationalcadastralreference: C041_001100.12
+administrativeunit: C041</description><styleUrl>#terreno</styleUrl><Polygon><outerBoundaryIs><LinearRing><coordinates>11.386466,45.097868,0 11.386094,45.098683,0 11.385169,45.098497,0 11.384206,45.098303,0 11.384263,45.098182,0 11.384804,45.097012,0 11.38543,45.095683,0 11.385661,45.095178,0 11.385966,45.095243,0 11.386453,45.095345,0 11.386976,45.095453,0 11.387538,45.095568,0 11.38754,45.095568,0 11.38736,45.095958,0 11.387045,45.09663,0 11.386788,45.09718,0 11.386466,45.097868,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Fg.11 P.13</name><description>Foglio: 11
+Particella: 13
+Area: 5.9816 ha (59,816 mq)
+gml_id: CadastralParcel.IT.AGE.PLA.C041_001100.13
+inspireid_localid: IT.AGE.PLA.C041_001100.13
+inspireid_namespace: IT.AGE.PLA.
+label: 13
+nationalcadastralreference: C041_001100.13
+administrativeunit: C041</description><styleUrl>#terreno</styleUrl><Polygon><outerBoundaryIs><LinearRing><coordinates>11.388247,45.097269,0 11.389913,45.097634,0 11.392022,45.098095,0 11.391621,45.098919,0 11.391233,45.099716,0 11.390165,45.0995,0 11.388551,45.099174,0 11.387486,45.098961,0 11.387624,45.09866,0 11.388247,45.097269,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Fg.11 P.30</name><description>Foglio: 11
+Particella: 30
+Area: 4.0855 ha (40,855 mq)
+gml_id: CadastralParcel.IT.AGE.PLA.C041_001100.30
+inspireid_localid: IT.AGE.PLA.C041_001100.30
+inspireid_namespace: IT.AGE.PLA.
+label: 30
+nationalcadastralreference: C041_001100.30
+administrativeunit: C041</description><styleUrl>#terreno</styleUrl><Polygon><outerBoundaryIs><LinearRing><coordinates>11.386094,45.098683,0 11.386466,45.097868,0 11.386788,45.09718,0 11.387045,45.09663,0 11.38736,45.095958,0 11.38754,45.095568,0 11.387954,45.095656,0 11.388248,45.095717,0 11.388886,45.095851,0 11.388247,45.097269,0 11.387624,45.09866,0 11.387486,45.098961,0 11.386867,45.098838,0 11.386094,45.098683,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Fg.11 P.232</name><description>Foglio: 11
+Particella: 232
+Area: 2.8420 ha (28,419 mq)
+gml_id: CadastralParcel.IT.AGE.PLA.C041_001100.232
+inspireid_localid: IT.AGE.PLA.C041_001100.232
+inspireid_namespace: IT.AGE.PLA.
+label: 232
+nationalcadastralreference: C041_001100.232
+administrativeunit: C041</description><styleUrl>#terreno</styleUrl><Polygon><outerBoundaryIs><LinearRing><coordinates>11.379045,45.097217,0 11.379028,45.09726,0 11.378924,45.097242,0 11.378895,45.096755,0 11.378851,45.095959,0 11.37881,45.095243,0 11.378804,45.095128,0 11.378768,45.094423,0 11.37873,45.09374,0 11.379643,45.093936,0 11.379934,45.093986,0 11.380504,45.094107,0 11.38037,45.094398,0 11.380159,45.094847,0 11.37991,45.09538,0 11.379617,45.095999,0 11.37937,45.09652,0 11.379109,45.09708,0 11.379045,45.097217,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Fg.11 P.233</name><description>Foglio: 11
+Particella: 233
+Area: 0.0214 ha (214 mq)
+gml_id: CadastralParcel.IT.AGE.PLA.C041_001100.233
+inspireid_localid: IT.AGE.PLA.C041_001100.233
+inspireid_namespace: IT.AGE.PLA.
+label: 233
+nationalcadastralreference: C041_001100.233
+administrativeunit: C041</description><styleUrl>#terreno</styleUrl><Polygon><outerBoundaryIs><LinearRing><coordinates>11.37889,45.097231,0 11.378862,45.097226,0 11.378812,45.096303,0 11.378837,45.096301,0 11.37885,45.096539,0 11.378882,45.097083,0 11.37889,45.097231,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Fg.11 P.237</name><description>Foglio: 11
+Particella: 237
+Area: 11.8332 ha (118,332 mq)
+gml_id: CadastralParcel.IT.AGE.PLA.C041_001100.237
+inspireid_localid: IT.AGE.PLA.C041_001100.237
+inspireid_namespace: IT.AGE.PLA.
+label: 237
+nationalcadastralreference: C041_001100.237
+administrativeunit: C041</description><styleUrl>#terreno</styleUrl><Polygon><outerBoundaryIs><LinearRing><coordinates>11.392862,45.099675,0 11.392516,45.099972,0 11.392516,45.099972,0 11.391233,45.099716,0 11.391621,45.098919,0 11.392022,45.098095,0 11.389913,45.097634,0 11.388247,45.097269,0 11.388886,45.095851,0 11.389277,45.09593,0 11.389703,45.096017,0 11.390184,45.096117,0 11.3905,45.096184,0 11.390891,45.096265,0 11.391561,45.096408,0 11.391924,45.096483,0 11.392565,45.09662,0 11.393409,45.096793,0 11.393813,45.096879,0 11.394436,45.097011,0 11.394792,45.097085,0 11.394894,45.097106,0 11.395785,45.097286,0 11.395566,45.097459,0 11.395024,45.097902,0 11.394646,45.098215,0 11.394557,45.098314,0 11.394301,45.098654,0 11.394047,45.099002,0 11.393355,45.099391,0 11.392862,45.099675,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Fg.11 P.238</name><description>Foglio: 11
+Particella: 238
+Area: 0.2392 ha (2,392 mq)
+gml_id: CadastralParcel.IT.AGE.PLA.C041_001100.238
+inspireid_localid: IT.AGE.PLA.C041_001100.238
+inspireid_namespace: IT.AGE.PLA.
+label: 238
+nationalcadastralreference: C041_001100.238
+administrativeunit: C041</description><styleUrl>#terreno</styleUrl><Polygon><outerBoundaryIs><LinearRing><coordinates>11.395566,45.097459,0 11.395785,45.097286,0 11.395855,45.097297,0 11.395736,45.097393,0 11.395627,45.097481,0 11.395237,45.097816,0 11.395094,45.097925,0 11.39486,45.098118,0 11.394725,45.098226,0 11.394615,45.098343,0 11.394386,45.098658,0 11.394111,45.099037,0 11.393803,45.099211,0 11.393363,45.099462,0 11.393063,45.099637,0 11.392868,45.099744,0 11.392627,45.099961,0 11.39259,45.099993,0 11.392516,45.099972,0 11.392862,45.099675,0 11.393355,45.099391,0 11.394047,45.099002,0 11.394301,45.098654,0 11.394557,45.098314,0 11.394646,45.098215,0 11.395024,45.097902,0 11.395566,45.097459,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Fg.12 P.257</name><description>Foglio: 12
+Particella: 257
+Area: 4.2377 ha (42,376 mq)
+gml_id: CadastralParcel.IT.AGE.PLA.C041_001200.257
+inspireid_localid: IT.AGE.PLA.C041_001200.257
+inspireid_namespace: IT.AGE.PLA.
+label: 257
+nationalcadastralreference: C041_001200.257
+administrativeunit: C041</description><styleUrl>#terreno</styleUrl><Polygon><outerBoundaryIs><LinearRing><coordinates>11.392812,45.100014,0 11.392722,45.099963,0 11.392846,45.099857,0 11.39299,45.099733,0 11.393378,45.099518,0 11.393725,45.09932,0 11.394186,45.099064,0 11.394473,45.09865,0 11.394621,45.098437,0 11.394677,45.098353,0 11.39478,45.098252,0 11.394946,45.098118,0 11.395295,45.097837,0 11.397046,45.098619,0 11.396572,45.098828,0 11.396412,45.098895,0 11.396308,45.098978,0 11.396082,45.099147,0 11.395931,45.099262,0 11.395779,45.099379,0 11.395638,45.099488,0 11.395406,45.099664,0 11.395186,45.099836,0 11.395021,45.099963,0 11.394818,45.10012,0 11.394622,45.100268,0 11.394469,45.100388,0 11.394222,45.100579,0 11.394088,45.100685,0 11.393937,45.100606,0 11.39347,45.100363,0 11.39311,45.100173,0 11.392812,45.100014,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+<Placemark><name>Fg.12 P.270</name><description>Foglio: 12
+Particella: 270
+Area: 0.1976 ha (1,975 mq)
+gml_id: CadastralParcel.IT.AGE.PLA.C041_001200.270
+inspireid_localid: IT.AGE.PLA.C041_001200.270
+inspireid_namespace: IT.AGE.PLA.
+label: 270
+nationalcadastralreference: C041_001200.270
+administrativeunit: C041</description><styleUrl>#terreno</styleUrl><Polygon><outerBoundaryIs><LinearRing><coordinates>11.392666,45.100014,0 11.392665,45.100015,0 11.392604,45.099981,0 11.392638,45.099952,0 11.392878,45.099732,0 11.393067,45.099626,0 11.393363,45.099454,0 11.393801,45.099205,0 11.394109,45.099032,0 11.394388,45.098647,0 11.394619,45.098327,0 11.394731,45.098213,0 11.394864,45.098105,0 11.395093,45.097915,0 11.395233,45.097808,0 11.395295,45.097837,0 11.394946,45.098118,0 11.39478,45.098252,0 11.394677,45.098353,0 11.394621,45.098437,0 11.394473,45.09865,0 11.394186,45.099064,0 11.393725,45.09932,0 11.393378,45.099518,0 11.39299,45.099733,0 11.392846,45.099857,0 11.392722,45.099963,0 11.392666,45.100014,0</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark>
+</Folder>
+<Folder><name>2 - CORRIDOIO 132 kV Castelmassa-Trecenta-Lendinara</name>
+<Placemark><name>Linea 132 kV Castelmassa - Lendinara (tracciato approssimato)</name><description>Spezzata fra tre nodi reali. Il tracciato vero va verificato su cartografia Terna: questa e la migliore approssimazione ricavabile dai nodi noti.</description><styleUrl>#linea132</styleUrl><LineString><tessellate>1</tessellate><coordinates>11.3139378,45.0252957,0 11.43761,45.024032,0 11.54828,45.06192,0</coordinates></LineString></Placemark>
+<Placemark><name>PUNTO DI ATTACCO PIU VICINO (8,0 km dal terreno)</name><description>Punto del corridoio piu vicino al centroide delle particelle. E qui che andrebbe una stazione di utenza in entra-esce, se il tracciato reale conferma.</description><styleUrl>#target</styleUrl><Point><coordinates>11.38580,45.02456,0</coordinates></Point></Placemark></Folder>
+<Folder><name>3 - STAZIONI TERNA (rosso=esistente, arancio=in iter)</name>
+<Placemark><name>Nuova SE in iter - Trecenta (VEN) 132kV [VIP 8374,11364] — 9.0 km</name><description>distanza reale dal terreno: 9.05 km<br/>nome: Nuova SE in iter - Trecenta (VEN) 132kV [VIP 8374,11364]<br/>dist_km: 10.9<br/>prov: RO<br/>kV: 132.0<br/>stato_iter: In iter MASE (VIA/PAUR)<br/>operatore: Terna</description><styleUrl>#se_iter</styleUrl><Point><coordinates>11.43761,45.024032,0</coordinates></Point></Placemark>
+<Placemark><name>Castelmassa — 9.9 km</name><description>distanza reale dal terreno: 9.85 km<br/>nome: Castelmassa<br/>dist_km: 13.0<br/>prov: RO<br/>comune: Castelmassa<br/>kV: 132<br/>MVA: nan<br/>stato_iter: STIMA_GIALLO<br/>operatore: Terna</description><styleUrl>#se</styleUrl><Point><coordinates>11.3139378,45.0252957,0</coordinates></Point></Placemark>
+<Placemark><name>Sermide — 13.4 km</name><description>distanza reale dal terreno: 13.42 km<br/>nome: Sermide<br/>dist_km: 16.5<br/>prov: MN<br/>kV: 380.0<br/>operatore: Edipower</description><styleUrl>#se</styleUrl><Point><coordinates>11.2510132,45.0244055,0</coordinates></Point></Placemark>
+<Placemark><name>San Bellino Centrale — 16.4 km</name><description>distanza reale dal terreno: 16.43 km<br/>nome: San Bellino Centrale<br/>dist_km: 16.1<br/>prov: RO<br/>comune: San Bellino<br/>kV: 132<br/>MVA: nan<br/>stato_iter: STIMA_GIALLO<br/>operatore: Terna</description><styleUrl>#se</styleUrl><Point><coordinates>11.5777835,45.0361721,0</coordinates></Point></Placemark>
+<Placemark><name>Nuova SE in iter - Sant&#x27;Urbano (VEN) 132kV [VIP 8228] — 19.9 km</name><description>distanza reale dal terreno: 19.92 km<br/>nome: Nuova SE in iter - Sant&#x27;Urbano (VEN) 132kV [VIP 8228]<br/>dist_km: 17.7<br/>prov: PD<br/>kV: 132.0<br/>stato_iter: In iter MASE (VIA/PAUR)<br/>operatore: Terna</description><styleUrl>#se_iter</styleUrl><Point><coordinates>11.635957,45.13305,0</coordinates></Point></Placemark>
+<Placemark><name>Ostiglia centrale — 20.0 km</name><description>distanza reale dal terreno: 19.97 km<br/>nome: Ostiglia centrale<br/>dist_km: 22.4<br/>prov: MN<br/>comune: Revere<br/>kV: 380<br/>MVA: nan<br/>stato_iter: STIMA_GIALLO<br/>operatore: Terna</description><styleUrl>#se</styleUrl><Point><coordinates>11.1385207,45.0597464,0</coordinates></Point></Placemark>
+<Placemark><name>Nuova SE in iter - Barbona (VEN) [VIP 9469] — 23.2 km</name><description>distanza reale dal terreno: 23.22 km<br/>nome: Nuova SE in iter - Barbona (VEN) [VIP 9469]<br/>dist_km: 21.3<br/>prov: PD<br/>stato_iter: In iter MASE (VIA/PAUR)<br/>operatore: Terna</description><styleUrl>#se_iter</styleUrl><Point><coordinates>11.682407,45.111681,0</coordinates></Point></Placemark>
+<Placemark><name>Nuova SE in iter - Costa di Rovigo (VEN) [VIP 9917] — 25.3 km</name><description>distanza reale dal terreno: 25.30 km<br/>nome: Nuova SE in iter - Costa di Rovigo (VEN) [VIP 9917]<br/>dist_km: 24.2<br/>prov: RO<br/>stato_iter: In iter MASE (VIA/PAUR)<br/>operatore: Terna</description><styleUrl>#se_iter</styleUrl><Point><coordinates>11.703136,45.052398,0</coordinates></Point></Placemark>
+<Placemark><name>Nuova SE in iter - Polesella (VEN) 380/150kV [VIP 11229] — 27.0 km</name><description>distanza reale dal terreno: 26.95 km<br/>nome: Nuova SE in iter - Polesella (VEN) 380/150kV [VIP 11229]<br/>dist_km: 27.4<br/>prov: RO<br/>kV: 380.0<br/>stato_iter: In iter MASE (VIA/PAUR)<br/>operatore: Terna</description><styleUrl>#se_iter</styleUrl><Point><coordinates>11.649508,44.941049,0</coordinates></Point></Placemark>
+<Placemark><name>Canaro centrale — 27.0 km</name><description>distanza reale dal terreno: 26.95 km<br/>nome: Canaro centrale<br/>dist_km: 27.4<br/>prov: RO<br/>comune: Canaro<br/>kV: 132<br/>MVA: nan<br/>stato_iter: STIMA_GIALLO<br/>operatore: Terna</description><styleUrl>#se</styleUrl><Point><coordinates>11.6495083,44.9410492,0</coordinates></Point></Placemark>
+<Placemark><name>Nuova SE Bovolone 380/150kV — 27.5 km</name><description>distanza reale dal terreno: 27.46 km<br/>nome: Nuova SE Bovolone 380/150kV<br/>dist_km: 27.4<br/>prov: VR<br/>comune: Bovolone<br/>kV: 380<br/>MVA: 500.0<br/>stato_iter: In iter MASE<br/>operatore: Terna</description><styleUrl>#se_iter</styleUrl><Point><coordinates>11.1175,45.2547,0</coordinates></Point></Placemark>
+</Folder>
+<Folder><name>4 - CABINE PRIMARIE (rosso=saturo, verde=libero)</name>
+<Placemark><name>TORRICELLA — 8.3 km</name><description>distanza reale dal terreno: 8.26 km<br/>nome: TORRICELLA<br/>dist_km: 11.3<br/>prov: MN<br/>comune: Castelnovo Bariano<br/>stato_peggiore: ROSSO<br/>stato_iter: In Esercizio<br/>rosso: 2<br/>giallo: 0<br/>arancio: 0<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.30213,45.05351,0</coordinates></Point></Placemark>
+<Placemark><name>CENESELLI — 9.4 km</name><description>distanza reale dal terreno: 9.39 km<br/>nome: CENESELLI<br/>dist_km: 12.3<br/>prov: RO<br/>comune: Ceneselli<br/>stato_iter: PdS: NUOVA CP<br/>rosso: 0<br/>giallo: 0<br/>arancio: 0<br/>verde: 0<br/>n_sez: 0<br/>n_traf: 0</description><styleUrl>#cp_altro</styleUrl><Point><coordinates>11.3691561,45.0136954,0</coordinates></Point></Placemark>
+<Placemark><name>LENDINARA — 13.2 km</name><description>distanza reale dal terreno: 13.24 km<br/>nome: LENDINARA<br/>dist_km: 12.6<br/>prov: PD<br/>comune: Castelguglielmo<br/>stato_peggiore: ROSSO<br/>stato_iter: In Esercizio<br/>rosso: 1<br/>giallo: 0<br/>arancio: 1<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.54828,45.06192,0</coordinates></Point></Placemark>
+<Placemark><name>LEGNAGO — 13.5 km</name><description>distanza reale dal terreno: 13.50 km<br/>nome: LEGNAGO<br/>dist_km: 12.4<br/>prov: PD<br/>comune: Legnago<br/>stato_peggiore: ROSSO<br/>stato_iter: In Esercizio<br/>rosso: 1<br/>giallo: 2<br/>arancio: 0<br/>verde: 0<br/>n_sez: 3<br/>n_traf: 3</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.30667,45.20444,0</coordinates></Point></Placemark>
+<Placemark><name>SALARA — 13.9 km</name><description>distanza reale dal terreno: 13.89 km<br/>nome: SALARA<br/>dist_km: 15.8<br/>prov: RO<br/>comune: Salara<br/>stato_peggiore: ROSSO<br/>stato_iter: In Esercizio<br/>rosso: 2<br/>giallo: 0<br/>arancio: 0<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.45456,44.98165,0</coordinates></Point></Placemark>
+<Placemark><name>CASALE SCODOSIA — 14.5 km</name><description>distanza reale dal terreno: 14.55 km<br/>nome: CASALE SCODOSIA<br/>dist_km: 11.4<br/>prov: PD<br/>comune: Megliadino San Vitale<br/>stato_peggiore: ROSSO<br/>stato_iter: In Esercizio<br/>rosso: 1<br/>giallo: 0<br/>arancio: 0<br/>verde: 0<br/>n_sez: 1<br/>n_traf: 1</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.49919,45.20154,0</coordinates></Point></Placemark>
+<Placemark><name>VENERA — 19.0 km</name><description>distanza reale dal terreno: 19.02 km<br/>nome: VENERA<br/>dist_km: 19.4<br/>prov: VR<br/>comune: Cerea<br/>stato_peggiore: ARANCIO<br/>stato_iter: In Esercizio<br/>rosso: 0<br/>giallo: 1<br/>arancio: 1<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.18543,45.192,0</coordinates></Point></Placemark>
+<Placemark><name>OSTIGLIA — 19.4 km</name><description>distanza reale dal terreno: 19.39 km<br/>nome: OSTIGLIA<br/>dist_km: 21.9<br/>prov: MN<br/>comune: Revere<br/>stato_peggiore: ARANCIO<br/>stato_iter: In Esercizio<br/>rosso: 0<br/>giallo: 1<br/>arancio: 1<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.14634,45.05901,0</coordinates></Point></Placemark>
+<Placemark><name>Nuova CP Vighizzolo — 20.7 km</name><description>distanza reale dal terreno: 20.69 km<br/>nome: Nuova CP Vighizzolo<br/>dist_km: 18.0<br/>prov: PD<br/>comune: Vighizzolo d&#x27;Este<br/>stato_iter: Pianificata PdS<br/>rosso: 0<br/>giallo: 0<br/>arancio: 0<br/>verde: 0<br/>n_sez: 0<br/>n_traf: 0</description><styleUrl>#cp_altro</styleUrl><Point><coordinates>11.6256,45.177,0</coordinates></Point></Placemark>
+<Placemark><name>NUOVA CP FRATTA POLESINE — 21.5 km</name><description>distanza reale dal terreno: 21.54 km<br/>nome: NUOVA CP FRATTA POLESINE<br/>dist_km: 20.8<br/>prov: RO</description><styleUrl>#cp_altro</styleUrl><Point><coordinates>11.647568,45.036261,0</coordinates></Point></Placemark>
+<Placemark><name>CP Fratta Polesine — 21.6 km</name><description>distanza reale dal terreno: 21.56 km<br/>nome: CP Fratta Polesine<br/>dist_km: 20.8<br/>prov: RO</description><styleUrl>#cp_altro</styleUrl><Point><coordinates>11.647975,45.036459,0</coordinates></Point></Placemark>
+<Placemark><name>VILLA POMA — 23.5 km</name><description>distanza reale dal terreno: 23.54 km<br/>nome: VILLA POMA<br/>dist_km: 26.5<br/>prov: MN<br/>comune: Villa Poma<br/>stato_peggiore: ROSSO<br/>stato_iter: In Esercizio<br/>rosso: 2<br/>giallo: 0<br/>arancio: 0<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.12644,44.99297,0</coordinates></Point></Placemark>
+<Placemark><name>ESTE S.CROCE — 24.0 km</name><description>distanza reale dal terreno: 23.95 km<br/>nome: ESTE S.CROCE<br/>dist_km: 20.8<br/>prov: PD<br/>comune: Ospedaletto Euganeo<br/>stato_peggiore: GIALLO<br/>stato_iter: In Esercizio<br/>rosso: 0<br/>giallo: 2<br/>arancio: 0<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_ok</styleUrl><Point><coordinates>11.60081,45.25128,0</coordinates></Point></Placemark>
+<Placemark><name>NOVENTA — 24.0 km</name><description>distanza reale dal terreno: 23.95 km<br/>nome: NOVENTA<br/>dist_km: 20.8<br/>prov: PD<br/>comune: Noventa Vicentina<br/>stato_peggiore: ROSSO<br/>stato_iter: In Esercizio<br/>rosso: 1<br/>giallo: 1<br/>arancio: 0<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.54804,45.28041,0</coordinates></Point></Placemark>
+<Placemark><name>COLOGNA — 24.4 km</name><description>distanza reale dal terreno: 24.45 km<br/>nome: COLOGNA<br/>dist_km: 22.0<br/>prov: PD<br/>comune: Cologna Veneta<br/>stato_peggiore: ROSSO<br/>stato_iter: In Esercizio<br/>rosso: 1<br/>giallo: 1<br/>arancio: 0<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.37258,45.31684,0</coordinates></Point></Placemark>
+<Placemark><name>BONDENO — 24.6 km</name><description>distanza reale dal terreno: 24.60 km<br/>nome: BONDENO<br/>dist_km: 27.1<br/>prov: FE<br/>comune: Bondeno<br/>stato_peggiore: ROSSO<br/>stato_iter: In Esercizio<br/>rosso: 2<br/>giallo: 0<br/>arancio: 0<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.41744,44.87698,0</coordinates></Point></Placemark>
+<Placemark><name>NOGARA — 25.4 km</name><description>distanza reale dal terreno: 25.41 km<br/>nome: NOGARA<br/>dist_km: 26.4<br/>prov: VR<br/>comune: Nogara<br/>stato_peggiore: ROSSO<br/>stato_iter: In Esercizio<br/>rosso: 1<br/>giallo: 1<br/>arancio: 0<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.0862,45.1817,0</coordinates></Point></Placemark>
+<Placemark><name>CANARO — 27.0 km</name><description>distanza reale dal terreno: 27.03 km<br/>nome: CANARO<br/>dist_km: 27.5<br/>prov: RO<br/>comune: Canaro<br/>stato_peggiore: ARANCIO<br/>stato_iter: In Esercizio<br/>rosso: 0<br/>giallo: 1<br/>arancio: 1<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.64879,44.93932,0</coordinates></Point></Placemark>
+<Placemark><name>ESTE NUOVA — 27.2 km</name><description>distanza reale dal terreno: 27.22 km<br/>nome: ESTE NUOVA<br/>dist_km: 24.3<br/>prov: PD<br/>comune: Este<br/>stato_peggiore: ARANCIO<br/>stato_iter: In Esercizio<br/>rosso: 0<br/>giallo: 1<br/>arancio: 1<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.68065,45.22812,0</coordinates></Point></Placemark>
+<Placemark><name>S.MARIA MADDALENA — 28.5 km</name><description>distanza reale dal terreno: 28.53 km<br/>nome: S.MARIA MADDALENA<br/>dist_km: 29.5<br/>prov: RO<br/>comune: Occhiobello<br/>stato_peggiore: VERDE<br/>stato_iter: In Esercizio<br/>rosso: 0<br/>giallo: 0<br/>arancio: 0<br/>verde: 1<br/>n_sez: 1<br/>n_traf: 1</description><styleUrl>#cp_ok</styleUrl><Point><coordinates>11.61507,44.89752,0</coordinates></Point></Placemark>
+<Placemark><name>ROVIGO P.A. — 31.4 km</name><description>distanza reale dal terreno: 31.35 km<br/>nome: ROVIGO P.A.<br/>dist_km: 29.7<br/>prov: PD<br/>comune: Rovigo<br/>stato_peggiore: ARANCIO<br/>stato_iter: In Esercizio<br/>rosso: 0<br/>giallo: 1<br/>arancio: 1<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.78631,45.0857,0</coordinates></Point></Placemark>
+<Placemark><name>ROVIGO P.A. (45.0859, 11.7864) — 31.4 km</name><description>distanza reale dal terreno: 31.36 km<br/>nome: ROVIGO P.A. (45.0859, 11.7864)<br/>dist_km: 29.7<br/>prov: RO</description><styleUrl>#cp_altro</styleUrl><Point><coordinates>11.786399,45.0859,0</coordinates></Point></Placemark>
+<Placemark><name>PONTE BOTTI — 31.8 km</name><description>distanza reale dal terreno: 31.77 km<br/>nome: PONTE BOTTI<br/>dist_km: 28.7<br/>prov: PD<br/>comune: Sossano<br/>stato_peggiore: ARANCIO<br/>stato_iter: In Esercizio<br/>rosso: 0<br/>giallo: 1<br/>arancio: 1<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.54255,45.36113,0</coordinates></Point></Placemark>
+<Placemark><name>MONSELICE — 31.8 km</name><description>distanza reale dal terreno: 31.81 km<br/>nome: MONSELICE<br/>dist_km: 29.0<br/>prov: PD<br/>comune: Monselice<br/>stato_peggiore: ARANCIO<br/>stato_iter: In Esercizio<br/>rosso: 0<br/>giallo: 1<br/>arancio: 1<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_rosso</styleUrl><Point><coordinates>11.75146,45.22319,0</coordinates></Point></Placemark>
+<Placemark><name>LONIGO — 32.4 km</name><description>distanza reale dal terreno: 32.41 km<br/>nome: LONIGO<br/>dist_km: 29.9<br/>prov: VR<br/>comune: Lonigo<br/>stato_peggiore: GIALLO<br/>stato_iter: In Esercizio<br/>rosso: 0<br/>giallo: 2<br/>arancio: 0<br/>verde: 0<br/>n_sez: 2<br/>n_traf: 2</description><styleUrl>#cp_ok</styleUrl><Point><coordinates>11.37708,45.38858,0</coordinates></Point></Placemark>
+</Folder>
+<Folder><name>5 - SOTTOSTAZIONI RFI (trazione ferroviaria)</name>
+<Placemark><name>Legnago FS — 12.7 km</name><description>distanza reale dal terreno: 12.67 km<br/>nome: Legnago FS<br/>dist_km: 12.1<br/>prov: VR<br/>comune: Legnago<br/>stato_iter: Esistente (OSM)<br/>operatore: RFI</description><styleUrl>#rfi</styleUrl><Point><coordinates>11.290987,45.188673,0</coordinates></Point></Placemark>
+<Placemark><name>Saletto FS — 18.4 km</name><description>distanza reale dal terreno: 18.36 km<br/>nome: Saletto FS<br/>dist_km: 15.2<br/>prov: PD<br/>comune: Saletto<br/>stato_iter: Esistente (OSM)<br/>operatore: RFI</description><styleUrl>#rfi</styleUrl><Point><coordinates>11.538638,45.223126,0</coordinates></Point></Placemark>
+<Placemark><name>Nogara FS — 27.2 km</name><description>distanza reale dal terreno: 27.21 km<br/>nome: Nogara FS<br/>dist_km: 28.2<br/>prov: VR<br/>comune: Nogara<br/>stato_iter: Esistente (OSM)<br/>operatore: RFI</description><styleUrl>#rfi</styleUrl><Point><coordinates>11.062886,45.183841,0</coordinates></Point></Placemark>
+<Placemark><name>Rovigo FS — 30.9 km</name><description>distanza reale dal terreno: 30.87 km<br/>nome: Rovigo FS<br/>dist_km: 29.3<br/>prov: RO<br/>comune: Rovigo<br/>stato_iter: Esistente (OSM)<br/>operatore: RFI</description><styleUrl>#rfi</styleUrl><Point><coordinates>11.779794,45.080895,0</coordinates></Point></Placemark>
+<Placemark><name>Monselice FS — 32.3 km</name><description>distanza reale dal terreno: 32.34 km<br/>nome: Monselice FS<br/>dist_km: 29.5<br/>prov: PD<br/>comune: Monselice<br/>stato_iter: Esistente (OSM)<br/>operatore: RFI</description><styleUrl>#rfi</styleUrl><Point><coordinates>11.744695,45.242419,0</coordinates></Point></Placemark>
+</Folder>
+<Folder><name>6 - PROGETTI: POSIZIONE APPROSSIMATA (centroide comunale, NON usare per progettare)</name>
+<Placemark><name>~3 km — ECO-ENERGY PAUR 82 - agrivoltaico + accumulo</name><description>ATTENZIONE: coordinata = centroide del comune, affidabilita BASSA.<br/>SUL TUO BLOCCO: Castagnaro, Ceneselli, Giacciano, Villa Bartolomea. Connessione da verificare nel fascicolo.</description><styleUrl>#appross</styleUrl><Point><coordinates>11.4108,45.1205,0</coordinates></Point></Placemark>
+<Placemark><name>~9 km — Opere connessione - Castelnovo Solar CASTELNOVO B. (15,03 MWp)</name><description>ATTENZIONE: coordinata = centroide del comune, affidabilita BASSA.<br/>Comuni: Castelnuovo Bariano, Ceneselli, Giacciano, Trecenta, Bagnolo.</description><styleUrl>#appross</styleUrl><Point><coordinates>11.32,45.03,0</coordinates></Point></Placemark>
+<Placemark><name>~9 km — Nuova SE 132/36 kV - Ceneselli-PV001 (53,65 MWp)</name><description>ATTENZIONE: coordinata = centroide del comune, affidabilita BASSA.<br/>VIA Info/11557. Entra-esce su Castelmassa-Lendinara e Bussolengo S.S.-Portale SEF. Possibile DOPPIONE della Nuova SE Trecenta: da verificare.</description><styleUrl>#appross</styleUrl><Point><coordinates>11.3692,45.0137,0</coordinates></Point></Placemark>
+<Placemark><name>~10 km — Nuova SE 132 kV - PVEXO Cassiopea (54 MW AC)</name><description>ATTENZIONE: coordinata = centroide del comune, affidabilita BASSA.<br/>STMG Terna rilasciata. Entra-esce su Castelmassa-Lendinara.</description><styleUrl>#appross</styleUrl><Point><coordinates>11.462,45.03,0</coordinates></Point></Placemark>
+<Placemark><name>~10 km — Opere connessione - AIEM Green (41,07 MWp)</name><description>ATTENZIONE: coordinata = centroide del comune, affidabilita BASSA.<br/>Comuni: Trecenta, Bagnolo di Po, Salara, Canda, Badia Polesine, Giacciano, Ceneselli.</description><styleUrl>#appross</styleUrl><Point><coordinates>11.462,45.03,0</coordinates></Point></Placemark>
+<Placemark><name>~17 km — Opere connessione - ICA Solar Gaiba ovest+est (46 MWp + 45 MW storage)</name><description>ATTENZIONE: coordinata = centroide del comune, affidabilita BASSA.<br/>Comuni: Gaiba, Ficarolo, Bagnolo di Po, Trecenta, Salara.</description><styleUrl>#appross</styleUrl><Point><coordinates>11.5,44.965,0</coordinates></Point></Placemark>
+<Placemark><name>~32 km — SE smistamento Terna 132 kV + SSE Agrovoltaica (49 MWp)</name><description>ATTENZIONE: coordinata = centroide del comune, affidabilita BASSA.<br/>AUTORIZZATA con DGR 1499 del 04/12/2023.</description><styleUrl>#appross</styleUrl><Point><coordinates>11.79,45.07,0</coordinates></Point></Placemark>
+</Folder></Document></kml>

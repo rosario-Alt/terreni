@@ -5,3 +5,7 @@ analisi/*_pulito.json
 analisi/*_pulito.csv
 analisi/*_report.txt
 *.kml
+
+# eccezione: il dossier consegnato al collaboratore e' versionato apposta
+!dossier/
+!dossier/*

@@ -1,0 +1,42 @@
+﻿_km_terreno;_dir;_tipo;nome;comune;prov;lat;lon;kV;MVA;stato_iter;stato_peggiore;rosso;arancio;giallo;verde;n_sez;operatore;dist_km;_delta_vs_loro
+8.26;SO;CP e-dist;TORRICELLA;Castelnovo Bariano;MN;45.05351;11.30213;;;In Esercizio;ROSSO;2;0;0;0;2;;11.3;-3.04
+9.05;SE;SE Terna;Nuova SE in iter - Trecenta (VEN) 132kV [VIP 8374,11364];;RO;45.024032;11.43761;132.0;;In iter MASE (VIA/PAUR);;;;;;;Terna;10.9;-1.85
+9.39;S;CP e-dist;CENESELLI;Ceneselli;RO;45.0136954;11.3691561;;;PdS: NUOVA CP;;0;0;0;0;0;;12.3;-2.91
+9.85;SO;SE Terna;Castelmassa;Castelmassa;RO;45.0252957;11.3139378;132;nan;STIMA_GIALLO;;;;;;;Terna;13.0;-3.15
+12.67;NO;RFI;Legnago FS;Legnago;VR;45.188673;11.290987;;;Esistente (OSM);;;;;;;RFI;12.1;0.57
+13.24;E;CP e-dist;LENDINARA;Castelguglielmo;PD;45.06192;11.54828;;;In Esercizio;ROSSO;1;1;0;0;2;;12.6;0.64
+13.42;SO;SE Terna;Sermide;;MN;45.0244055;11.2510132;380.0;;;;;;;;;Edipower;16.5;-3.08
+13.5;NO;CP e-dist;LEGNAGO;Legnago;PD;45.20444;11.30667;;;In Esercizio;ROSSO;1;0;2;0;3;;12.4;1.1
+13.89;S;CP e-dist;SALARA;Salara;RO;44.98165;11.45456;;;In Esercizio;ROSSO;2;0;0;0;2;;15.8;-1.91
+14.55;NE;CP e-dist;CASALE SCODOSIA;Megliadino San Vitale;PD;45.20154;11.49919;;;In Esercizio;ROSSO;1;0;0;0;1;;11.4;3.15
+16.43;SE;SE Terna;San Bellino Centrale;San Bellino;RO;45.0361721;11.5777835;132;nan;STIMA_GIALLO;;;;;;;Terna;16.1;0.33
+18.36;NE;RFI;Saletto FS;Saletto;PD;45.223126;11.538638;;;Esistente (OSM);;;;;;;RFI;15.2;3.16
+19.02;NO;CP e-dist;VENERA;Cerea;VR;45.192;11.18543;;;In Esercizio;ARANCIO;0;1;1;0;2;;19.4;-0.38
+19.39;O;CP e-dist;OSTIGLIA;Revere;MN;45.05901;11.14634;;;In Esercizio;ARANCIO;0;1;1;0;2;;21.9;-2.51
+19.92;E;SE Terna;Nuova SE in iter - Sant'Urbano (VEN) 132kV [VIP 8228];;PD;45.13305;11.635957;132.0;;In iter MASE (VIA/PAUR);;;;;;;Terna;17.7;2.22
+19.97;O;SE Terna;Ostiglia centrale;Revere;MN;45.0597464;11.1385207;380;nan;STIMA_GIALLO;;;;;;;Terna;22.4;-2.43
+20.69;NE;CP e-dist;Nuova CP Vighizzolo;Vighizzolo d'Este;PD;45.177;11.6256;;;Pianificata PdS;;0;0;0;0;0;;18.0;2.69
+21.54;E;CP e-dist;NUOVA CP FRATTA POLESINE;;RO;45.036261;11.647568;;;;;;;;;;;20.8;0.74
+21.56;E;CP e-dist;CP Fratta Polesine;;RO;45.036459;11.647975;;;;;;;;;;;20.8;0.76
+23.22;E;SE Terna;Nuova SE in iter - Barbona (VEN) [VIP 9469];;PD;45.111681;11.682407;;;In iter MASE (VIA/PAUR);;;;;;;Terna;21.3;1.92
+23.54;SO;CP e-dist;VILLA POMA;Villa Poma;MN;44.99297;11.12644;;;In Esercizio;ROSSO;2;0;0;0;2;;26.5;-2.96
+23.95;NE;CP e-dist;ESTE S.CROCE;Ospedaletto Euganeo;PD;45.25128;11.60081;;;In Esercizio;GIALLO;0;0;2;0;2;;20.8;3.15
+23.95;NE;CP e-dist;NOVENTA;Noventa Vicentina;PD;45.28041;11.54804;;;In Esercizio;ROSSO;1;0;1;0;2;;20.8;3.15
+24.45;N;CP e-dist;COLOGNA;Cologna Veneta;PD;45.31684;11.37258;;;In Esercizio;ROSSO;1;0;1;0;2;;22.0;2.45
+24.6;S;CP e-dist;BONDENO;Bondeno;FE;44.87698;11.41744;;;In Esercizio;ROSSO;2;0;0;0;2;;27.1;-2.5
+25.3;E;SE Terna;Nuova SE in iter - Costa di Rovigo (VEN) [VIP 9917];;RO;45.052398;11.703136;;;In iter MASE (VIA/PAUR);;;;;;;Terna;24.2;1.1
+25.41;O;CP e-dist;NOGARA;Nogara;VR;45.1817;11.0862;;;In Esercizio;ROSSO;1;0;1;0;2;;26.4;-0.99
+26.95;SE;SE Terna;Canaro centrale;Canaro;RO;44.9410492;11.6495083;132;nan;STIMA_GIALLO;;;;;;;Terna;27.4;-0.45
+26.95;SE;SE Terna;Nuova SE in iter - Polesella (VEN) 380/150kV [VIP 11229];;RO;44.941049;11.649508;380.0;;In iter MASE (VIA/PAUR);;;;;;;Terna;27.4;-0.45
+27.03;SE;CP e-dist;CANARO;Canaro;RO;44.93932;11.64879;;;In Esercizio;ARANCIO;0;1;1;0;2;;27.5;-0.47
+27.21;O;RFI;Nogara FS;Nogara;VR;45.183841;11.062886;;;Esistente (OSM);;;;;;;RFI;28.2;-0.99
+27.22;NE;CP e-dist;ESTE NUOVA;Este;PD;45.22812;11.68065;;;In Esercizio;ARANCIO;0;1;1;0;2;;24.3;2.92
+27.46;NO;SE Terna;Nuova SE Bovolone 380/150kV;Bovolone;VR;45.2547;11.1175;380;500.0;In iter MASE;;;;;;;Terna;27.4;0.06
+28.53;SE;CP e-dist;S.MARIA MADDALENA;Occhiobello;RO;44.89752;11.61507;;;In Esercizio;VERDE;0;0;0;1;1;;29.5;-0.97
+30.87;E;RFI;Rovigo FS;Rovigo;RO;45.080895;11.779794;;;Esistente (OSM);;;;;;;RFI;29.3;1.57
+31.35;E;CP e-dist;ROVIGO P.A.;Rovigo;PD;45.0857;11.78631;;;In Esercizio;ARANCIO;0;1;1;0;2;;29.7;1.65
+31.36;E;CP e-dist;ROVIGO P.A. (45.0859, 11.7864);;RO;45.0859;11.786399;;;;;;;;;;;29.7;1.66
+31.77;N;CP e-dist;PONTE BOTTI;Sossano;PD;45.36113;11.54255;;;In Esercizio;ARANCIO;0;1;1;0;2;;28.7;3.07
+31.81;NE;CP e-dist;MONSELICE;Monselice;PD;45.22319;11.75146;;;In Esercizio;ARANCIO;0;1;1;0;2;;29.0;2.81
+32.34;NE;RFI;Monselice FS;Monselice;PD;45.242419;11.744695;;;Esistente (OSM);;;;;;;RFI;29.5;2.84
+32.41;N;CP e-dist;LONIGO;Lonigo;VR;45.38858;11.37708;;;In Esercizio;GIALLO;0;0;2;0;2;;29.9;2.51

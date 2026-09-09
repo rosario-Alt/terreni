@@ -1,0 +1,115 @@
+====================================================================================================
+VALIDAZIONE nodi30.json
+punto di riferimento: 45.097205 N, 11.387268 E
+centro dichiarato nel file: 45.120499 N, 11.410834 E  -> dista 3.18 km dal punto vero
+====================================================================================================
+
+[0] CONSISTENZA
+    CP        25 con coordinate   (20 esistenti, 2 in iter/pianificati, 3 stato ignoto)
+    RFI        5 con coordinate   (5 esistenti, 0 in iter/pianificati, 0 stato ignoto)
+    SE        11 con coordinate   (4 esistenti, 6 in iter/pianificati, 1 stato ignoto)
+
+[1] DISTANZE dichiarate nel file vs distanza reale dal punto
+    scarto massimo 3.2 km, medio 1.9 km
+        Saletto FS                                   file  15.2 -> reale  18.4 (+3.2)
+        Castelmassa                                  file  13.0 -> reale   9.8 (-3.1)
+        CASALE SCODOSIA                              file  11.4 -> reale  14.6 (+3.1)
+        ESTE S.CROCE                                 file  20.8 -> reale  23.9 (+3.1)
+        NOVENTA                                      file  20.8 -> reale  23.9 (+3.1)
+        Sermide                                      file  16.5 -> reale  13.4 (-3.1)
+        PONTE BOTTI                                  file  28.7 -> reale  31.8 (+3.1)
+        TORRICELLA                                   file  11.3 -> reale   8.3 (-3.0)
+    prime 5 posizioni dopo il ricalcolo: TORRICELLA, Nuova SE in iter - Trecenta , CENESELLI, Castelmassa, Legnago FS
+
+[2] DUPLICATI
+    coordinate (45.036, 11.648): NUOVA CP FRATTA POLESINE [CP] || CP Fratta Polesine [CP]
+    coordinate (44.941, 11.65): Canaro centrale [SE] || Nuova SE in iter - Polesella (VEN) 380/150kV [VIP 11229] [SE]
+    coordinate (45.086, 11.786): ROVIGO P.A. [CP] || ROVIGO P.A. (45.0859, 11.7864) [CP]
+    record 41 -> punti distinti 38
+
+[3] CAMPO prov INCOERENTE COL COMUNE
+    TORRICELLA                             comune=Castelnovo Bariano       file=MN -> RO
+    LENDINARA                              comune=Castelguglielmo          file=PD -> RO
+    LEGNAGO                                comune=Legnago                  file=PD -> VR
+    NOVENTA                                comune=Noventa Vicentina        file=PD -> VI
+    COLOGNA                                comune=Cologna Veneta           file=PD -> VR
+    ROVIGO P.A.                            comune=Rovigo                   file=PD -> RO
+    PONTE BOTTI                            comune=Sossano                  file=PD -> VI
+    LONIGO                                 comune=Lonigo                   file=VR -> VI
+    8 errati su 32 verificabili (25%)
+    NB: i nodi senza comune non sono verificabili. Non filtrare mai per provincia: filtrare per distanza.
+
+[4] SATURAZIONE (solo CP)
+    {'ROSSO': 10, 'N.D.': 5, 'ARANCIO': 7, 'GIALLO': 2, 'VERDE': 1}
+    senza dato di saturazione: 5 -> CENESELLI, Nuova CP Vighizzolo, NUOVA CP FRATTA POLESINE, CP Fratta Polesine, ROVIGO P.A. (45.0859, 11.7864)
+    CP non rosse/arancioni: ESTE S.CROCE (23.9 km, GIALLO), S.MARIA MADDALENA (28.5 km, VERDE), LONIGO (32.4 km, GIALLO)
+
+[5] DENSITA
+    disco r=30 km = 2827 km2   osservati: 25 CP (20 esistenti), 11 SE (4 esistenti)
+    [DEBOLE] nessun riferimento ufficiale per --regione '': uso il file nazionale
+            CP attese  17.9 -> osservate  25
+            SE attese  15.8 -> osservate  11
+            Questo confronto NON e' una prova: la collezione 'terna' del file nazionale e' eterogenea
+            (stazioni RTN, impianti di terzi, progetti in iter) e sovrastima le stazioni attese in zona.
+            Per un giudizio valido serve il conteggio ufficiale Terna della regione: vedi RIFERIMENTI_REGIONALI.
+    rapporto SE/CP  file nazionale 0.88 | locale 0.44 | locale solo esistenti 0.20
+    Un rapporto locale basso NON basta a dichiarare un buco: in pianura molte CP sono alimentate da linee
+    e non da una stazione vicina. Confermare sempre col conteggio regionale ufficiale prima di allarmarsi.
+
+[6] FASCIA CIECA da centratura sbagliata
+    superficie mai guardata: 189 km2 verso SO, S, O
+    nodi attesi la dentro: 1.7 CP e 0.7 SE -> assenti per costruzione
+    RIMEDIO: rigenerare l estratto centrato sul terreno, non sul comune
+
+[7] BUCHI DI COPERTURA CP (soglia 12 km)
+    44.8964,11.2399  CP piu vicina a 14.0 km  (25.2 km dal punto, SO)
+    44.9024,11.2459  CP piu vicina a 13.8 km  (24.3 km dal punto, SO)
+    44.8964,11.2459  CP piu vicina a 13.7 km  (24.9 km dal punto, SO)
+    44.8964,11.2339  CP piu vicina a 13.7 km  (25.4 km dal punto, SO)
+    44.9084,11.2519  CP piu vicina a 13.5 km  (23.5 km dal punto, SO)
+    CP in esercizio piu vicine al punto: TORRICELLA 8.3 km, LENDINARA 13.2 km, LEGNAGO 13.5 km
+
+====================================================================================================
+CLASSIFICA DAL PUNTO VERO
+====================================================================================================
+   8.3 SO  CP     TORRICELLA                                 Castelnovo Bariano   RO  SAT=ROSSO  In Esercizio
+   9.1 SE  SE     Nuova SE in iter - Trecenta (VEN) 132kV [V -                    RO  132.0 kV  In iter MASE (VIA/PAUR) [Terna]
+   9.4 S   CP     CENESELLI                                  Ceneselli            RO  SAT=-  PdS: NUOVA CP
+   9.8 SO  SE     Castelmassa                                Castelmassa          RO  132 kV  STIMA_GIALLO [Terna]
+  12.7 NO  RFI    Legnago FS                                 Legnago              VR  
+  13.2 E   CP     LENDINARA                                  Castelguglielmo      RO  SAT=ROSSO  In Esercizio
+  13.4 SO  SE     Sermide                                    -                    MN  380.0 kV   [Edipower]
+  13.5 NO  CP     LEGNAGO                                    Legnago              VR  SAT=ROSSO  In Esercizio
+  13.9 S   CP     SALARA                                     Salara               RO  SAT=ROSSO  In Esercizio
+  14.6 NE  CP     CASALE SCODOSIA                            Megliadino San Vital PD  SAT=ROSSO  In Esercizio
+  16.4 SE  SE     San Bellino Centrale                       San Bellino          RO  132 kV  STIMA_GIALLO [Terna]
+  18.4 NE  RFI    Saletto FS                                 Saletto              PD  
+  19.0 NO  CP     VENERA                                     Cerea                VR  SAT=ARANCIO  In Esercizio
+  19.4 O   CP     OSTIGLIA                                   Revere               MN  SAT=ARANCIO  In Esercizio
+  19.9 E   SE     Nuova SE in iter - Sant'Urbano (VEN) 132kV -                    PD  132.0 kV  In iter MASE (VIA/PAUR) [Terna]
+  20.0 O   SE     Ostiglia centrale                          Revere               MN  380 kV  STIMA_GIALLO [Terna]
+  20.7 NE  CP     Nuova CP Vighizzolo                        Vighizzolo d'Este    PD  SAT=-  Pianificata PdS
+  21.5 E   CP     NUOVA CP FRATTA POLESINE                   -                    RO  SAT=-  
+  21.6 E   CP     CP Fratta Polesine                         -                    RO  SAT=-  
+  23.2 E   SE     Nuova SE in iter - Barbona (VEN) [VIP 9469 -                    PD  ? kV  In iter MASE (VIA/PAUR) [Terna]
+  23.5 SO  CP     VILLA POMA                                 Villa Poma           MN  SAT=ROSSO  In Esercizio
+  23.9 NE  CP     ESTE S.CROCE                               Ospedaletto Euganeo  PD  SAT=GIALLO  In Esercizio
+  23.9 NE  CP     NOVENTA                                    Noventa Vicentina    VI  SAT=ROSSO  In Esercizio
+  24.4 N   CP     COLOGNA                                    Cologna Veneta       VR  SAT=ROSSO  In Esercizio
+  24.6 S   CP     BONDENO                                    Bondeno              FE  SAT=ROSSO  In Esercizio
+  25.3 E   SE     Nuova SE in iter - Costa di Rovigo (VEN) [ -                    RO  ? kV  In iter MASE (VIA/PAUR) [Terna]
+  25.4 O   CP     NOGARA                                     Nogara               VR  SAT=ROSSO  In Esercizio
+  26.9 SE  SE     Canaro centrale                            Canaro               RO  132 kV  STIMA_GIALLO [Terna]
+  26.9 SE  SE     Nuova SE in iter - Polesella (VEN) 380/150 -                    RO  380.0 kV  In iter MASE (VIA/PAUR) [Terna]
+  27.0 SE  CP     CANARO                                     Canaro               RO  SAT=ARANCIO  In Esercizio
+  27.2 O   RFI    Nogara FS                                  Nogara               VR  
+  27.2 NE  CP     ESTE NUOVA                                 Este                 PD  SAT=ARANCIO  In Esercizio
+  27.5 NO  SE     Nuova SE Bovolone 380/150kV                Bovolone             VR  380 kV  In iter MASE [Terna]
+  28.5 SE  CP     S.MARIA MADDALENA                          Occhiobello          RO  SAT=VERDE  In Esercizio
+  30.9 E   RFI    Rovigo FS                                  Rovigo               RO  
+  31.4 E   CP     ROVIGO P.A.                                Rovigo               RO  SAT=ARANCIO  In Esercizio
+  31.4 E   CP     ROVIGO P.A. (45.0859, 11.7864)             -                    RO  SAT=-  
+  31.8 N   CP     PONTE BOTTI                                Sossano              VI  SAT=ARANCIO  In Esercizio
+  31.8 NE  CP     MONSELICE                                  Monselice            PD  SAT=ARANCIO  In Esercizio
+  32.3 NE  RFI    Monselice FS                               Monselice            PD  
+  32.4 N   CP     LONIGO                                     Lonigo               VI  SAT=GIALLO  In Esercizio

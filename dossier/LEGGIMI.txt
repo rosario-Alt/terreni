@@ -1,0 +1,67 @@
+CONNESSIONE ELETTRICA - TERRENO CASTAGNARO (VR), Fg.11 e Fg.12
+Dossier tecnico - rev. 01 del 09.09.2026
+
+Terreno: 10 particelle, 50,24 ha, comune di Castagnaro (VR), codice catastale C041.
+Centroide di riferimento: 45.097205 N / 11.387268 E
+Tutte le distanze nei file sono misurate DA QUESTO PUNTO, non dal centro abitato.
+
+
+REPORT COMPLETO (pagina web)
+  https://claude.ai/code/artifact/ace21e68-39de-4c7c-b581-bec7dd53e014
+  Quadro rilevato, tre ipotesi di connessione, sette verifiche da svolgere.
+  Da leggere per primo.
+
+
+FILE IN QUESTO ARCHIVIO
+
+1. castagnaro_stazioni_posizioni.kml
+   Da aprire in Google Earth. Sei cartelle:
+     1 - le 10 particelle del fondo
+     2 - corridoio 132 kV Castelmassa-Trecenta-Lendinara + punto di attacco
+         piu' vicino (bersaglio verde, 45.02456 / 11.38580, a 8,03 km)
+     3 - stazioni Terna: rosso = esistenti, arancio = in iter
+     4 - cabine primarie: rosso = sature, verde = disponibili
+     5 - sottostazioni RFI (trazione ferroviaria, non punti di connessione)
+     6 - progetti a POSIZIONE APPROSSIMATA (centroide comunale): triangolo
+         giallo. NON usare queste coordinate per progettare.
+
+2. castagnaro_nodi_dal_terreno.csv
+   I 41 nodi ordinati per distanza reale. Separatore ";", UTF-8 con BOM:
+   si apre direttamente in Excel.
+   Colonne da guardare:
+     _km_terreno    distanza ricalcolata dal centroide delle particelle
+     _delta_vs_loro scarto rispetto alla distanza dichiarata nel dato di
+                    partenza (fino a 3,2 km: era misurata dal centro paese)
+     prov_corretta  provincia ricavata dal comune. Il campo "prov" originale
+                    e' errato su 8 nodi su 32 verificabili (25%)
+     stato_peggiore semaforo di saturazione e-distribuzione al 19/08/2026
+
+3. stazioni_candidate_da_verificare.csv
+   I 9 candidati emersi dalla ricerca sui procedimenti VIA. La colonna
+   "presenza_nel_tuo_elenco" dice quali erano gia' censiti.
+   ATTENZIONE: coordinate = centroide del comune, affidabilita' BASSA.
+   Servono solo a ordinare per distanza.
+
+4. report_validazione_dataset.txt
+   Report dei sette controlli di qualita' sul dataset di partenza.
+
+
+I TRE NUMERI CHE CONTANO
+
+  9,85 km   SE Castelmassa 132 kV - nodo esistente piu' vicino
+  8,03 km   punto di attacco sul corridoio 132 kV (tracciato APPROSSIMATO:
+            e' la prima cosa da verificare, determina il cavidotto)
+  ~230 MW   progetti gia' in coda sullo stesso corridoio entro 10 km
+            <- questo, non la distanza, e' il vincolo del progetto
+
+
+COSA NON C'E' IN QUESTO DOSSIER
+
+Nessun dato acquisito direttamente da Terna o e-distribuzione: i portali non
+erano raggiungibili. Restano da svolgere tutte le verifiche elencate al punto
+07 del report, in particolare:
+  - tracciato reale delle linee 132 kV "Castelmassa - Lendinara" e
+    "Bussolengo S.S. - Portale SEF"
+  - capacita' residua e coda di connessione (preventivo TICA a Terna)
+  - fascicoli VIA: va.mite.gov.it/it-IT/Oggetti/Info/11557 e /Info/8374,
+    piu' il PAUR 82 di ECO-ENERGY sul portale della Regione Veneto
